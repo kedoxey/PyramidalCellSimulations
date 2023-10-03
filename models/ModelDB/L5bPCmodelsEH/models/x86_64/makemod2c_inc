@@ -1,0 +1,105 @@
+
+./CaDynamics_E2.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/CaDynamics_E2.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) CaDynamics_E2.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./CaDynamics_E2.o: ./CaDynamics_E2.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./Ca_HVA.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/Ca_HVA.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ca_HVA.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./Ca_HVA.o: ./Ca_HVA.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./Ca_LVAst.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/Ca_LVAst.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ca_LVAst.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./Ca_LVAst.o: ./Ca_LVAst.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./epsp.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/epsp.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) epsp.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./epsp.o: ./epsp.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./Ih.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/Ih.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ih.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./Ih.o: ./Ih.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./Im.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/Im.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Im.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./Im.o: ./Im.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./K_Pst.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/K_Pst.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) K_Pst.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./K_Pst.o: ./K_Pst.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./K_Tst.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/K_Tst.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) K_Tst.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./K_Tst.o: ./K_Tst.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./Nap_Et2.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/Nap_Et2.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Nap_Et2.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./Nap_Et2.o: ./Nap_Et2.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./NaTa_t.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/NaTa_t.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) NaTa_t.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./NaTa_t.o: ./NaTa_t.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./NaTs2_t.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/NaTs2_t.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) NaTs2_t.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./NaTs2_t.o: ./NaTs2_t.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./SK_E2.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/SK_E2.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) SK_E2.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./SK_E2.o: ./SK_E2.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+
+./SKv3_1.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod/SKv3_1.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod"; MODLUNIT=$(NRNUNITS) $(NOCMODL) SKv3_1.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models/x86_64")
+
+./SKv3_1.o: ./SKv3_1.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/mod" $(INCLUDES) -fPIC -c $< -o $@
+

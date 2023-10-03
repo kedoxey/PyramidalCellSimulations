@@ -7,6 +7,17 @@ from urllib.request import urlopen
 cwd = os.getcwd()
 
 
+def compile_mechs(cwd, hocs_dir, mod_dir):
+    if not os.path.exists(os.path.join(hocs_dir, 'x86_64')):
+        os.chdir(hocs_dir)
+
+        os.system(f'nrnivmodl {mod_dir}')
+
+        os.chdir(cwd)
+    else:
+        print('Mechanisms already compiled!')
+
+
 # download specified version of model from neuroml-db 
 def download_from_nmldb(model_id, version):
     
