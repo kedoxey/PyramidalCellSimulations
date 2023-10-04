@@ -1,0 +1,59 @@
+<Lems>
+    
+    <!-- 
+
+        This LEMS file has been automatically generated using PyNeuroML v0.7.1 (libNeuroML v0.4.0)
+
+     -->
+    
+    <!-- Specify which component to run -->
+    <Target component="iv_L5PC"/>
+
+    <!-- Include core NeuroML2 ComponentType definitions -->
+    <Include file="Cells.xml"/>
+    <Include file="Networks.xml"/>
+    <Include file="Simulation.xml"/>
+    
+    <Include file="models/NeuroML/NMLCL000073/L5PC.cell.nml"/>
+    <Include file="Ca_HVA.channel.nml"/>
+    <Include file="Ca_LVAst.channel.nml"/>
+    <Include file="CaDynamics_E2_NML2__decay122__gamma5_09Emin4.nml"/>
+    <Include file="CaDynamics_E2_NML2__decay460__gamma5_01Emin4.nml"/>
+    <Include file="Ih.channel.nml"/>
+    <Include file="Im.channel.nml"/>
+    <Include file="K_Pst.channel.nml"/>
+    <Include file="K_Tst.channel.nml"/>
+    <Include file="Nap_Et2.channel.nml"/>
+    <Include file="NaTa_t.channel.nml"/>
+    <Include file="pas.channel.nml"/>
+    <Include file="SK_E2.channel.nml"/>
+    <Include file="SKv3_1.channel.nml"/>
+    <Include file="iv_L5PC.net.nml"/>
+   
+    <Simulation id="iv_L5PC" length="140ms" step="0.05ms" target="network_of_L5PC" seed="12345">  <!-- Note seed: ensures same random numbers used every run -->
+        
+        <Display id="Voltage_display" title="Voltages" timeScale="1ms" xmin="-14.0" xmax="154.0" ymin="-90" ymax="50">
+            <Line id="v_cell0" quantity="population_of_L5PC[0]/v" scale="1mV" color="#b5c3e9" timeScale="1ms"/>
+            <Line id="v_cell1" quantity="population_of_L5PC[1]/v" scale="1mV" color="#1d807d" timeScale="1ms"/>
+            <Line id="v_cell2" quantity="population_of_L5PC[2]/v" scale="1mV" color="#0a01c3" timeScale="1ms"/>
+            <Line id="v_cell3" quantity="population_of_L5PC[3]/v" scale="1mV" color="#53ea0c" timeScale="1ms"/>
+            <Line id="v_cell4" quantity="population_of_L5PC[4]/v" scale="1mV" color="#e82fe2" timeScale="1ms"/>
+            <Line id="v_cell5" quantity="population_of_L5PC[5]/v" scale="1mV" color="#63d47e" timeScale="1ms"/>
+            <Line id="v_cell6" quantity="population_of_L5PC[6]/v" scale="1mV" color="#73e1f4" timeScale="1ms"/>
+            <Line id="v_cell7" quantity="population_of_L5PC[7]/v" scale="1mV" color="#01eb1b" timeScale="1ms"/>
+        </Display>
+        
+        <OutputFile id="Volts_file" fileName="iv_L5PC.v.dat">
+            <OutputColumn id="v_cell0" quantity="population_of_L5PC[0]/v"/> 
+            <OutputColumn id="v_cell1" quantity="population_of_L5PC[1]/v"/> 
+            <OutputColumn id="v_cell2" quantity="population_of_L5PC[2]/v"/> 
+            <OutputColumn id="v_cell3" quantity="population_of_L5PC[3]/v"/> 
+            <OutputColumn id="v_cell4" quantity="population_of_L5PC[4]/v"/> 
+            <OutputColumn id="v_cell5" quantity="population_of_L5PC[5]/v"/> 
+            <OutputColumn id="v_cell6" quantity="population_of_L5PC[6]/v"/> 
+            <OutputColumn id="v_cell7" quantity="population_of_L5PC[7]/v"/> 
+        </OutputFile>
+        
+    </Simulation>
+
+</Lems>

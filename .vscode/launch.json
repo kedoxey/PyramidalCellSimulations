@@ -24,6 +24,16 @@
             "justMyCode": true,
             // "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
             "python": "/home/kedoxey/.conda/envs/OBModel_linux/bin/python"
+        },
+        {
+            "name": "creat_network.py",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/kedoxey/CRCNS/PyramidalCellSimulations/create_network.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
+            "python": "/home/kedoxey/.conda/envs/OBModel_linux/bin/python"
         }
     ]
 }
