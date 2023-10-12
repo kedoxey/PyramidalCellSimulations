@@ -1,0 +1,5 @@
+name: python3_9-spike
+channels:
+  - conda-forge
+  - defaults
+prefix: /Users/katedoxey/miniconda3/envs/python3_9-spike
