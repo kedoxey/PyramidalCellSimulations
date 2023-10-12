@@ -7,3 +7,9 @@
 [submodule "models/ModelDB/CA1PC_Migliore"]
 	path = models/ModelDB/CA1PC_Migliore
 	url = https://github.com/ModelDBRepository/55035
+[submodule "models/ModelDB/CA1PC"]
+	path = models/ModelDB/CA1PC
+	url = https://github.com/ModelDBRepository/55035.git
+[submodule "models/NetPyNE/cells_netpyne2021"]
+	path = models/NetPyNE/cells_netpyne2021
+	url = https://github.com/ericaygriffith/cells_netpyne2021.git
