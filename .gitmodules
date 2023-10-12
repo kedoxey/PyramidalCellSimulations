@@ -1,3 +1,9 @@
 [submodule "L5bPyrCellHayEtAl2011"]
 	path = L5bPyrCellHayEtAl2011
 	url = git@github.com:OpenSourceBrain/L5bPyrCellHayEtAl2011.git
+[submodule "models/ModelDB/HumanL5PC"]
+	path = models/ModelDB/HumanL5PC
+	url = https://github.com/ModelDBRepository/266984
+[submodule "models/ModelDB/CA1PC_Migliore"]
+	path = models/ModelDB/CA1PC_Migliore
+	url = https://github.com/ModelDBRepository/55035
