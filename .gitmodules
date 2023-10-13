@@ -16,3 +16,6 @@
 [submodule "models/NetPyNE/E21"]
 	path = models/NetPyNE/E21
 	url = https://github.com/ericaygriffith/cells_netpyne2021.git
+[submodule "models/NetPyNE/pyr3"]
+	path = models/NetPyNE/pyr3
+	url = https://github.com/suny-downstate-medical-center/netpyne-course-2021.git
