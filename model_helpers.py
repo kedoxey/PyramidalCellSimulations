@@ -23,8 +23,8 @@ def download_from_nmldb(model_id, version):
     
     zip_url = f'https://neuroml-db.org/GetModelZip?modelID={model_id}&version={version}'
 
-    unzip_path = os.path.join(cwd,'models',version,model_id)
-    zip_path = os.path.join(cwd,'models','zips',model_id,'.zip')
+    unzip_path = os.path.join(cwd,'models',version,f'{model_id}-{version}')
+    zip_path = os.path.join(cwd,'models','zips',model_id+'.zip')
 
     if not os.path.exists(unzip_path):
         # download model if it has not been already
