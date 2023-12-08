@@ -1,0 +1,114 @@
+import matplotlib.pyplot as plt
+import os
+import json
+import model_helpers as mh
+from neuron import h, load_mechanisms
+from netpyne import specs, sim
+
+code_version = 'Hay'
+
+model_version = 'NEURON'
+
+if 'Hay' in code_version:
+    nmldb_id = 'NMLCL000073'  # 'NMLCL000073' (Hay et al. 2011)
+    model_name = f'{nmldb_id}-{model_version}'
+
+    cell_model = 'Hay2011'  # 'Hay2011'
+    cell_type = 'PYR'
+    cell_name = 'L5PC'  # 'L5PC'
+else:
+    nmldb_id = 'NMLCL001535'  # 'NMLCL000073' (Hay et al. 2011)
+    model_name = f'{nmldb_id}-{model_version}'
+
+    cell_model = 'Allen'  # 'Hay2011'
+    cell_type = 'PYR'
+    cell_name = 'Cell_473863035'  # 'L5PC'
+
+# Define paths
+hoc_name = cell_name  # 'L5PC'
+
+cwd = os.getcwd()
+models_dir = os.path.join(cwd, 'models')
+model_dir = os.path.join(models_dir, model_version, model_name)  # 'L5bPCmodelsEH')
+hocs_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir,'models')
+mod_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir, 'mod')
+
+# Download model
+mh.download_from_nmldb(nmldb_id, model_version)
+
+output_dir = os.path.join(model_dir,'output')
+if not os.path.exists(output_dir):
+    os.mkdir(output_dir)
+
+# Compile mechs
+mh.compile_mechs(cwd,hocs_dir,mod_dir)
+load_mechanisms(model_dir)
+
+# Import cell into NetPyNE
+hoc_file = os.path.join(hocs_dir, cell_name+'.hoc')
+
+
+# Network parameters
+netParams = specs.NetParams()
+
+cell_label = cell_name+'_hoc'
+
+netParams.importCellParams(
+    label=cell_label,
+    conds={'cellType': cell_type, 'cellModel': cell_model},
+    fileName=hoc_file,
+    cellName=cell_name,
+    importSynMechs=False
+)
+
+# Create population
+
+pop_label = cell_label+'_pop'
+netParams.popParams[pop_label] = {'cellType': cell_type, 'numCells': 1, 'cellModel': cell_model}
+
+# Simulation configuration
+if 'Hay' in code_version:
+    input_amps = [-0.5, 0.35477, 0.44346, 0.53215, 1.0643]
+else:
+    input_amps = [0.10574, 0.13218, 0.15862, 0.31723]
+
+amp_idx = -1  # -1 = no input
+input_amp = input_amps[amp_idx]
+test_label = f'input_{amp_idx}-tests'
+# test_label = f'no_input-new_v_init'
+
+## cfg
+cfg = specs.SimConfig()					            # object of class SimConfig to store simulation configuration
+cfg.duration = 3000 						            # Duration of the simulation, in ms
+cfg.dt = 0.01								                # Internal integration timestep to use
+cfg.verbose = 1							                # Show detailed messages
+cfg.recordTraces = {'V_soma':{'sec':'soma_0','loc':0.5,'var':'v'}}  # Dict with traces to record
+cfg.recordStep = 0.01
+cfg.filename = os.path.join(output_dir,cell_name+'_'+test_label) 			# Set file output name
+cfg.saveJson = False
+cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': True} # Plot recorded traces for this list of cells
+cfg.hParams['celsius'] = 36 
+cfg.hParams['v_init'] = -80
+
+# Add input
+if amp_idx > -1:
+    netParams.stimSourceParams['Input_IC'] = {
+        'type': 'IClamp',
+        'del': 700,
+        'dur': 2000,
+        'amp': input_amp  
+    }
+
+    netParams.stimTargetParams['Input_IC->Soma'] = {
+        'source': 'Input_IC',
+        'sec': 'soma_0',
+        'loc': 0.5,
+        'conds': {'pop': pop_label}
+    }
+
+    print(f'current clamp added at {input_amp} pA')
+else:
+    print('no input')
+
+# Run simulation
+sim.createSimulateAnalyze(netParams = netParams, simConfig = cfg)

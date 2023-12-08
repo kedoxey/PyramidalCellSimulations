@@ -21,9 +21,9 @@
             "env": {
                 "HOC_LIBRARY_PATH": "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/L5bPCmodelsEH/models"
             },
-            "justMyCode": true,
+            "justMyCode": false,
             // "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
-            "python": "/home/kedoxey/.conda/envs/OBModel_linux/bin/python"
+            "python": "/opt/mambaforge/bin/python"
         },
         {
             "name": "creat_network.py",
@@ -31,9 +31,19 @@
             "request": "launch",
             "program": "/home/kedoxey/CRCNS/PyramidalCellSimulations/create_network.py",
             "console": "integratedTerminal",
-            "justMyCode": true,
+            "justMyCode": false,
             "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
-            "python": "/home/kedoxey/.conda/envs/OBModel_linux/bin/python"
+            "python": "/opt/mambaforge/bin/python"
+        },
+        {
+            "name": "simulate_cell.py",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/kedoxey/CRCNS/PyramidalCellSimulations/simulate_cell.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
+            "python": "/opt/mambaforge/bin/python"
         }
     ]
 }
