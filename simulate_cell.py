@@ -72,10 +72,9 @@ if 'Hay' in code_version:
 else:
     input_amps = [0.10574, 0.13218, 0.15862, 0.31723]
 
-amp_idx = -1  # -1 = no input
+amp_idx = -1  # if -1 then no current injection
 input_amp = input_amps[amp_idx]
-test_label = f'input_{amp_idx}-tests'
-# test_label = f'no_input-new_v_init'
+test_label = f'input_{amp_idx}-no_stim'
 
 ## cfg
 cfg = specs.SimConfig()					            # object of class SimConfig to store simulation configuration
@@ -112,3 +111,8 @@ else:
 
 # Run simulation
 sim.createSimulateAnalyze(netParams = netParams, simConfig = cfg)
+
+# Plot morphology
+sim.analysis.plotShape(showSyns=True, dist=0.8, saveFig=True, axisLabels=True)
+
+temp = 8

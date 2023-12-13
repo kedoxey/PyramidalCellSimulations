@@ -23,7 +23,7 @@
             },
             "justMyCode": false,
             // "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
-            "python": "/opt/mambaforge/bin/python"
+            "python": "/home/kedoxey/.conda/envs/python3_9-spike/bin/python"
         },
         {
             "name": "creat_network.py",
@@ -33,7 +33,7 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
-            "python": "/opt/mambaforge/bin/python"
+            "python": "/home/kedoxey/.conda/envs/python3_9-spike/bin/python"
         },
         {
             "name": "simulate_cell.py",
@@ -43,7 +43,7 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
-            "python": "/opt/mambaforge/bin/python"
+            "python": "/home/kedoxey/.conda/envs/python3_9-spike/bin/python"
         }
     ]
 }
