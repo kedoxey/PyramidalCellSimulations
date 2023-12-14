@@ -24,7 +24,7 @@ else:
     cell_type = 'PYR'
     cell_name = 'Cell_473863035'  # 'L5PC'
 
-# Define paths
+### Define paths ###
 hoc_name = cell_name  # 'L5PC'
 
 cwd = os.getcwd()
@@ -33,22 +33,21 @@ model_dir = os.path.join(models_dir, model_version, model_name)  # 'L5bPCmodelsE
 hocs_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir,'models')
 mod_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir, 'mod')
 
-# Download model
+### Download model ###
 mh.download_from_nmldb(nmldb_id, model_version)
 
 output_dir = os.path.join(model_dir,'output')
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
 
-# Compile mechs
+### Compile mechs ###
 mh.compile_mechs(cwd,hocs_dir,mod_dir)
 load_mechanisms(model_dir)
 
-# Import cell into NetPyNE
+### Import cell into NetPyNE ###
 hoc_file = os.path.join(hocs_dir, cell_name+'.hoc')
 
-
-# Network parameters
+### Network parameters ###
 netParams = specs.NetParams()
 
 cell_label = cell_name+'_hoc'
@@ -61,12 +60,11 @@ netParams.importCellParams(
     importSynMechs=False
 )
 
-# Create population
-
+### Create population ###
 pop_label = cell_label+'_pop'
 netParams.popParams[pop_label] = {'cellType': cell_type, 'numCells': 1, 'cellModel': cell_model}
 
-# Simulation configuration
+### Simulation configuration ###
 if 'Hay' in code_version:
     input_amps = [-0.5, 0.35477, 0.44346, 0.53215, 1.0643]
 else:
@@ -89,7 +87,30 @@ cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': True} # Plot re
 cfg.hParams['celsius'] = 36 
 cfg.hParams['v_init'] = -80
 
-# Add input
+### Add linear probe ###
+
+####################
+# Geometry
+# --------
+# (Cartesian axes)
+#          y    z
+#          ^  ^
+#          | /
+#   x <--- o --
+#         /|
+####################
+
+# probe_L = 1280
+# channels = 1
+# depths = 10
+# elec_dist = probe_L//depths  # microns
+
+# elec_pos = [[x*elec_dist, y*elec_dist - 150, 0] for x in range(channels) for y in range(depths)]
+
+# cfg.recordLFP = elec_pos
+# cfg.analysis['plotLFP'] = {'saveFig': True}
+
+### Add input ###
 if amp_idx > -1:
     netParams.stimSourceParams['Input_IC'] = {
         'type': 'IClamp',
@@ -109,10 +130,10 @@ if amp_idx > -1:
 else:
     print('no input')
 
-# Run simulation
+### Run simulation ###
 sim.createSimulateAnalyze(netParams = netParams, simConfig = cfg)
 
-# Plot morphology
+### Plot morphology ###
 sim.analysis.plotShape(showSyns=True, dist=0.8, saveFig=True, axisLabels=True)
 
 temp = 8
