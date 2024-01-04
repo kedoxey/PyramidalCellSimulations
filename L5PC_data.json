@@ -1,0 +1,155 @@
+{
+    "net": {
+        "cells": [],
+        "params": {
+            "cellParams": {},
+            "cellsVisualizationSpacingMultiplier": [
+                1,
+                1,
+                1
+            ],
+            "connParams": {},
+            "correctBorder": false,
+            "defaultDelay": 1,
+            "defaultThreshold": 10,
+            "defaultWeight": 1,
+            "defineCellShapes": false,
+            "mapping": {
+                "__dict__": {}
+            },
+            "popParams": {},
+            "popTagsCopiedToCells": [
+                "cellModel",
+                "cellType"
+            ],
+            "propVelocity": 500.0,
+            "rotateCellsRandomly": false,
+            "rxdParams": {},
+            "scale": 1,
+            "scaleConnWeight": 1,
+            "scaleConnWeightModels": false,
+            "scaleConnWeightNetStims": 1,
+            "shape": "cuboid",
+            "sizeX": 100,
+            "sizeY": 100,
+            "sizeZ": 100,
+            "stimSourceParams": {},
+            "stimTargetParams": {},
+            "subConnParams": {},
+            "synMechParams": {}
+        },
+        "pops": {}
+    },
+    "netpyne_changeset": "",
+    "netpyne_version": "1.0.5",
+    "simConfig": {
+        "addSynMechs": true,
+        "allowConnsWithWeight0": true,
+        "allowSelfConns": false,
+        "analysis": {},
+        "backupCfgFile": [],
+        "cache_efficient": false,
+        "compactConnFormat": false,
+        "connRandomSecFromList": true,
+        "coreneuron": false,
+        "createNEURONObj": true,
+        "createPyStruct": true,
+        "cvode_active": false,
+        "cvode_atol": 0.001,
+        "distributeSynsUniformly": true,
+        "dt": 0.025,
+        "dump_coreneuron_model": false,
+        "duration": 1.0,
+        "filename": "L5PC",
+        "gatherOnlySimData": false,
+        "gpu": false,
+        "hParams": {
+            "celsius": 6.3,
+            "clamp_resist": 0.001,
+            "v_init": -65.0
+        },
+        "includeParamsLabel": true,
+        "invertedYCoord": true,
+        "oneSynPerNetcon": true,
+        "plotCells": [
+            "all"
+        ],
+        "plotRaster": true,
+        "printPopAvgRates": false,
+        "printRunTime": false,
+        "printSynsAfterRule": false,
+        "pt3dRelativeToCellLocation": true,
+        "rand123GlobalIndex": null,
+        "random123": false,
+        "recordCells": [
+            "all"
+        ],
+        "recordCellsSpikes": -1,
+        "recordDipole": false,
+        "recordDipolesHNN": false,
+        "recordLFP": [],
+        "recordStep": 0.1,
+        "recordStim": false,
+        "recordTime": true,
+        "recordTraces": {
+            "Vsoma": {
+                "loc": 0.5,
+                "sec": "soma_0",
+                "var": "v"
+            }
+        },
+        "saveCSV": false,
+        "saveCellConns": true,
+        "saveCellSecs": true,
+        "saveDat": true,
+        "saveDataInclude": [
+            "netParams",
+            "netCells",
+            "netPops",
+            "simConfig",
+            "simData"
+        ],
+        "saveDipoleCells": false,
+        "saveDipolePops": false,
+        "saveDpk": false,
+        "saveFolder": "",
+        "saveHDF5": false,
+        "saveJson": true,
+        "saveLFPCells": false,
+        "saveLFPPops": false,
+        "saveMat": false,
+        "savePickle": false,
+        "saveTiming": false,
+        "seeds": {
+            "cell": 1,
+            "conn": 1,
+            "loc": 1,
+            "stim": 1
+        },
+        "simLabel": "",
+        "timestampFilename": false,
+        "timing": true,
+        "tstop": 1000.0,
+        "use_fast_imem": false,
+        "validateNetParams": false,
+        "verbose": true
+    },
+    "simData": {
+        "Vsoma": {},
+        "avgRate": 0,
+        "spkid": [],
+        "spkt": [],
+        "t": [
+            0.0,
+            0.1,
+            0.2,
+            0.30000000000000004,
+            0.4,
+            0.5,
+            0.6,
+            0.7,
+            0.7999999999999999,
+            0.8999999999999999
+        ]
+    }
+}

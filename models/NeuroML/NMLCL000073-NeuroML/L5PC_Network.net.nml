@@ -1,0 +1,7 @@
+<neuroml xmlns="http://www.neuroml.org/schema/neuroml2"  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.neuroml.org/schema/neuroml2 https://raw.github.com/NeuroML/NeuroML2/development/Schemas/NeuroML2/NeuroML_v2.3.xsd" id="L5PC_Net">
+    <include href="/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NeuroML/NMLCL000073-NeuroML/L5PC.cell.nml"/>
+    <pulseGenerator id="input_0.35477" delay="700ms" duration="2000ms" amplitude="0.35477nA"/>
+    <network id="L5PC_Net" type="networkWithTemperature" temperature="6.3degC">
+        <population id="L5PC_Pop" component="L5PC" size="1" type="population"/>
+    </network>
+</neuroml>

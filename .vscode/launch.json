@@ -36,10 +36,20 @@
             "python": "/home/kedoxey/.conda/envs/python3_9-spike/bin/python"
         },
         {
-            "name": "simulate_cell.py",
+            "name": "simulate_netpyne.py",
             "type": "python",
             "request": "launch",
-            "program": "/home/kedoxey/CRCNS/PyramidalCellSimulations/simulate_cell.py",
+            "program": "/home/kedoxey/CRCNS/PyramidalCellSimulations/simulate_netpyne.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
+            "python": "/home/kedoxey/.conda/envs/python3_9-spike/bin/python"
+        },
+        {
+            "name": "simulate_neuron.py",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/kedoxey/CRCNS/PyramidalCellSimulations/simulate_neuron.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",

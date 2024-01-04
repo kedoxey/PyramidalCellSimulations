@@ -27,7 +27,7 @@ load_file("../models/L5PCbiophys3.hoc")
 load_file("../models/L5PCtemplate.hoc")
 L5PC = new L5PCtemplate(morphology_file)
 
-//==================== stimulus settings ===========================
+//==================== stimulus ===========================
 
 stimdist = 830 //distance of apical dendrite recording site
 pulsenum = 5
