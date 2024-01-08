@@ -42,7 +42,8 @@ h.tstop = 3000 * ms
 h.celsius = 34
 h.steps_per_ms = 100
 h.dt = 1.0 / h.steps_per_ms
-h.finitialize(-80 * mV)
+h.v_init = -80 * mV
+# h.finitialize(-80 * mV)
 
 hoc_cell = getattr(h, cell_name)
 hoc_cell = hoc_cell()
