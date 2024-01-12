@@ -110,11 +110,11 @@ proc biophys() {
     //     gmax_NaTa_t = 2.04  // units: S cm-2
     //     ena = 50.0  // units: mV
     // }
-    forsec soma_group {
-        insert pas_nml2
-        gmax_pas_nml2 = 3.38E-5  // units: S cm-2
-        e_pas_nml2 = -90.0  // units: mV
-    }
+        forsec soma_group {
+            insert pas_nml2
+            gmax_pas_nml2 = 3.38E-5  // units: S cm-2
+            e_pas_nml2 = -90.0  // units: mV
+        }
     // forsec soma_group {
     //     insert SK_E2
     //     gmax_SK_E2 = 0.044099998  // units: S cm-2

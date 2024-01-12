@@ -45,7 +45,7 @@ UNITS {
 PARAMETER {
     
     gmax = 0  (S/cm2)                       : Will be changed when ion channel mechanism placed on cell!
-    
+    e = -90 (mV)
     conductance = 1.0E-5 (uS)
 }
 
@@ -55,7 +55,6 @@ ASSIGNED {
     v (mV)
     celsius (degC)
     temperature (K)
-    e (mV)
     i (mA/cm2)
     
     

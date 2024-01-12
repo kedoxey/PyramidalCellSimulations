@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "mech_api.h"
+#include "scoplib_ansi.h"
 #undef PI
 #define nil 0
 #include "md1redef.h"
@@ -33,9 +33,9 @@ extern double hoc_Exp(double);
 #define states states__NaTa_t 
  
 #define _threadargscomma_ _p, _ppvar, _thread, _nt,
-#define _threadargsprotocomma_ double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt,
+#define _threadargsprotocomma_ double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt,
 #define _threadargs_ _p, _ppvar, _thread, _nt
-#define _threadargsproto_ double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt
+#define _threadargsproto_ double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt
  	/*SUPPRESS 761*/
 	/*SUPPRESS 762*/
 	/*SUPPRESS 763*/
@@ -46,117 +46,61 @@ extern double hoc_Exp(double);
 #define t _nt->_t
 #define dt _nt->_dt
 #define gmax _p[0]
-#define gmax_columnindex 0
 #define conductance _p[1]
-#define conductance_columnindex 1
 #define m_instances _p[2]
-#define m_instances_columnindex 2
 #define m_forwardRate_rate _p[3]
-#define m_forwardRate_rate_columnindex 3
 #define m_forwardRate_midpoint _p[4]
-#define m_forwardRate_midpoint_columnindex 4
 #define m_forwardRate_scale _p[5]
-#define m_forwardRate_scale_columnindex 5
 #define m_reverseRate_rate _p[6]
-#define m_reverseRate_rate_columnindex 6
 #define m_reverseRate_midpoint _p[7]
-#define m_reverseRate_midpoint_columnindex 7
 #define m_reverseRate_scale _p[8]
-#define m_reverseRate_scale_columnindex 8
 #define m_q10Settings_fixedQ10 _p[9]
-#define m_q10Settings_fixedQ10_columnindex 9
 #define h_instances _p[10]
-#define h_instances_columnindex 10
 #define h_forwardRate_rate _p[11]
-#define h_forwardRate_rate_columnindex 11
 #define h_forwardRate_midpoint _p[12]
-#define h_forwardRate_midpoint_columnindex 12
 #define h_forwardRate_scale _p[13]
-#define h_forwardRate_scale_columnindex 13
 #define h_reverseRate_rate _p[14]
-#define h_reverseRate_rate_columnindex 14
 #define h_reverseRate_midpoint _p[15]
-#define h_reverseRate_midpoint_columnindex 15
 #define h_reverseRate_scale _p[16]
-#define h_reverseRate_scale_columnindex 16
 #define h_q10Settings_fixedQ10 _p[17]
-#define h_q10Settings_fixedQ10_columnindex 17
 #define gion _p[18]
-#define gion_columnindex 18
 #define m_forwardRate_x _p[19]
-#define m_forwardRate_x_columnindex 19
 #define m_forwardRate_r _p[20]
-#define m_forwardRate_r_columnindex 20
 #define m_reverseRate_x _p[21]
-#define m_reverseRate_x_columnindex 21
 #define m_reverseRate_r _p[22]
-#define m_reverseRate_r_columnindex 22
 #define m_q10Settings_q10 _p[23]
-#define m_q10Settings_q10_columnindex 23
 #define m_rateScale _p[24]
-#define m_rateScale_columnindex 24
 #define m_alpha _p[25]
-#define m_alpha_columnindex 25
 #define m_beta _p[26]
-#define m_beta_columnindex 26
 #define m_fcond _p[27]
-#define m_fcond_columnindex 27
 #define m_inf _p[28]
-#define m_inf_columnindex 28
 #define m_tau _p[29]
-#define m_tau_columnindex 29
 #define h_forwardRate_x _p[30]
-#define h_forwardRate_x_columnindex 30
 #define h_forwardRate_r _p[31]
-#define h_forwardRate_r_columnindex 31
 #define h_reverseRate_x _p[32]
-#define h_reverseRate_x_columnindex 32
 #define h_reverseRate_r _p[33]
-#define h_reverseRate_r_columnindex 33
 #define h_q10Settings_q10 _p[34]
-#define h_q10Settings_q10_columnindex 34
 #define h_rateScale _p[35]
-#define h_rateScale_columnindex 35
 #define h_alpha _p[36]
-#define h_alpha_columnindex 36
 #define h_beta _p[37]
-#define h_beta_columnindex 37
 #define h_fcond _p[38]
-#define h_fcond_columnindex 38
 #define h_inf _p[39]
-#define h_inf_columnindex 39
 #define h_tau _p[40]
-#define h_tau_columnindex 40
 #define conductanceScale _p[41]
-#define conductanceScale_columnindex 41
 #define fopen0 _p[42]
-#define fopen0_columnindex 42
 #define fopen _p[43]
-#define fopen_columnindex 43
 #define g _p[44]
-#define g_columnindex 44
 #define m_q _p[45]
-#define m_q_columnindex 45
 #define h_q _p[46]
-#define h_q_columnindex 46
 #define temperature _p[47]
-#define temperature_columnindex 47
 #define ena _p[48]
-#define ena_columnindex 48
 #define ina _p[49]
-#define ina_columnindex 49
 #define rate_m_q _p[50]
-#define rate_m_q_columnindex 50
 #define rate_h_q _p[51]
-#define rate_h_q_columnindex 51
 #define Dm_q _p[52]
-#define Dm_q_columnindex 52
 #define Dh_q _p[53]
-#define Dh_q_columnindex 53
 #define v _p[54]
-#define v_columnindex 54
 #define _g _p[55]
-#define _g_columnindex 55
 #define _ion_ina	*_ppvar[0]._pval
 #define _ion_dinadv	*_ppvar[1]._pval
  
@@ -257,15 +201,15 @@ extern void hoc_reg_nmodl_filename(int, const char*);
 };
  static double _sav_indep;
  static void nrn_alloc(Prop*);
-static void  nrn_init(NrnThread*, _Memb_list*, int);
-static void nrn_state(NrnThread*, _Memb_list*, int);
- static void nrn_cur(NrnThread*, _Memb_list*, int);
-static void  nrn_jacob(NrnThread*, _Memb_list*, int);
+static void  nrn_init(_NrnThread*, _Memb_list*, int);
+static void nrn_state(_NrnThread*, _Memb_list*, int);
+ static void nrn_cur(_NrnThread*, _Memb_list*, int);
+static void  nrn_jacob(_NrnThread*, _Memb_list*, int);
  
 static int _ode_count(int);
 static void _ode_map(int, double**, double**, double*, Datum*, double*, int);
-static void _ode_spec(NrnThread*, _Memb_list*, int);
-static void _ode_matsol(NrnThread*, _Memb_list*, int);
+static void _ode_spec(_NrnThread*, _Memb_list*, int);
+static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  
 #define _cvode_ieq _ppvar[2]._i
  static void _ode_matsol_instance1(_threadargsproto_);
@@ -370,7 +314,7 @@ static void nrn_alloc(Prop* _prop) {
  static void _update_ion_pointer(Datum*);
  extern Symbol* hoc_lookup(const char*);
 extern void _nrn_thread_reg(int, int, void(*)(Datum*));
-extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, NrnThread*, int));
+extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, _NrnThread*, int));
 extern void hoc_register_tolerance(int, HocStateTolerance*, Symbol***);
 extern void _cvode_abstol( Symbol**, double*, int);
 
@@ -413,21 +357,21 @@ static int _ode_spec1(_threadargsproto_);
  static int states(_threadargsproto_);
  
 /*CVODE*/
- static int _ode_spec1 (double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) {int _reset = 0; {
+ static int _ode_spec1 (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {int _reset = 0; {
    rates ( _threadargs_ ) ;
    Dm_q = rate_m_q ;
    Dh_q = rate_h_q ;
    }
  return _reset;
 }
- static int _ode_matsol1 (double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) {
+ static int _ode_matsol1 (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
  rates ( _threadargs_ ) ;
  Dm_q = Dm_q  / (1. - dt*( 0.0 )) ;
  Dh_q = Dh_q  / (1. - dt*( 0.0 )) ;
   return 0;
 }
  /*END CVODE*/
- static int states (double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) { {
+ static int states (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) { {
    rates ( _threadargs_ ) ;
     m_q = m_q - dt*(- ( rate_m_q ) ) ;
     h_q = h_q - dt*(- ( rate_h_q ) ) ;
@@ -484,7 +428,7 @@ static int  rates ( _threadargsproto_ ) {
  
 static void _hoc_rates(void) {
   double _r;
-   double* _p; Datum* _ppvar; Datum* _thread; NrnThread* _nt;
+   double* _p; Datum* _ppvar; Datum* _thread; _NrnThread* _nt;
    if (_extcall_prop) {_p = _extcall_prop->param; _ppvar = _extcall_prop->dparam;}else{ _p = (double*)0; _ppvar = (Datum*)0; }
   _thread = _extcall_thread;
   _nt = nrn_threads;
@@ -495,7 +439,7 @@ static void _hoc_rates(void) {
  
 static int _ode_count(int _type){ return 2;}
  
-static void _ode_spec(NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void _ode_spec(_NrnThread* _nt, _Memb_list* _ml, int _type) {
    double* _p; Datum* _ppvar; Datum* _thread;
    Node* _nd; double _v; int _iml, _cntml;
   _cntml = _ml->_nodecount;
@@ -521,7 +465,7 @@ static void _ode_matsol_instance1(_threadargsproto_) {
  _ode_matsol1 (_p, _ppvar, _thread, _nt);
  }
  
-static void _ode_matsol(NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void _ode_matsol(_NrnThread* _nt, _Memb_list* _ml, int _type) {
    double* _p; Datum* _ppvar; Datum* _thread;
    Node* _nd; double _v; int _iml, _cntml;
   _cntml = _ml->_nodecount;
@@ -538,7 +482,7 @@ static void _ode_matsol(NrnThread* _nt, _Memb_list* _ml, int _type) {
    nrn_update_ion_pointer(_na_sym, _ppvar, 1, 4);
  }
 
-static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) {
+static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
   int _i; double _save;{
   h_q = h_q0;
   m_q = m_q0;
@@ -554,7 +498,7 @@ static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt)
 }
 }
 
-static void nrn_init(NrnThread* _nt, _Memb_list* _ml, int _type){
+static void nrn_init(_NrnThread* _nt, _Memb_list* _ml, int _type){
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; double _v; int* _ni; int _iml, _cntml;
 #if CACHEVEC
@@ -578,7 +522,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  }
 }
 
-static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
+static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
    conductanceScale = 1.0 ;
    fopen0 = m_fcond * h_fcond ;
    fopen = conductanceScale * fopen0 ;
@@ -591,7 +535,7 @@ static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, NrnThread*
 } return _current;
 }
 
-static void nrn_cur(NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_cur(_NrnThread* _nt, _Memb_list* _ml, int _type) {
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; int* _ni; double _rhs, _v; int _iml, _cntml;
 #if CACHEVEC
@@ -631,7 +575,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  
 }
 
-static void nrn_jacob(NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_jacob(_NrnThread* _nt, _Memb_list* _ml, int _type) {
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; int* _ni; int _iml, _cntml;
 #if CACHEVEC
@@ -655,7 +599,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  
 }
 
-static void nrn_state(NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_state(_NrnThread* _nt, _Memb_list* _ml, int _type) {
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; double _v = 0.0; int* _ni; int _iml, _cntml;
 #if CACHEVEC
@@ -688,8 +632,8 @@ static void _initlists(){
  double _x; double* _p = &_x;
  int _i; static int _first = 1;
   if (!_first) return;
- _slist1[0] = m_q_columnindex;  _dlist1[0] = Dm_q_columnindex;
- _slist1[1] = h_q_columnindex;  _dlist1[1] = Dh_q_columnindex;
+ _slist1[0] = &(m_q) - _p;  _dlist1[0] = &(Dm_q) - _p;
+ _slist1[1] = &(h_q) - _p;  _dlist1[1] = &(Dh_q) - _p;
 _first = 0;
 }
 

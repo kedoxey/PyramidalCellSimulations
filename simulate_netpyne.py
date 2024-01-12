@@ -5,7 +5,7 @@ import model_helpers as mh
 from neuron import h, load_mechanisms
 from netpyne import specs, sim
 
-test_name = 'soma_pas'
+test_name = ''
 
 code_version = 'Hay'
 model_version = 'NEURON'
@@ -38,7 +38,7 @@ if not os.path.exists(output_dir):
 load_mechanisms(model_dir)
 
 ### Import cell into NetPyNE ###
-hoc_file = os.path.join(hocs_dir, f'{cell_name}_{test_name}.hoc')
+hoc_file = os.path.join(hocs_dir, f'{cell_name}{test_name}.hoc')
 
 cell_label = cell_name+'_hoc'
 vinit = -80
@@ -61,16 +61,16 @@ importedCellParams = netParams.importCellParams(label=cell_label,
 for sec in importedCellParams['secs']:
     importedCellParams[sec]['vinit'] = vinit
 
-netParams.cellParams['L5PC_hoc']['secs']['soma_0']['mechs']['pas_nml2']['conductance'] = -90
-
 if 'Hay' in code_version:
     input_amps = [0.35477, 0.44346, 0.53215, 1.0643]
 else:
     input_amps = [0.10574, 0.13218, 0.15862, 0.31723]
 
-amp_idx = -1  # if -1 then no current injection
+amp_idx = 0  # if -1 then no current injection
 input_amp = input_amps[amp_idx]
-test_label = f'input_{amp_idx}-{test_name}'
+test_label = f'input_{amp_idx}-{test_name}-e_pas'
+
+# netParams.cellParams['L5PC_hoc']['secs']['soma_0']['mechs']['pas_nml2']['e_pas_nml2'] = -90
 
 vinit = -80
 
@@ -86,7 +86,7 @@ if amp_idx > -1:
         'source': 'Input_IC',
         'sec': 'soma_0',
         'loc': 0.5,
-        'conds': {'cellType': cell_name}
+        'conds': {'pop': pop_label}
     }
 
     print(f'current clamp added at {input_amp} pA')
