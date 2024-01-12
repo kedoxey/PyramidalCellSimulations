@@ -5,8 +5,18 @@ import model_helpers as mh
 from neuron import h, load_mechanisms
 from netpyne import specs, sim
 
-test_name = ''
 
+### Parameters for simulation ###
+test_name = ''
+hoc_fname = 'L5PC'
+vinit = -80
+
+input_amps = [0.35477, 0.44346, 0.53215, 1.0643]
+amp_idx = 0  # if -1 then no current injection
+input_amp = input_amps[amp_idx]
+test_label = f'input_{amp_idx}-{test_name}'
+
+### Model information ###
 code_version = 'Hay'
 model_version = 'NEURON'
 
@@ -16,15 +26,16 @@ model_name = f'{nmldb_id}-{model_version}'
 cell_model = 'Hay2011'  # 'Hay2011'
 cell_type = 'PYR'
 cell_name = 'L5PC'  # 'L5PC'
+cell_label = cell_name+'_hoc'
 
 ### Define paths ###
-hoc_name = cell_name  # 'L5PC'
-
 cwd = os.getcwd()
-models_dir = os.path.join(cwd, 'models')
+models_dir = os.path.join(cwd, 'models') 
 model_dir = os.path.join(models_dir, model_version, model_name)  # 'L5bPCmodelsEH')
 hocs_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir,'models')
 mod_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir, 'mod')
+
+hoc_file = os.path.join(hocs_dir, f'{cell_name}{test_name}.hoc')
 
 ### Download model ###
 mh.download_from_nmldb(nmldb_id, model_version)
@@ -34,24 +45,13 @@ if not os.path.exists(output_dir):
     os.mkdir(output_dir)
 
 ### Compile mechs ###
-# mh.compile_mechs(cwd,hocs_dir,mod_dir)
+mh.compile_mechs(cwd,hocs_dir,mod_dir)
 load_mechanisms(model_dir)
-
-### Import cell into NetPyNE ###
-hoc_file = os.path.join(hocs_dir, f'{cell_name}{test_name}.hoc')
-
-cell_label = cell_name+'_hoc'
-vinit = -80
 
 ### Network Parameters ###
 netParams = specs.NetParams()
 
-### Create population ###
-pop_label = cell_label+'_pop'
-netParams.popParams[pop_label] = {'cellType': cell_type, 
-                                  'cellModel': cell_model,
-                                  'numCells': 1}
-
+### Import cell into NetPyNE ###
 importedCellParams = netParams.importCellParams(label=cell_label,
                                                 conds={'cellType': cell_type, 'cellModel': cell_model},
                                                 fileName=hoc_file,
@@ -61,19 +61,13 @@ importedCellParams = netParams.importCellParams(label=cell_label,
 for sec in importedCellParams['secs']:
     importedCellParams[sec]['vinit'] = vinit
 
-if 'Hay' in code_version:
-    input_amps = [0.35477, 0.44346, 0.53215, 1.0643]
-else:
-    input_amps = [0.10574, 0.13218, 0.15862, 0.31723]
+### Create population ###
+pop_label = cell_label+'_pop'
+netParams.popParams[pop_label] = {'cellType': cell_type, 
+                                  'cellModel': cell_model,
+                                  'numCells': 1}
 
-amp_idx = 0  # if -1 then no current injection
-input_amp = input_amps[amp_idx]
-test_label = f'input_{amp_idx}-{test_name}-e_pas'
-
-# netParams.cellParams['L5PC_hoc']['secs']['soma_0']['mechs']['pas_nml2']['e_pas_nml2'] = -90
-
-vinit = -80
-
+### Add input ###
 if amp_idx > -1:
     netParams.stimSourceParams['Input_IC'] = {
         'type': 'IClamp',
@@ -94,7 +88,6 @@ else:
     print('no input')
 
 ### Simulation configuration ###
-## cfg
 cfg = specs.SimConfig()					            # object of class SimConfig to store simulation configuration
 cfg.duration = 3000 						            # Duration of the simulation, in ms
 cfg.dt = 0.01								                # Internal integration timestep to use

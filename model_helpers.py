@@ -8,17 +8,9 @@ cwd = os.getcwd()
 
 
 def compile_mechs(cwd, hocs_dir, mod_dir, force=False):
-    if force:
+    if force or not os.path.exists(os.path.join(hocs_dir, 'x86_64')):
         os.chdir(hocs_dir)
-
         os.system(f'nrnivmodl {mod_dir}')
-
-        os.chdir(cwd)
-    elif not os.path.exists(os.path.join(hocs_dir, 'x86_64')):
-        os.chdir(hocs_dir)
-
-        os.system(f'nrnivmodl {mod_dir}')
-
         os.chdir(cwd)
     else:
         print('Mechanisms already compiled!')
