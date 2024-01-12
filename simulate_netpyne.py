@@ -7,7 +7,7 @@ from netpyne import specs, sim
 
 
 ### Parameters for simulation ###
-test_name = ''
+test_name = 'nmldb_trace'
 hoc_fname = 'L5PC'
 vinit = -80
 
@@ -35,7 +35,7 @@ model_dir = os.path.join(models_dir, model_version, model_name)  # 'L5bPCmodelsE
 hocs_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir,'models')
 mod_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir, 'mod')
 
-hoc_file = os.path.join(hocs_dir, f'{cell_name}{test_name}.hoc')
+hoc_file = os.path.join(hocs_dir, f'{hoc_fname}.hoc')
 
 ### Download model ###
 mh.download_from_nmldb(nmldb_id, model_version)
@@ -101,7 +101,7 @@ cfg.hParams['celsius'] = 34.0
 cfg.hParams['v_init'] = vinit
 
 ### Run simulation ###
-sim.createSimulateAnalyze(netParams = netParams, simConfig = cfg)
+(_, _, _, _, simData) = sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=True)
 
 ### Plot morphology ###
 sim.analysis.plotShape(showSyns=True, dist=0.8, saveFig=True, axisLabels=True)
