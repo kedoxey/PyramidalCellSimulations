@@ -31900,8 +31900,13 @@
                 <channelDensityNernst condDensity="3.43 mS_per_cm2" id="Ca_LVAst_soma_group" ionChannel="Ca_LVAst" segmentGroup="soma_group" ion="ca"/>
                 
                 <!--replaced channelDensityNonUniformNernst for apical dends with above densities for soma-->
-                <channelDensity condDensity="0.2 mS_per_cm2" id="Ih_apical_dends" ionChannel="Ih" segmentGroup="apical_dends" ion="hcn" erev="-45.0 mV"/>
+                <channelDensityNonUniform id="Ih_apical_dends" ionChannel="Ih" ion="hcn" erev="-45.0 mV">
+                    <variableParameter parameter="condDensity" segmentGroup="apical_dends">
+                        <inhomogeneousValue inhomogeneousParameter="PathLengthOverApicDends" value="1.0E9 * (1.0E-8 * 0.2) * ((2.087 * exp(p / 359.65)) - 0.8696)"/>    <!--Note: conversion factor (1.0E9 * ) included to convert to units: GENESIS SI Units-->
 
+                    </variableParameter>
+                </channelDensityNonUniform>
+                
                 <channelDensityNernst condDensity="0.992 mS_per_cm2" id="Ca_HVA_apical_dends" ionChannel="Ca_HVA" segmentGroup="apical_dends" ion="ca"/>
 
                 <channelDensityNernst condDensity="3.43 mS_per_cm2" id="Ca_LVAst_apical_dends" ionChannel="Ca_LVAst" segmentGroup="apical_dends" ion="ca"/>
