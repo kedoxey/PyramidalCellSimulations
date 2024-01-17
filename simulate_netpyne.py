@@ -9,14 +9,14 @@ import time
 start_t = time.time()
 
 ### Parameters for simulation ###
-run_NML = True
-test_name = 'test_nml'
+run_NML = False
+test_name = 'test_syn-input'
 hoc_fname = 'L5PC'
 vinit = -80
 
 ### Input parameters ###
 input_amps = [0, 0.35477, 0.44346, 0.53215, 1.0643]
-amp_idx = 4  
+amp_idx = 0  
 input_amp = input_amps[amp_idx]
 in_delay = 700
 in_dur = 2000
@@ -65,15 +65,15 @@ mh.compile_mechs(cwd,hocs_dir,mod_dir)
 load_mechanisms(model_dir)
 
 ### Simulation configuration ###
-cfg = specs.SimConfig()					            # object of class SimConfig to store simulation configuration
-cfg.duration = 3000 						            # Duration of the simulation, in ms
+cfg = specs.SimConfig()					                    # object of class SimConfig to store simulation configuration
+cfg.duration = 3000 						                # Duration of the simulation, in ms
 cfg.dt = 0.01								                # Internal integration timestep to use
 cfg.verbose = True							                # Show detailed messages
 cfg.recordTraces = {'V_soma':{'sec':'soma_0','loc':0.5,'var':'v'}}  # Dict with traces to record
 cfg.recordStep = 0.01
-cfg.filename = os.path.join(output_dir,cell_name+'_'+test_label) 			# Set file output name
+cfg.filename = os.path.join(output_dir,cell_name+'_'+test_label) 	# Set file output name
 cfg.saveJson = False
-cfg.analysis['plotTraces'] = {'include': ['all'], 'saveFig': True} # Plot recorded traces for this list of cells
+cfg.analysis['plotTraces'] = {'include': ['all'], 'saveFig': True}  # Plot recorded traces for this list of cells
 cfg.hParams['celsius'] = 34.0 
 cfg.hParams['v_init'] = vinit
 
@@ -97,6 +97,24 @@ else:
     netParams.popParams[pop_label] = {'cellType': cell_type, 
                                     'cellModel': cell_model,
                                     'numCells': 1}
+    
+### Add AMPA/NMDA synapse ###
+netParams.synMechParams['AMPANMDA'] = {'mod': 'ProbAMPANMDA2'}
+
+### Add synaptic input ###
+netParams.stimSourceParams['Input_syn'] = {
+    'type': 'NetStim',
+    'rate': 10,
+    'noise': 0.5
+}
+
+netParams.stimTargetParams['Input_syn->soma'] = {
+    'source': 'Input_syn',
+    'conds': {'pop': pop_label},
+    'weight': 1,
+    'delay': 5,
+    'synMech': 'AMPANMDA'
+}
 
 ### Add input ###
 netParams.stimSourceParams['Input_IC'] = {
