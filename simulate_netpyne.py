@@ -6,22 +6,23 @@ from neuron import h, load_mechanisms
 from netpyne import specs, sim
 import time
 
+time_flag = False
 start_t = time.time()
 
 ### Parameters for simulation ###
 run_NML = False
-test_name = 'test_syn-input'
+sim_name = 'test_syn-input'
 hoc_fname = 'L5PC'
 vinit = -80
 
 ### Input parameters ###
 input_amps = [0, 0.35477, 0.44346, 0.53215, 1.0643]
-amp_idx = 0  
+amp_idx = 2  
 input_amp = input_amps[amp_idx]
 in_delay = 700
 in_dur = 2000
 
-test_label = f'input_{amp_idx}-{test_name}'
+sim_label = f'input_{amp_idx}-{sim_name}'
 
 ### Model information ###
 code_version = 'Hay'
@@ -48,9 +49,8 @@ hoc_file = os.path.join(hocs_dir, f'{hoc_fname}.hoc')
 ### Download model ###
 mh.download_from_nmldb(nmldb_id, model_version)
 
-output_dir = os.path.join(model_dir,'output')
-if not os.path.exists(output_dir):
-    os.mkdir(output_dir)
+### Get output directories ###
+output_dir, sim_dir = mh.create_output_dirs(sim_name, model_dir)
 
 ### Generate network if running NeuroML ###
 if run_NML:
@@ -71,7 +71,7 @@ cfg.dt = 0.01								                # Internal integration timestep to use
 cfg.verbose = True							                # Show detailed messages
 cfg.recordTraces = {'V_soma':{'sec':'soma_0','loc':0.5,'var':'v'}}  # Dict with traces to record
 cfg.recordStep = 0.01
-cfg.filename = os.path.join(output_dir,cell_name+'_'+test_label) 	# Set file output name
+cfg.filename = os.path.join(sim_dir,cell_name+'_'+sim_label) 	# Set file output name
 cfg.saveJson = False
 cfg.analysis['plotTraces'] = {'include': ['all'], 'saveFig': True}  # Plot recorded traces for this list of cells
 cfg.hParams['celsius'] = 34.0 
@@ -98,6 +98,8 @@ else:
                                     'cellModel': cell_model,
                                     'numCells': 1}
     
+# mh.get_components(netParams.cellParams[cell_label])
+
 ### Add AMPA/NMDA synapse ###
 netParams.synMechParams['AMPANMDA'] = {'mod': 'ProbAMPANMDA2'}
 
@@ -113,7 +115,8 @@ netParams.stimTargetParams['Input_syn->soma'] = {
     'conds': {'pop': pop_label},
     'weight': 1,
     'delay': 5,
-    'synMech': 'AMPANMDA'
+    'synMech': 'AMPANMDA',
+    'sec': 'soma_0'
 }
 
 ### Add input ###
@@ -134,15 +137,16 @@ netParams.stimTargetParams['Input_IC->Soma'] = {
 ### Run simulation ###
 sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=False)
 
-### Simulation time ###
-end_t = time.time()
-final_t = end_t - start_t
-m, s = divmod(final_t, 60)
-time_path = os.path.join(output_dir,f'{model_version}_{test_label}_sim-time.txt')
-
-with open(time_path, "w") as text_file:
-    text_file.write(f'Simulation time = {m} m {s} s')
-print(f'Simulation time = {m} m {s} s')
-
 ### Plot morphology ###
 # sim.analysis.plotShape(showSyns=True, dist=0.8, saveFig=True, axisLabels=True)
+
+### Simulation time ###
+if time_flag:
+    end_t = time.time()
+    final_t = end_t - start_t
+    m, s = divmod(final_t, 60)
+    time_path = os.path.join(sim_dir,f'{model_version}_{sim_label}_sim-time.txt')
+
+    with open(time_path, "w") as text_file:
+        text_file.write(f'Simulation time = {m} m {s} s')
+    print(f'Simulation time = {m} m {s} s')

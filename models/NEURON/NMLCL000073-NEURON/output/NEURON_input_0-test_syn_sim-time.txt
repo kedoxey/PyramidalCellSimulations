@@ -1,1 +1,0 @@
-Simulation time = 1.0 m 42.47765636444092 s

@@ -4,6 +4,8 @@ import os
 import pyneuroml as pynml
 import neuroml as nml
 import neuroml.writers as writers
+import numpy as np
+import re
 from neuroml.utils import component_factory
 from zipfile import ZipFile
 from urllib.request import urlopen
@@ -73,3 +75,26 @@ def generate_network(nml_dir, cell_name, pop_label, pop_size=1, force=False, **i
         print(f'Network for {cell_name} already generated!')
 
     return net_nml_path
+
+def create_output_dirs(test_name, model_dir):
+
+    output_dir = os.path.join(model_dir,'output')
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+
+    sim_dir = os.path.join(output_dir, test_name)
+    if not os.path.exists(sim_dir):
+        os.mkdir(sim_dir)
+
+    return output_dir, sim_dir
+
+def get_components(cell):
+    secs = np.array(list(cell['secs'].keys()))
+
+    apics = secs[np.where(np.char.find(secs,'apic')>=0)]
+    dends = secs[np.where(np.char.find(secs,'dend')>=0)]
+
+    apics = sorted(apics, key=lambda s: int(re.search(r'\d+', s).group()))
+    dends = sorted(dends, key=lambda s: int(re.search(r'\d+', s).group()))
+
+    temp = 1
