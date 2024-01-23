@@ -11,7 +11,7 @@ start_t = time.time()
 
 ### Parameters for simulation ###
 run_NML = False
-sim_name = 'test_syn-all'
+sim_name = 'test_poisson-syn'
 hoc_fname = 'L5PC'
 vinit = -80
 
@@ -22,7 +22,7 @@ input_amp = input_amps[amp_idx]
 in_delay = 700
 in_dur = 2000
 
-sim_label = f'input_{amp_idx}-{sim_name}'
+sim_label = f'input_{round(input_amp,1)}-{sim_name}'
 
 ### Model information ###
 code_version = 'Hay'
@@ -100,19 +100,23 @@ else:
     
 # mh.get_components(netParams.cellParams[cell_label])
 ### Get all sections ###
+# TODO - write function to return groups of sections (all, dends, apics, etc.)
 all = list(importedCellParams['secs'].keys())
 
 ### Add AMPA/NMDA synapse ###
 netParams.synMechParams['AMPANMDA'] = {'mod': 'ProbAMPANMDA2'}
 
 ### Add synaptic input ###
+p_mean = 5  # mean of Poisson distribution
 netParams.stimSourceParams['Input_syn'] = {
     'type': 'NetStim',
-    'rate': 100,
-    'noise': 0.5
+    'interval': f'poisson({p_mean})',
+    'number': 1000,
+    'start': 0,
+    'noise': 1
+    # 'rate': 100,
+    # 'noise': 0.5
 }
-
-
 
 netParams.stimTargetParams['Input_syn->soma'] = {
     'source': 'Input_syn',
