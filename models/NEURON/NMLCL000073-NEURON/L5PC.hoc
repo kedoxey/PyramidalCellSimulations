@@ -4,6 +4,7 @@ begintemplate L5PC
 
 public init, topol, basic_shape, subsets, geom, memb
 public x, y, z, position
+public all
 
 
 //  Some methods for referencing the cells
@@ -852,6 +853,7 @@ proc init() {
     biophys_inhomogeneous()
     synlist = new List()
     x = y = z = 0
+    all = new SectionList()
 
 }
 
@@ -11717,6 +11719,8 @@ proc subsets_49() {
     apic_65 all.append()
     apic_65 all.append()
     apic_65 all.append()
+
+    forall all.append()
 
 }
 

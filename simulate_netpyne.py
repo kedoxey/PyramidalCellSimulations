@@ -11,13 +11,13 @@ start_t = time.time()
 
 ### Parameters for simulation ###
 run_NML = False
-sim_name = 'test_syn-input'
+sim_name = 'test_syn-all'
 hoc_fname = 'L5PC'
 vinit = -80
 
 ### Input parameters ###
 input_amps = [0, 0.35477, 0.44346, 0.53215, 1.0643]
-amp_idx = 2  
+amp_idx = 0  
 input_amp = input_amps[amp_idx]
 in_delay = 700
 in_dur = 2000
@@ -99,6 +99,8 @@ else:
                                     'numCells': 1}
     
 # mh.get_components(netParams.cellParams[cell_label])
+### Get all sections ###
+all = list(importedCellParams['secs'].keys())
 
 ### Add AMPA/NMDA synapse ###
 netParams.synMechParams['AMPANMDA'] = {'mod': 'ProbAMPANMDA2'}
@@ -106,9 +108,11 @@ netParams.synMechParams['AMPANMDA'] = {'mod': 'ProbAMPANMDA2'}
 ### Add synaptic input ###
 netParams.stimSourceParams['Input_syn'] = {
     'type': 'NetStim',
-    'rate': 10,
+    'rate': 100,
     'noise': 0.5
 }
+
+
 
 netParams.stimTargetParams['Input_syn->soma'] = {
     'source': 'Input_syn',
@@ -116,7 +120,7 @@ netParams.stimTargetParams['Input_syn->soma'] = {
     'weight': 1,
     'delay': 5,
     'synMech': 'AMPANMDA',
-    'sec': 'soma_0'
+    'sec': all
 }
 
 ### Add input ###
