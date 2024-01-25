@@ -11,7 +11,7 @@ start_t = time.time()
 
 ### Parameters for simulation ###
 run_NML = False
-sim_name = 'test_poisson-syn'
+sim_name = 'test_syn-cell-pop'
 hoc_fname = 'L5PC'
 vinit = -80
 
@@ -73,7 +73,7 @@ cfg.recordTraces = {'V_soma':{'sec':'soma_0','loc':0.5,'var':'v'}}  # Dict with 
 cfg.recordStep = 0.01
 cfg.filename = os.path.join(sim_dir,cell_name+'_'+sim_label) 	# Set file output name
 cfg.saveJson = False
-cfg.analysis['plotTraces'] = {'include': ['all'], 'saveFig': True}  # Plot recorded traces for this list of cells
+cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': True}  # Plot recorded traces for this list of cells
 cfg.hParams['celsius'] = 34.0 
 cfg.hParams['v_init'] = vinit
 
@@ -105,27 +105,58 @@ all = list(importedCellParams['secs'].keys())
 
 ### Add AMPA/NMDA synapse ###
 netParams.synMechParams['AMPANMDA'] = {'mod': 'ProbAMPANMDA2'}
+# TODO: replace with A1 model synapses
 
 ### Add synaptic input ###
-p_mean = 5  # mean of Poisson distribution
-netParams.stimSourceParams['Input_syn'] = {
-    'type': 'NetStim',
-    'interval': f'poisson({p_mean})',
-    'number': 1000,
-    'start': 0,
-    'noise': 1
-    # 'rate': 100,
-    # 'noise': 0.5
-}
+syn_method = 'cell'  # 'stim'
 
-netParams.stimTargetParams['Input_syn->soma'] = {
-    'source': 'Input_syn',
-    'conds': {'pop': pop_label},
-    'weight': 1,
-    'delay': 5,
-    'synMech': 'AMPANMDA',
-    'sec': all
-}
+if 'cell' in syn_method:
+    netParams.popParams['vecstim'] = {
+        'cellModel': 'VecStim',
+        'numCells': 1,
+        'spikePattern': {'type': 'poisson',
+                         'start': 10,
+                         'stop': -1,
+                         'frequency': 1000}
+    }
+    
+    netParams.connParams[f'vecstim->{pop_label}'] = {
+        'preConds': {'pop': 'vecstim'},
+        'postConds': {'pop': pop_label},
+        'sec': all,
+        'synMech': 'AMPANMDA',
+        'weight': 1,
+        'delay': 5,
+        'probability': 1.0
+    }
+
+    netParams.subConnParams[f'vecstim->{pop_label}'] = {
+        'preConds': {'pop': 'vecstim'},
+        'postConds': {'pop': pop_label},
+        'sec': all,
+        'groupSynMech': 'AMPANMDA',
+        'density': 'uniform'
+    }
+else:
+    f = 60  # Hz, frequency of input
+    p_mean = 1000/f  # ms, mean time between spikes
+    netParams.stimSourceParams['Input_syn'] = {
+        'type': 'NetStim',
+        'interval': f'poisson({p_mean})',
+        'number': 1e9,
+        'start': 0,
+        'noise': 1
+        # 'rate': 100,
+        # 'noise': 0.5
+    }
+    netParams.stimTargetParams['Input_syn->soma'] = {
+        'source': 'Input_syn',
+        'conds': {'pop': pop_label},
+        'weight': 1,
+        'delay': 5,
+        'synMech': 'AMPANMDA',
+        'sec': all
+    }
 
 ### Add input ###
 netParams.stimSourceParams['Input_IC'] = {
