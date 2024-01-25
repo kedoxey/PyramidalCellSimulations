@@ -88,13 +88,25 @@ def create_output_dirs(test_name, model_dir):
 
     return output_dir, sim_dir
 
-def get_components(cell):
+def get_components(cell, group_name='all'):
+
     secs = np.array(list(cell['secs'].keys()))
+    basal_group = list(secs[np.where(np.char.find(secs,'dend')>=0)])
+    apic_group = list(secs[np.where(np.char.find(secs,'apic')>=0)])
+    all_group = list(secs)
+    soma = ['soma_0']
 
-    apics = secs[np.where(np.char.find(secs,'apic')>=0)]
-    dends = secs[np.where(np.char.find(secs,'dend')>=0)]
-
-    apics = sorted(apics, key=lambda s: int(re.search(r'\d+', s).group()))
-    dends = sorted(dends, key=lambda s: int(re.search(r'\d+', s).group()))
-
-    temp = 1
+    if group_name == 'basal':
+        return basal_group
+    elif group_name == 'apical':
+        return apic_group
+    elif group_name == 'basal_apical':
+        return basal_group + apic_group
+    elif group_name == 'basal_soma':
+        return basal_group + soma
+    elif group_name == 'apical_soma':
+        return apic_group + soma
+    elif group_name =='basal_apical_soma':
+        return basal_group + apic_group + soma
+    else:
+        return all_group

@@ -11,7 +11,7 @@ start_t = time.time()
 
 ### Parameters for simulation ###
 run_NML = False
-sim_name = 'test_syn-cell-pop'
+sim_name = 'test_syn-a1'
 hoc_fname = 'L5PC'
 vinit = -80
 
@@ -100,12 +100,13 @@ else:
     
 # mh.get_components(netParams.cellParams[cell_label])
 ### Get all sections ###
-# TODO - write function to return groups of sections (all, dends, apics, etc.)
-all = list(importedCellParams['secs'].keys())
+syn_secs = mh.get_components(importedCellParams, 'all')
 
 ### Add AMPA/NMDA synapse ###
-netParams.synMechParams['AMPANMDA'] = {'mod': 'ProbAMPANMDA2'}
-# TODO: replace with A1 model synapses
+netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}
+netParams.synMechParams['NMDA'] = {'mod': 'MyExp2SynNMDABB', 'tau1NMDA': 15, 'tau2NMDA': 150, 'e': 0}
+
+exc_syns = ['AMPA', 'NMDA']
 
 ### Add synaptic input ###
 syn_method = 'cell'  # 'stim'
@@ -123,8 +124,8 @@ if 'cell' in syn_method:
     netParams.connParams[f'vecstim->{pop_label}'] = {
         'preConds': {'pop': 'vecstim'},
         'postConds': {'pop': pop_label},
-        'sec': all,
-        'synMech': 'AMPANMDA',
+        'sec': syn_secs,
+        'synMech': exc_syns,
         'weight': 1,
         'delay': 5,
         'probability': 1.0
@@ -134,7 +135,7 @@ if 'cell' in syn_method:
         'preConds': {'pop': 'vecstim'},
         'postConds': {'pop': pop_label},
         'sec': all,
-        'groupSynMech': 'AMPANMDA',
+        'groupSynMech': exc_syns,
         'density': 'uniform'
     }
 else:
