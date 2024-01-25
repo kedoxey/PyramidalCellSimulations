@@ -118,7 +118,7 @@ if 'cell' in syn_method:
         'spikePattern': {'type': 'poisson',
                          'start': 10,
                          'stop': -1,
-                         'frequency': 1000}
+                         'frequency': 50}
     }
     
     netParams.connParams[f'vecstim->{pop_label}'] = {
