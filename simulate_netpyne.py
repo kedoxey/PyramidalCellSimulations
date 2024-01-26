@@ -12,7 +12,7 @@ start_t = time.time()
 ### Parameters for simulation ###
 run_NML = False
 plot_morphology = True
-sim_name = 'test_a1-synsPerConn'
+sim_name = 'test_a1-basal_apical'
 hoc_fname = 'L5PC'
 vinit = -80
 
@@ -102,7 +102,7 @@ else:
 # mh.get_components(netParams.cellParams[cell_label])
 ### Get sections ###
 # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma
-syn_secs = mh.get_components(importedCellParams, 'basal_apical_soma')
+syn_secs = mh.get_components(importedCellParams, 'basal_apical')
 
 ### Add AMPA/NMDA synapse ###
 netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}
@@ -182,7 +182,8 @@ sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=False)
 
 ### Plot morphology ###
 if plot_morphology:
-    sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], saveFig=True, axisLabels=True)
+    sim.analysis.plotShape(showSyns=True, synColor='darkcyan', dist=0.8, includePre=[None], includePost=[pop_label], 
+                           saveFig=True, axisLabels=True, returnPlotter=True)
 
 ### Simulation time ###
 if time_flag:
