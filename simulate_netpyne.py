@@ -11,7 +11,8 @@ start_t = time.time()
 
 ### Parameters for simulation ###
 run_NML = False
-sim_name = 'test_syn-a1'
+plot_morphology = True
+sim_name = 'test_a1-synsPerConn'
 hoc_fname = 'L5PC'
 vinit = -80
 
@@ -99,8 +100,9 @@ else:
                                     'numCells': 1}
     
 # mh.get_components(netParams.cellParams[cell_label])
-### Get all sections ###
-syn_secs = mh.get_components(importedCellParams, 'all')
+### Get sections ###
+# basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma
+syn_secs = mh.get_components(importedCellParams, 'basal_apical_soma')
 
 ### Add AMPA/NMDA synapse ###
 netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}
@@ -125,27 +127,28 @@ if 'cell' in syn_method:
         'preConds': {'pop': 'vecstim'},
         'postConds': {'pop': pop_label},
         'sec': syn_secs,
+        'synsPerConn': len(syn_secs),
         'synMech': exc_syns,
         'weight': 1,
-        'delay': 5,
+        'delay': 100,
         'probability': 1.0
     }
 
     netParams.subConnParams[f'vecstim->{pop_label}'] = {
         'preConds': {'pop': 'vecstim'},
         'postConds': {'pop': pop_label},
-        'sec': all,
+        'sec': syn_secs,
         'groupSynMech': exc_syns,
         'density': 'uniform'
     }
 else:
-    f = 60  # Hz, frequency of input
+    f = 50  # Hz, frequency of input
     p_mean = 1000/f  # ms, mean time between spikes
     netParams.stimSourceParams['Input_syn'] = {
         'type': 'NetStim',
         'interval': f'poisson({p_mean})',
         'number': 1e9,
-        'start': 0,
+        'start': 10,
         'noise': 1
         # 'rate': 100,
         # 'noise': 0.5
@@ -155,8 +158,8 @@ else:
         'conds': {'pop': pop_label},
         'weight': 1,
         'delay': 5,
-        'synMech': 'AMPANMDA',
-        'sec': all
+        'synMech': exc_syns,
+        'sec': syn_secs
     }
 
 ### Add input ###
@@ -178,7 +181,8 @@ netParams.stimTargetParams['Input_IC->Soma'] = {
 sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=False)
 
 ### Plot morphology ###
-# sim.analysis.plotShape(showSyns=True, dist=0.8, saveFig=True, axisLabels=True)
+if plot_morphology:
+    sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], saveFig=True, axisLabels=True)
 
 ### Simulation time ###
 if time_flag:

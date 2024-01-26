@@ -110,3 +110,4 @@ def get_components(cell, group_name='all'):
         return basal_group + apic_group + soma
     else:
         return all_group
+
