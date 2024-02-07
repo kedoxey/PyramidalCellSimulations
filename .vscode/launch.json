@@ -54,6 +54,16 @@
             "justMyCode": false,
             "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
             "python": "/home/kedoxey/.conda/envs/python3_9-spike/bin/python"
+        },
+        {
+            "name": "explore_net.py",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/ModelDB/156780/explore_net.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
+            "python": "/home/kedoxey/.conda/envs/python3_9-spike/bin/python"
         }
     ]
 }

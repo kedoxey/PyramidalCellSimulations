@@ -12,7 +12,7 @@ start_t = time.time()
 ### Parameters for simulation ###
 run_NML = False
 plot_morphology = True
-sim_name = 'test_a1-basal_apical'
+sim_name = 'test_a1-test'
 hoc_fname = 'L5PC'
 vinit = -80
 
@@ -96,8 +96,8 @@ else:
 
     ### Create population ###
     netParams.popParams[pop_label] = {'cellType': cell_type, 
-                                    'cellModel': cell_model,
-                                    'numCells': 1}
+                                      'cellModel': cell_model,
+                                      'numCells': 1}
     
 # mh.get_components(netParams.cellParams[cell_label])
 ### Get sections ###
@@ -111,7 +111,7 @@ netParams.synMechParams['NMDA'] = {'mod': 'MyExp2SynNMDABB', 'tau1NMDA': 15, 'ta
 exc_syns = ['AMPA', 'NMDA']
 
 ### Add synaptic input ###
-syn_method = 'cell'  # 'stim'
+syn_method = 'cell'  # 'stim' or 'cell'
 
 if 'cell' in syn_method:
     netParams.popParams['vecstim'] = {
@@ -182,8 +182,8 @@ sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=False)
 
 ### Plot morphology ###
 if plot_morphology:
-    sim.analysis.plotShape(showSyns=True, synColor='darkcyan', dist=0.8, includePre=[None], includePost=[pop_label], 
-                           saveFig=True, axisLabels=True, returnPlotter=True)
+    sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], 
+                           saveFig=True, axisLabels=True, returnPlotter=True, synColor='darkcyan') 
 
 ### Simulation time ###
 if time_flag:
