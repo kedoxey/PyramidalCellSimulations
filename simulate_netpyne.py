@@ -2,8 +2,10 @@ import matplotlib.pyplot as plt
 import os
 import json
 import model_helpers as mh
+import numpy as np
 from neuron import h, load_mechanisms
 from netpyne import specs, sim
+from netpyne import cell
 import time
 
 time_flag = False
@@ -12,18 +14,20 @@ start_t = time.time()
 ### Parameters for simulation ###
 run_NML = False
 plot_morphology = True
-sim_name = 'test_a1-test'
+enable_syns = True
+sim_name = 'apical_syns-more_vs'
 hoc_fname = 'L5PC'
 vinit = -80
 
 ### Input parameters ###
 input_amps = [0, 0.35477, 0.44346, 0.53215, 1.0643]
-amp_idx = 0  
+amp_idx = 0
 input_amp = input_amps[amp_idx]
 in_delay = 700
 in_dur = 2000
+sim_dur = 3000
 
-sim_label = f'input_{round(input_amp,1)}-{sim_name}'
+sim_label = f'input_{round(input_amp,2)}-{sim_name}'
 
 ### Model information ###
 code_version = 'Hay'
@@ -67,7 +71,7 @@ load_mechanisms(model_dir)
 
 ### Simulation configuration ###
 cfg = specs.SimConfig()					                    # object of class SimConfig to store simulation configuration
-cfg.duration = 3000 						                # Duration of the simulation, in ms
+cfg.duration = sim_dur 						                # Duration of the simulation, in ms
 cfg.dt = 0.01								                # Internal integration timestep to use
 cfg.verbose = True							                # Show detailed messages
 cfg.recordTraces = {'V_soma':{'sec':'soma_0','loc':0.5,'var':'v'}}  # Dict with traces to record
@@ -101,8 +105,8 @@ else:
     
 # mh.get_components(netParams.cellParams[cell_label])
 ### Get sections ###
-# basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma
-syn_secs = mh.get_components(importedCellParams, 'basal_apical')
+# basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+syn_secs = mh.get_components(importedCellParams, 'apical')
 
 ### Add AMPA/NMDA synapse ###
 netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}
@@ -111,56 +115,71 @@ netParams.synMechParams['NMDA'] = {'mod': 'MyExp2SynNMDABB', 'tau1NMDA': 15, 'ta
 exc_syns = ['AMPA', 'NMDA']
 
 ### Add synaptic input ###
-syn_method = 'cell'  # 'stim' or 'cell'
+if enable_syns:
+    syn_method = 'cell'  # 'stim' or 'cell'
 
-if 'cell' in syn_method:
-    netParams.popParams['vecstim'] = {
-        'cellModel': 'VecStim',
-        'numCells': 1,
-        'spikePattern': {'type': 'poisson',
-                         'start': 10,
-                         'stop': -1,
-                         'frequency': 50}
-    }
-    
-    netParams.connParams[f'vecstim->{pop_label}'] = {
-        'preConds': {'pop': 'vecstim'},
-        'postConds': {'pop': pop_label},
-        'sec': syn_secs,
-        'synsPerConn': len(syn_secs),
-        'synMech': exc_syns,
-        'weight': 1,
-        'delay': 100,
-        'probability': 1.0
-    }
+    if 'cell' in syn_method:
+        # spikePattern
+        netParams.popParams['vecstim'] = {
+            'cellModel': 'VecStim',
+            'numCells': int(len(syn_secs)/4),
+            'spikePattern': {'type': 'poisson',
+                            'start': 700,
+                            'stop': -1,
+                            'frequency': 10}
+        }
 
-    netParams.subConnParams[f'vecstim->{pop_label}'] = {
-        'preConds': {'pop': 'vecstim'},
-        'postConds': {'pop': pop_label},
-        'sec': syn_secs,
-        'groupSynMech': exc_syns,
-        'density': 'uniform'
-    }
-else:
-    f = 50  # Hz, frequency of input
-    p_mean = 1000/f  # ms, mean time between spikes
-    netParams.stimSourceParams['Input_syn'] = {
-        'type': 'NetStim',
-        'interval': f'poisson({p_mean})',
-        'number': 1e9,
-        'start': 10,
-        'noise': 1
-        # 'rate': 100,
-        # 'noise': 0.5
-    }
-    netParams.stimTargetParams['Input_syn->soma'] = {
-        'source': 'Input_syn',
-        'conds': {'pop': pop_label},
-        'weight': 1,
-        'delay': 5,
-        'synMech': exc_syns,
-        'sec': syn_secs
-    }
+        # createPoissonPattern
+        # poisson_params = {'start': 0,
+        #                   'stop': sim_dur,
+        #                   'frequency': 10}
+        # spkTimes = list(cell.createPoissonPattern(poisson_params, h.Random()))
+
+        # netParams.popParams['vecstim'] = {
+        #     'cellModel': 'VecStim',
+        #     'numCells': 1,
+        #     'spkTimes': spkTimes
+        # }
+        
+        netParams.connParams[f'vecstim->{pop_label}'] = {
+            'preConds': {'pop': 'vecstim'},
+            'postConds': {'pop': pop_label},
+            'sec': syn_secs,
+            'synsPerConn': 1,
+            'synMech': exc_syns,
+            'weight': 0.5,
+            # 'synMechWeightFactor': [0.5,0.5],
+            'delay': 'defaultDelay + dist_2D/propVelocity',
+            'probability': 1.0,
+        }
+
+        netParams.subConnParams[f'vecstim->{pop_label}'] = {
+            'preConds': {'pop': 'vecstim'},
+            'postConds': {'pop': pop_label},
+            'sec': syn_secs,
+            'groupSynMech': exc_syns,
+            'density': 'uniform'
+        }
+    else:
+        f = 50  # Hz, frequency of input
+        p_mean = 1000/f  # ms, mean time between spikes
+        netParams.stimSourceParams['Input_syn'] = {
+            'type': 'NetStim',
+            'interval': f'poisson({p_mean})',
+            'number': 1e9,
+            'start': 10,
+            'noise': 1
+            # 'rate': 100,
+            # 'noise': 0.5
+        }
+        netParams.stimTargetParams['Input_syn->soma'] = {
+            'source': 'Input_syn',
+            'conds': {'pop': pop_label},
+            'weight': 1,
+            'delay': 5,
+            'synMech': exc_syns,
+            'sec': syn_secs
+        }
 
 ### Add input ###
 netParams.stimSourceParams['Input_IC'] = {
