@@ -15,13 +15,13 @@ start_t = time.time()
 run_NML = False
 plot_morphology = True
 enable_syns = True
-sim_name = 'apical_syns-more_vs'
+sim_name = 'LFP_apic-syns'
 hoc_fname = 'L5PC'
 vinit = -80
 
 ### Input parameters ###
 input_amps = [0, 0.35477, 0.44346, 0.53215, 1.0643]
-amp_idx = 0
+amp_idx = 3
 input_amp = input_amps[amp_idx]
 in_delay = 700
 in_dur = 2000
@@ -201,8 +201,10 @@ probe_L = 1280
 channels = 1
 depths = 10
 elec_dist = probe_L//depths  # microns
+disp = 150
 
-elec_pos = [[x*elec_dist, y*elec_dist - 150, 0] for x in range(channels) for y in range(depths)]
+elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(depths)]
+# elec_pos.reverse()
 
 cfg.recordLFP = elec_pos
 cfg.analysis['plotLFP'] = {'saveFig': True}
