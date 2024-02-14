@@ -196,6 +196,17 @@ netParams.stimTargetParams['Input_IC->Soma'] = {
     'conds': {'pop': pop_label}
 }
 
+### Add linear probe ###
+probe_L = 1280
+channels = 1
+depths = 10
+elec_dist = probe_L//depths  # microns
+
+elec_pos = [[x*elec_dist, y*elec_dist - 150, 0] for x in range(channels) for y in range(depths)]
+
+cfg.recordLFP = elec_pos
+cfg.analysis['plotLFP'] = {'saveFig': True}
+
 ### Run simulation ###
 sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=False)
 
