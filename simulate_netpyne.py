@@ -15,19 +15,34 @@ start_t = time.time()
 run_NML = False
 plot_morphology = True
 enable_syns = True
-sim_name = 'LFP_apic-syns'
+record_LFP = False
+spk_type = 'poisson'  # poisson or gaussian
+
+sim_name = 'apical_syns'
 hoc_fname = 'L5PC'
 vinit = -80
 
 ### Input parameters ###
 input_amps = [0, 0.35477, 0.44346, 0.53215, 1.0643]
-amp_idx = 3
+amp_idx = 0
 input_amp = input_amps[amp_idx]
-in_delay = 700
-in_dur = 2000
+stim_delay = 700
+stim_dur = 2000
 sim_dur = 3000
 
-sim_label = f'input_{round(input_amp,2)}-{sim_name}'
+# Poisson spike trains
+spk_freq = 30
+
+# Gaussian spike trains
+gauss_mean = 1.4
+gauss_std = 0.4
+
+if 'poisson' in spk_type:
+    sim_label = f'{spk_type}-freq_{spk_freq}-{sim_name}'
+else:
+    sim_label = f'{spk_type}-mean_{gauss_mean}-std_{gauss_std}-{sim_name}'
+
+# sim_label = f'input_{round(input_amp,2)}-{sim_name}'
 
 ### Model information ###
 code_version = 'Hay'
@@ -62,8 +77,8 @@ if run_NML:
     net_nml_file = mh.generate_network(model_dir, cell_name, pop_label, 
                                        force=True, 
                                        input_amp=input_amp, 
-                                       start=in_delay, 
-                                       stop=in_delay+in_dur)
+                                       start=stim_delay, 
+                                       stop=stim_delay+stim_dur)
 
 ### Compile mechs ###
 mh.compile_mechs(cwd,hocs_dir,mod_dir)
@@ -119,37 +134,36 @@ if enable_syns:
     syn_method = 'cell'  # 'stim' or 'cell'
 
     if 'cell' in syn_method:
-        # spikePattern
-        netParams.popParams['vecstim'] = {
-            'cellModel': 'VecStim',
-            'numCells': int(len(syn_secs)/4),
-            'spikePattern': {'type': 'poisson',
-                            'start': 700,
-                            'stop': -1,
-                            'frequency': 10}
-        }
 
-        # createPoissonPattern
-        # poisson_params = {'start': 0,
-        #                   'stop': sim_dur,
-        #                   'frequency': 10}
-        # spkTimes = list(cell.createPoissonPattern(poisson_params, h.Random()))
+        # Poisson spike pattern
+        if 'poisson' in spk_type:
+            netParams.popParams['vecstim'] = {
+                'cellModel': 'VecStim',
+                'numCells': 50,  # int(len(syn_secs)/4),
+                'spikePattern': {'type': 'poisson',
+                                'start': stim_delay,
+                                'stop': stim_delay+stim_dur,
+                                'frequency': spk_freq}
+            }
+        # Gaussian spike pattern
+        else:
+            netParams.popParams['vecstim'] = {
+                'cellModel': 'VecStim',
+                'numCells': 50,  # int(len(syn_secs)/4),
+                'spikePattern': {'type': 'gauss',
+                                'mu': gauss_mean,
+                                'sigma': gauss_std}
+            }
 
-        # netParams.popParams['vecstim'] = {
-        #     'cellModel': 'VecStim',
-        #     'numCells': 1,
-        #     'spkTimes': spkTimes
-        # }
-        
         netParams.connParams[f'vecstim->{pop_label}'] = {
             'preConds': {'pop': 'vecstim'},
             'postConds': {'pop': pop_label},
             'sec': syn_secs,
             'synsPerConn': 1,
             'synMech': exc_syns,
-            'weight': 0.5,
+            'weight': 0.001,  # 0.5,
             # 'synMechWeightFactor': [0.5,0.5],
-            'delay': 'defaultDelay + dist_2D/propVelocity',
+            'delay': 5,  # 'defaultDelay + dist_2D/propVelocity',
             'probability': 1.0,
         }
 
@@ -184,8 +198,8 @@ if enable_syns:
 ### Add input ###
 netParams.stimSourceParams['Input_IC'] = {
     'type': 'IClamp',
-    'del': in_delay,
-    'dur': in_dur,
+    'del': stim_delay,
+    'dur': stim_dur,
     'amp': input_amp  
 }
 
@@ -197,17 +211,19 @@ netParams.stimTargetParams['Input_IC->Soma'] = {
 }
 
 ### Add linear probe ###
-probe_L = 1280
-channels = 1
-depths = 10
-elec_dist = probe_L//depths  # microns
-disp = 150
+if record_LFP:
+    probe_L = 1280
+    channels = 1
+    depths = 10
+    elec_dist = probe_L//depths  # microns
+    disp = 150
 
-elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(depths)]
-# elec_pos.reverse()
+    elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(depths)]  # 
+    # -x is left and -y is above soma
+    # elec_pos.reverse()
 
-cfg.recordLFP = elec_pos
-cfg.analysis['plotLFP'] = {'saveFig': True}
+    cfg.recordLFP = elec_pos
+    cfg.analysis['plotLFP'] = {'saveFig': True}
 
 ### Run simulation ###
 sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=False)
