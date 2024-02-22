@@ -17,8 +17,10 @@ plot_morphology = True
 enable_syns = True
 record_LFP = True
 spk_type = 'poisson'  # poisson or gaussian
+syns = 'apical'  # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+num_syns = 50
 
-sim_name = 'soma_syns'
+sim_name = f'{syns}_syns-small'
 hoc_fname = 'L5PC'
 vinit = -80
 
@@ -37,10 +39,12 @@ spk_freq = 20
 gauss_mean = 1.4
 gauss_std = 0.4
 
-if 'poisson' in spk_type:
-    sim_label = f'{spk_type}-freq_{spk_freq}-{sim_name}'
-else:
-    sim_label = f'{spk_type}-mean_{gauss_mean}-std_{gauss_std}-{sim_name}'
+sim_label = f'{num_syns}_syns-freq_{spk_freq}-{sim_name}'
+
+# if 'poisson' in spk_type:
+#     sim_label = f'{spk_type}-freq_{spk_freq}-{sim_name}'
+# else:
+#     sim_label = f'{spk_type}-mean_{gauss_mean}-std_{gauss_std}-{sim_name}'
 
 # sim_label = f'input_{round(input_amp,2)}-{sim_name}'
 
@@ -121,7 +125,7 @@ else:
 # mh.get_components(netParams.cellParams[cell_label])
 ### Get sections ###
 # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
-syn_secs = mh.get_components(importedCellParams, 'soma')
+syn_secs = mh.get_components(importedCellParams, syns)
 
 ### Add AMPA/NMDA synapse ###
 netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}
@@ -139,7 +143,7 @@ if enable_syns:
         if 'poisson' in spk_type:
             netParams.popParams['vecstim'] = {
                 'cellModel': 'VecStim',
-                'numCells': 50,  # int(len(syn_secs)/4),
+                'numCells': num_syns,  # int(len(syn_secs)/4),
                 'spikePattern': {'type': 'poisson',
                                 'start': stim_delay,
                                 'stop': stim_delay+stim_dur,
@@ -212,11 +216,11 @@ netParams.stimTargetParams['Input_IC->Soma'] = {
 
 ### Add linear probe ###
 if record_LFP:
-    probe_L = 1280//2
+    probe_L = 1280//5
     channels = 1
     depths = 10
     elec_dist = probe_L//depths  # microns
-    disp = 150
+    disp = 100  # 150
 
     elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(depths)]  # 
     # -x is left and -y is above soma

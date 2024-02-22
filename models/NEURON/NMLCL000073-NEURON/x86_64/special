@@ -1,4 +1,4 @@
-#!/home/kedoxey/.conda/envs/python3_9-spike/bin/python3.9
+#!/home/kedoxey/.conda/envs/python3_9-NEW/bin/python
 """
 A generic wrapper to access nrn binaries from a python installation
 Please create a softlink with the binary name to be called.

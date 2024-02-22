@@ -110,6 +110,14 @@
 	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
 	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
 
+./SAM_gaussstim.c: .././SAM_gaussstim.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "SAM_gaussstim.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+
+./SAM_gaussstim.o: ./SAM_gaussstim.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
 ./SK_E2.c: .././SK_E2.mod
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
 	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "SK_E2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")

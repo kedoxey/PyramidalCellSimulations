@@ -20,6 +20,7 @@ extern void _Nap_Et2_reg(void);
 extern void _NaTa_t_reg(void);
 extern void _pas_nml2_reg(void);
 extern void _ProbAMPANMDA2_reg(void);
+extern void _SAM_gaussstim_reg(void);
 extern void _SK_E2_reg(void);
 extern void _SKv3_1_reg(void);
 extern void _vecevent_reg(void);
@@ -41,6 +42,7 @@ void modl_reg() {
     fprintf(stderr, " \"./NaTa_t.mod\"");
     fprintf(stderr, " \"./pas_nml2.mod\"");
     fprintf(stderr, " \"./ProbAMPANMDA2.mod\"");
+    fprintf(stderr, " \"./SAM_gaussstim.mod\"");
     fprintf(stderr, " \"./SK_E2.mod\"");
     fprintf(stderr, " \"./SKv3_1.mod\"");
     fprintf(stderr, " \"./vecevent.mod\"");
@@ -60,6 +62,7 @@ void modl_reg() {
   _NaTa_t_reg();
   _pas_nml2_reg();
   _ProbAMPANMDA2_reg();
+  _SAM_gaussstim_reg();
   _SK_E2_reg();
   _SKv3_1_reg();
   _vecevent_reg();
