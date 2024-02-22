@@ -43,7 +43,7 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "cwd": "/home/kedoxey/CRCNS/PyramidalCellSimulations",
-            "python": "/home/kedoxey/.conda/envs/python3_9-spike/bin/python"
+            "python": "/home/kedoxey/.conda/envs/python3_9-NEW/bin/python"
         },
         {
             "name": "simulate_neuron.py",

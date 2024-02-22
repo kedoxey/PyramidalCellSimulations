@@ -106,8 +106,10 @@ def get_components(cell, group_name='all'):
         return basal_group + soma
     elif group_name == 'apical_soma':
         return apic_group + soma
-    elif group_name =='basal_apical_soma':
+    elif group_name == 'basal_apical_soma':
         return basal_group + apic_group + soma
+    elif group_name == 'soma':
+        return soma
     else:
         return all_group
 

@@ -15,10 +15,10 @@ start_t = time.time()
 run_NML = False
 plot_morphology = True
 enable_syns = True
-record_LFP = False
+record_LFP = True
 spk_type = 'poisson'  # poisson or gaussian
 
-sim_name = 'apical_syns'
+sim_name = 'soma_syns'
 hoc_fname = 'L5PC'
 vinit = -80
 
@@ -31,7 +31,7 @@ stim_dur = 2000
 sim_dur = 3000
 
 # Poisson spike trains
-spk_freq = 30
+spk_freq = 20
 
 # Gaussian spike trains
 gauss_mean = 1.4
@@ -121,7 +121,7 @@ else:
 # mh.get_components(netParams.cellParams[cell_label])
 ### Get sections ###
 # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
-syn_secs = mh.get_components(importedCellParams, 'apical')
+syn_secs = mh.get_components(importedCellParams, 'soma')
 
 ### Add AMPA/NMDA synapse ###
 netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}
@@ -212,7 +212,7 @@ netParams.stimTargetParams['Input_IC->Soma'] = {
 
 ### Add linear probe ###
 if record_LFP:
-    probe_L = 1280
+    probe_L = 1280//2
     channels = 1
     depths = 10
     elec_dist = probe_L//depths  # microns
