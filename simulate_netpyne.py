@@ -6,6 +6,7 @@ import numpy as np
 from neuron import h, load_mechanisms
 from netpyne import specs, sim
 from netpyne import cell
+from netpyne import support
 import time
 
 time_flag = False
@@ -15,12 +16,13 @@ start_t = time.time()
 run_NML = False
 plot_morphology = True
 enable_syns = True
-record_LFP = True
+record_LFP = False
 spk_type = 'poisson'  # poisson or gaussian
-syns = 'apical'  # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+syns_dist_scale = 0.5
+syns = 'all'  # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
 num_syns = 50
 
-sim_name = f'{syns}_syns-small'
+sim_name = f'{syns}_syns-dist_{syns_dist_scale}'
 hoc_fname = 'L5PC'
 vinit = -80
 
@@ -121,11 +123,14 @@ else:
     netParams.popParams[pop_label] = {'cellType': cell_type, 
                                       'cellModel': cell_model,
                                       'numCells': 1}
-    
-# mh.get_components(netParams.cellParams[cell_label])
+
+
 ### Get sections ###
 # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
-syn_secs = mh.get_components(importedCellParams, syns)
+if syns_dist_scale > 0:
+    syn_secs = mh.get_secs_from_dist(hoc_file, cell_name, syns_dist_scale)
+else:
+    syn_secs = mh.get_components(importedCellParams, syns)
 
 ### Add AMPA/NMDA synapse ###
 netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}

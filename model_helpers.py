@@ -9,11 +9,14 @@ import re
 from neuroml.utils import component_factory
 from zipfile import ZipFile
 from urllib.request import urlopen
+from neuron import h
 
 from neuromllite import Network, Cell, Population, InputSource, Input, NetworkGenerator
 
 cwd = os.getcwd()
 
+h.load_file('stdlib.hoc')
+h.load_file('import3d.hoc')
 
 def compile_mechs(cwd, hocs_dir, mod_dir, force=False):
     if force or not os.path.exists(os.path.join(hocs_dir, 'x86_64')):
@@ -113,3 +116,53 @@ def get_components(cell, group_name='all'):
     else:
         return all_group
 
+
+def get_hoc_cell(filename, cell_name):
+
+    h.load_file(filename)
+
+    hoc_cell = getattr(h, cell_name)
+    hoc_cell = hoc_cell()
+    cell = hoc_cell
+
+    return cell
+
+
+def get_total_soma_distance(cell):
+    
+    soma = cell.soma_0
+
+    dist_from_soma = 0
+    furthest_sec = ''
+
+    for sec in h.allsec():
+        sec_name = sec.name().split('.')[1]
+        
+        dist = h.distance(soma(0.5), sec(0.5))
+        if dist > dist_from_soma:
+            dist_from_soma = dist
+            furthest_sec = sec_name
+
+        temp = 6
+
+    return dist_from_soma, furthest_sec
+
+
+def get_secs_from_dist(filename, cell_name, dist_scale, bound=1):
+    cell = get_hoc_cell(filename, cell_name)
+    soma = cell.soma_0
+
+    total_distance, _ = get_total_soma_distance(cell)
+    distance = dist_scale*total_distance
+    dist_bound = bound*total_distance
+
+    secs_from_dist = []
+
+    for sec in h.allsec():
+        sec_name = sec.name().split('.')[1]
+        
+        dist = h.distance(soma(0.5), sec(0.5))
+        if (distance < dist) and (dist < dist_bound):
+            secs_from_dist.append(sec_name)
+
+    return secs_from_dist
