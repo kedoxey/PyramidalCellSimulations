@@ -91,6 +91,29 @@ def create_output_dirs(test_name, model_dir):
 
     return output_dir, sim_dir
 
+
+def create_sim_description(output_dir, **params):
+
+    file_name = 'README.md'
+    file_path = os.path.join(output_dir, file_name)
+
+    if not os.path.exists(file_path):
+
+        message = '--- Simulation Parameters ---\n'
+
+        for key, value in params.items():
+            if 'message' in key:
+                message = f'--- Simulation Description ---\n{value}\n' + message
+            else:
+                message += f'{key} = {value}\n'
+
+    f = open(file_path, 'w')
+    f.write(message)
+    f.close()
+    
+    print("Simulation description saved!")
+
+
 def get_components(cell, group_name='all'):
 
     secs = np.array(list(cell['secs'].keys()))
