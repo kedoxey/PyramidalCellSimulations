@@ -16,15 +16,16 @@ start_t = time.time()
 run_NML = False
 plot_morphology = True
 enable_syns = True
-record_LFP = False
+record_LFP = True
 
 spk_type = 'poisson'  # poisson or gaussian
 
-syns_dist_scale = 0.5  # 0 if not distibuted by distance from soma
-syns_type = 'all'  # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+syns_lb = 0.1  # 0 if not distibuted by distance from soma
+syns_ub = 1
+syns_type = 'all'  # soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
 num_syns = 50
 
-sim_name = f'TEST-{syns_type}_distributed'
+sim_name = f'MEETING-{syns_type}'
 hoc_fname = 'L5PC'
 vinit = -80
 
@@ -43,9 +44,9 @@ spk_freq = 20
 gauss_mean = 1.4
 gauss_std = 0.4
 
-sim_label = f'{sim_name}-dist_{syns_dist_scale}'
+sim_label = f'{sim_name}-dist_{syns_lb}_{syns_ub}'
 
-sim_message = 'testing function to set synapse location distance from soma, varying parameter is syns_dist_scale'
+sim_message = 'Simulations for meeting with Sharon and Yi, varying parameters and syns_dist_scale and syns_type'
 
 # if 'poisson' in spk_type:
 #     sim_label = f'{spk_type}-freq_{spk_freq}-{sim_name}'
@@ -83,7 +84,7 @@ mh.download_from_nmldb(nmldb_id, model_version)
 output_dir, sim_dir = mh.create_output_dirs(sim_name, model_dir)
 
 ### Wrtie README containing simulation description
-mh.create_sim_description(sim_dir, run_NML=run_NML, spk_type=spk_type, syns_dist_scale=syns_dist_scale, syns_type=syns_type, num_syns=num_syns, vinit=vinit, spk_freq=spk_freq, sim_message=sim_message)
+mh.create_sim_description(sim_dir, run_NML=run_NML, spk_type=spk_type, syns_lb=syns_lb, syns_ub=syns_ub, syns_type=syns_type, num_syns=num_syns, vinit=vinit, spk_freq=spk_freq, sim_message=sim_message)
 
 ### Generate network if running NeuroML ###
 if run_NML:
@@ -134,8 +135,8 @@ else:
 
 ### Get sections ###
 # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
-if syns_dist_scale > 0:
-    syn_secs = mh.get_secs_from_dist(hoc_file, cell_name, syns_dist_scale)
+if syns_lb > 0:
+    syn_secs = mh.get_secs_from_dist(hoc_file, cell_name, syns_lb, syns_ub)
 else:
     syn_secs = mh.get_components(importedCellParams, syns_type)
 

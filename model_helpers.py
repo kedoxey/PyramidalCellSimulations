@@ -171,13 +171,13 @@ def get_total_soma_distance(cell):
     return dist_from_soma, furthest_sec
 
 
-def get_secs_from_dist(filename, cell_name, dist_scale, bound=1):
+def get_secs_from_dist(filename, cell_name, lb, ub=1):
     cell = get_hoc_cell(filename, cell_name)
     soma = cell.soma_0
 
     total_distance, _ = get_total_soma_distance(cell)
-    distance = dist_scale*total_distance
-    dist_bound = bound*total_distance
+    distance = lb*total_distance
+    dist_bound = ub*total_distance
 
     secs_from_dist = []
 
