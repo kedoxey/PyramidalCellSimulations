@@ -1,6 +1,8 @@
 import requests
 import json
 import os
+import yaml
+import shutil
 import pyneuroml as pynml
 import neuroml as nml
 import neuroml.writers as writers
@@ -26,6 +28,32 @@ def compile_mechs(cwd, hocs_dir, mod_dir, force=False):
     else:
         print('Mechanisms already compiled!')
 
+
+def join(loader,node):
+    seq = loader.construct_sequence(node)
+    return ''.join([str(i) for i in seq])
+
+def load_config(config_name='default_config'):
+    cwd = os.getcwd()
+    config_dir = os.path.join(cwd, 'config')
+    config_file = os.path.join(config_dir, config_name+'.yml')
+
+    yaml.add_constructor('!join', join)
+    with open(config_file) as f:
+        config_params = yaml.full_load(f)
+
+    config_params['input_amp'] = config_params['input_amps'][config_params['amp_idx']]
+    
+    return config_params
+
+def save_config(sim_dir, sim_label, config_name='default_config'):
+    cwd = os.getcwd()
+    config_dir = os.path.join(cwd, 'config')
+    config_file = os.path.join(config_dir, config_name+'.yml')
+
+    shutil.copy2(config_file, os.path.join(sim_dir,'config-'+sim_label+'.yml'))
+    
+    print('Config saved!')
 
 # download specified version of model from neuroml-db 
 def download_from_nmldb(model_id, version):
@@ -189,3 +217,5 @@ def get_secs_from_dist(filename, cell_name, lb, ub=1):
             secs_from_dist.append(sec_name)
 
     return secs_from_dist
+
+

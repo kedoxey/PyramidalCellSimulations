@@ -1,0 +1,34 @@
+run_NML: False
+plot_morphology: True
+enable_syns: True
+record_LFP: False
+
+spk_type: 'poisson'  # poisson or gaussian
+
+syns_lb: &sl 0.5 # 0 if not distibuted by distance from soma
+syns_ub: &su 0.6
+syns_type: &st 'MORE-all+soma'  # soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+num_syns: 100
+add_soma: True
+
+sim_name: &sn !join ['MEETING-', *st]
+vinit: -80
+
+### Input parameters ###
+input_amps : [0, 0.35477, 0.44346, 0.53215, 1.0643]
+amp_idx: 0
+# input_amp: input_amps[amp_idx]
+stim_delay: 700
+stim_dur: 2000
+sim_dur: 3000
+
+# Poisson spike trains
+spk_freq: 20
+
+# Gaussian spike trains
+gauss_mean: 1.4
+gauss_std: 0.4
+
+sim_label: !join [*sn, '-dist_', *sl, '-', *su]
+
+sim_message: 'Simulations for meeting with Yi and Sharon. Varying the synapse location distance from soma.'
