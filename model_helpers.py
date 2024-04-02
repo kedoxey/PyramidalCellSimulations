@@ -3,14 +3,17 @@ import json
 import os
 import yaml
 import shutil
+import pickle
 import pyneuroml as pynml
 import neuroml as nml
 import neuroml.writers as writers
 import numpy as np
+import matplotlib.pyplot as plt
 import re
 from neuroml.utils import component_factory
 from zipfile import ZipFile
 from urllib.request import urlopen
+from scipy.signal import butter, lfilter
 from neuron import h
 
 from neuromllite import Network, Cell, Population, InputSource, Input, NetworkGenerator
@@ -20,6 +23,8 @@ cwd = os.getcwd()
 h.load_file('stdlib.hoc')
 h.load_file('import3d.hoc')
 
+
+### Model files ###
 def compile_mechs(cwd, hocs_dir, mod_dir, force=False):
     if force or not os.path.exists(os.path.join(hocs_dir, 'x86_64')):
         os.chdir(hocs_dir)
@@ -27,33 +32,6 @@ def compile_mechs(cwd, hocs_dir, mod_dir, force=False):
         os.chdir(cwd)
     else:
         print('Mechanisms already compiled!')
-
-
-def join(loader,node):
-    seq = loader.construct_sequence(node)
-    return ''.join([str(i) for i in seq])
-
-def load_config(config_name='default_config'):
-    cwd = os.getcwd()
-    config_dir = os.path.join(cwd, 'config')
-    config_file = os.path.join(config_dir, config_name+'.yml')
-
-    yaml.add_constructor('!join', join)
-    with open(config_file) as f:
-        config_params = yaml.full_load(f)
-
-    config_params['input_amp'] = config_params['input_amps'][config_params['amp_idx']]
-    
-    return config_params
-
-def save_config(sim_dir, sim_label, config_name='default_config'):
-    cwd = os.getcwd()
-    config_dir = os.path.join(cwd, 'config')
-    config_file = os.path.join(config_dir, config_name+'.yml')
-
-    shutil.copy2(config_file, os.path.join(sim_dir,'config-'+sim_label+'.yml'))
-    
-    print('Config saved!')
 
 # download specified version of model from neuroml-db 
 def download_from_nmldb(model_id, version):
@@ -77,7 +55,6 @@ def download_from_nmldb(model_id, version):
     else:
         print(f'Model {model_id} already downloaded.')
 
-    
 def generate_network(nml_dir, cell_name, pop_label, pop_size=1, force=False, **input_args):
     
     cell_nml_path = os.path.join(nml_dir, f'{cell_name}.cell.nml')
@@ -107,6 +84,36 @@ def generate_network(nml_dir, cell_name, pop_label, pop_size=1, force=False, **i
 
     return net_nml_path
 
+
+### For config file ###
+def join(loader,node):
+    seq = loader.construct_sequence(node)
+    return ''.join([str(i) for i in seq])
+
+def load_config(config_name='default_config'):
+    cwd = os.getcwd()
+    config_dir = os.path.join(cwd, 'config')
+    config_file = os.path.join(config_dir, config_name+'.yml')
+
+    yaml.add_constructor('!join', join)
+    with open(config_file) as f:
+        config_params = yaml.full_load(f)
+
+    config_params['input_amp'] = config_params['input_amps'][config_params['amp_idx']]
+    
+    return config_params
+
+def save_config(sim_dir, sim_label, config_name='default_config'):
+    cwd = os.getcwd()
+    config_dir = os.path.join(cwd, 'config')
+    config_file = os.path.join(config_dir, config_name+'.yml')
+
+    shutil.copy2(config_file, os.path.join(sim_dir,'config-'+sim_label+'.yml'))
+    
+    print('Config saved!')
+
+
+### File system ###
 def create_output_dirs(test_name, model_dir):
 
     output_dir = os.path.join(model_dir,'output')
@@ -118,7 +125,6 @@ def create_output_dirs(test_name, model_dir):
         os.mkdir(sim_dir)
 
     return output_dir, sim_dir
-
 
 def create_sim_description(output_dir, **params):
 
@@ -142,6 +148,7 @@ def create_sim_description(output_dir, **params):
     print("Simulation description saved!")
 
 
+### Model analysis ###
 def get_components(cell, group_name='all'):
 
     secs = np.array(list(cell['secs'].keys()))
@@ -218,4 +225,62 @@ def get_secs_from_dist(filename, cell_name, lb, ub=1):
 
     return secs_from_dist
 
+
+### Signal processing ###
+def butter_bandpass(lowcut, highcut, fs, order=5):
+ nyq = 0.5 * fs
+ low = lowcut / nyq
+ high = highcut / nyq
+ b, a = butter(order, [low, high], btype='band')
+ return b, a
+
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+   b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+   y = lfilter(b, a, data)
+   return y
+
+def get_filtered_signal(lfp, dt):
+
+    lfp = [lfp_d[0] for lfp_d in lfp]
+
+    lfp_bp_low = butter_bandpass_filter(lfp, 10, 300, 1/dt*1000, order=4)
+    lfp_bp_spikes = butter_bandpass_filter(lfp, 300, 500, 1/dt*1000, order=4)
+
+    return lfp_bp_low, lfp_bp_spikes
+
+def plot_lfp(simData, dt, output_dir):
+    with open(os.path.join(output_dir,'simData.pkl'),'wb') as fp:
+        pickle.dump(simData,fp)
+
+    t = list(simData['t'])
+    with open(os.path.join(output_dir,'t.pkl'),'wb') as fp:
+        pickle.dump(t,fp)
+
+    spkt = list(simData['spkt'])
+    with open(os.path.join(output_dir,'spkt.pkl'),'wb') as fp:
+        pickle.dump(spkt,fp)
+
+    lfp = [lfp_d[0] for lfp_d in simData['LFP']]
+
+    lfp_bp_low = butter_bandpass_filter(lfp, 10, 300, 1/dt*1000, order=4)
+    with open(os.path.join(output_dir,'lfp_bp_low.pkl'),'wb') as fp:
+        pickle.dump(lfp_bp_low,fp)
+    
+    lfp_bp_spikes = butter_bandpass_filter(lfp, 301, 700, 1/dt*1000, order=4)
+    with open(os.path.join(output_dir,'lfp_bp_spikes.pkl'),'wb') as fp:
+        pickle.dump(lfp_bp_spikes,fp)
+
+    fig, ax = plt.subplots(1, 1, figsize=(20,12))
+
+    ax.plot(t[0:len(lfp_bp_low)],lfp_bp_low*10000-200,color='cornflowerblue',label='BP filtered: 10-300Hz')
+    ax.plot(t[0:len(lfp_bp_spikes)],lfp_bp_spikes*10000-800,color='orchid',label='BP filtered: >300Hz')
+    ax.vlines(spkt, [195], [205], 'k')
+    ax.legend(loc='upper right')
+    ax.set_xlabel('Time (ms)')
+    ax.set_ylabel('LFP')      
+    ax.set_title('LFPs')
+
+    fig.show()
+
+    fig.savefig(os.path.join(output_dir,'lfp_fig.png'),bbox_inches='tight',dpi=300)
 

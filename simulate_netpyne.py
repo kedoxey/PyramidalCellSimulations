@@ -14,7 +14,7 @@ time_flag = False
 start_t = time.time()
 
 ### Import simulation config ###
-config_name = 'meeting_config'
+config_name = 'figures_config'
 params = Namespace(**mh.load_config(config_name))
 
 ### Model information ###
@@ -65,10 +65,10 @@ load_mechanisms(model_dir)
 ### Simulation configuration ###
 cfg = specs.SimConfig()					                    # object of class SimConfig to store simulation configuration
 cfg.duration = params.sim_dur 						                # Duration of the simulation, in ms
-cfg.dt = 0.01								                # Internal integration timestep to use
+cfg.dt = params.dt								                # Internal integration timestep to use
 cfg.verbose = True							                # Show detailed messages
 cfg.recordTraces = {'V_soma':{'sec':'soma_0','loc':0.5,'var':'v'}}  # Dict with traces to record
-cfg.recordStep = 0.01
+cfg.recordStep = params.recordStep
 cfg.filename = os.path.join(sim_dir,cell_name+'_'+params.sim_label) 	# Set file output name
 cfg.saveJson = False
 cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': True}  # Plot recorded traces for this list of cells
@@ -197,11 +197,10 @@ netParams.stimTargetParams['Input_IC->Soma'] = {
 if params.record_LFP:
     probe_L = 1280//5
     channels = 1
-    depths = 10
-    elec_dist = probe_L//depths  # microns
+    elec_dist = probe_L//params.depths  # microns
     disp = 100  # 150
 
-    elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(depths)]  # 
+    elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(params.depths)]  # 
     # -x is left and -y is above soma
     # elec_pos.reverse()
 
@@ -209,12 +208,18 @@ if params.record_LFP:
     cfg.analysis['plotLFP'] = {'saveFig': True}
 
 ### Run simulation ###
-sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=False)
+(pops, cells, conns, stims, simData) = sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=True)
+
+### Process LFP ###
+# lfp_bp_low, lfp_bp_spikes = mh.get_filtered_signal(simData['LFP'], cfg.dt)
+# spkt = list(simData['spkt'])
+mh.plot_lfp(simData, cfg.dt, sim_dir)
 
 ### Plot morphology ###
 if params.plot_morphology:
     sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], 
                            saveFig=True, axisLabels=True, returnPlotter=True, synColor='darkcyan') 
+
 
 ### Simulation time ###
 if time_flag:

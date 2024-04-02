@@ -1,18 +1,22 @@
 run_NML: False
 plot_morphology: True
 enable_syns: True
-record_LFP: False
+
+record_LFP: True
+depths: 5
 
 spk_type: 'poisson'  # poisson or gaussian
 
 syns_lb: &sl 0.5 # 0 if not distibuted by distance from soma
 syns_ub: &su 0.6
-syns_type: &st 'all+soma'  # soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
-num_syns: 100
-add_soma: True
+syns_type: &st 'all'  # soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+num_syns: 50
+add_soma: False
 
-sim_name: &sn !join ['MEETING-', *st]
+sim_name: &sn !join ['FIGURES-', *st]
 vinit: -80
+dt: 0.01
+recordStep: 0.1
 
 ### Input parameters ###
 input_amps : [0, 0.35477, 0.44346, 0.53215, 1.0643]
