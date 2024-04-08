@@ -244,7 +244,7 @@ def get_filtered_signal(lfp, dt):
     lfp = [lfp_d[0] for lfp_d in lfp]
 
     lfp_bp_low = butter_bandpass_filter(lfp, 10, 300, 1/dt*1000, order=4)
-    lfp_bp_spikes = butter_bandpass_filter(lfp, 300, 500, 1/dt*1000, order=4)
+    lfp_bp_spikes = butter_bandpass_filter(lfp, 301, 700, 1/dt*1000, order=4)
 
     return lfp_bp_low, lfp_bp_spikes
 
@@ -260,13 +260,11 @@ def plot_lfp(simData, dt, output_dir):
     with open(os.path.join(output_dir,'spkt.pkl'),'wb') as fp:
         pickle.dump(spkt,fp)
 
-    lfp = [lfp_d[0] for lfp_d in simData['LFP']]
+    lfp_bp_low, lfp_bp_spikes = get_filtered_signal(simData['LFP'], dt)
 
-    lfp_bp_low = butter_bandpass_filter(lfp, 10, 300, 1/dt*1000, order=4)
     with open(os.path.join(output_dir,'lfp_bp_low.pkl'),'wb') as fp:
         pickle.dump(lfp_bp_low,fp)
     
-    lfp_bp_spikes = butter_bandpass_filter(lfp, 301, 700, 1/dt*1000, order=4)
     with open(os.path.join(output_dir,'lfp_bp_spikes.pkl'),'wb') as fp:
         pickle.dump(lfp_bp_spikes,fp)
 
@@ -280,7 +278,6 @@ def plot_lfp(simData, dt, output_dir):
     ax.set_ylabel('LFP')      
     ax.set_title('LFPs')
 
-    fig.show()
 
     fig.savefig(os.path.join(output_dir,'lfp_fig.png'),bbox_inches='tight',dpi=300)
 

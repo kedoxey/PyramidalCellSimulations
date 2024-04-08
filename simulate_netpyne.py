@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import os
+import secrets
 import json
 import model_helpers as mh
 import numpy as np
@@ -14,7 +15,7 @@ time_flag = False
 start_t = time.time()
 
 ### Import simulation config ###
-config_name = 'figures_config'
+config_name = 'syns-source_config'
 params = Namespace(**mh.load_config(config_name))
 
 ### Model information ###
@@ -106,9 +107,17 @@ if params.syns_lb > 0:
 else:
     syn_secs = mh.get_components(importedCellParams, params.syns_type)
 
+cfg.recordTraces['V_syn'] = {'sec':secrets.choice(syn_secs),'loc':0.5,'var':'v'}
+
 ### Add AMPA/NMDA synapse ###
-netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}
-netParams.synMechParams['NMDA'] = {'mod': 'MyExp2SynNMDABB', 'tau1NMDA': 15, 'tau2NMDA': 150, 'e': 0}
+if 'HS' in params.syns_source:
+    # Hay & Segev 2015
+    netParams.synMechParams['AMPA'] = {'mod':'ProbAMPA2', 'tau_r_AMPA': 0.2, 'tau_d_AMPA': 1.7, 'e': 0}
+    netParams.synMechParams['NMDA'] = {'mod': 'ProbNMDA2', 'tau_r_NMDA': 0.29, 'tau_d_NMDA': 43, 'e': 0}
+else:
+    # Dura-Bernal et al. 2024
+    netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}
+    netParams.synMechParams['NMDA'] = {'mod': 'MyExp2SynNMDABB', 'tau1NMDA': 15, 'tau2NMDA': 150, 'e': 0}
 
 exc_syns = ['AMPA', 'NMDA']
 
@@ -132,7 +141,7 @@ if params.enable_syns:
         else:
             netParams.popParams['vecstim'] = {
                 'cellModel': 'VecStim',
-                'numCells': 50,  # int(len(syn_secs)/4),
+                'numCells': params.num_syns,  # int(len(syn_secs)/4),
                 'spikePattern': {'type': 'gauss',
                                 'mu': params.gauss_mean,
                                 'sigma': params.gauss_std}
@@ -142,7 +151,7 @@ if params.enable_syns:
             'preConds': {'pop': 'vecstim'},
             'postConds': {'pop': pop_label},
             'sec': syn_secs,
-            'synsPerConn': 1,
+            'synsPerConn': params.synsPerConn,
             'synMech': exc_syns,
             'weight': 0.001,  # 0.5,
             # 'synMechWeightFactor': [0.5,0.5],
@@ -213,7 +222,7 @@ if params.record_LFP:
 ### Process LFP ###
 # lfp_bp_low, lfp_bp_spikes = mh.get_filtered_signal(simData['LFP'], cfg.dt)
 # spkt = list(simData['spkt'])
-mh.plot_lfp(simData, cfg.dt, sim_dir)
+mh.plot_lfp(simData, params.recordStep, sim_dir)
 
 ### Plot morphology ###
 if params.plot_morphology:
