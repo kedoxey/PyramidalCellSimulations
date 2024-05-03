@@ -15,7 +15,7 @@ time_flag = False
 start_t = time.time()
 
 ### Import simulation config ###
-config_name = 'syns-source_config'
+config_name = 'lfp_config'
 params = Namespace(**mh.load_config(config_name))
 
 ### Model information ###
@@ -153,7 +153,7 @@ if params.enable_syns:
             'sec': syn_secs,
             'synsPerConn': params.synsPerConn,
             'synMech': exc_syns,
-            'weight': 0.001,  # 0.5,
+            'weight': params.syns_weight,  # 
             # 'synMechWeightFactor': [0.5,0.5],
             'delay': 5,  # 'defaultDelay + dist_2D/propVelocity',
             'probability': 1.0,
@@ -222,7 +222,7 @@ if params.record_LFP:
 ### Process LFP ###
 # lfp_bp_low, lfp_bp_spikes = mh.get_filtered_signal(simData['LFP'], cfg.dt)
 # spkt = list(simData['spkt'])
-mh.plot_lfp(simData, params.recordStep, sim_dir)
+mh.plot_lfp(simData, params.recordStep, params.sim_label, sim_dir)
 
 ### Plot morphology ###
 if params.plot_morphology:

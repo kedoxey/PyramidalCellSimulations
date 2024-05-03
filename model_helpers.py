@@ -248,36 +248,36 @@ def get_filtered_signal(lfp, dt):
 
     return lfp_bp_low, lfp_bp_spikes
 
-def plot_lfp(simData, dt, output_dir):
-    with open(os.path.join(output_dir,'simData.pkl'),'wb') as fp:
+def plot_lfp(simData, dt, sim_label, output_dir):
+    with open(os.path.join(output_dir,f'{sim_label}_simData.pkl'),'wb') as fp:
         pickle.dump(simData,fp)
 
     t = list(simData['t'])
-    with open(os.path.join(output_dir,'t.pkl'),'wb') as fp:
+    with open(os.path.join(output_dir,f'{sim_label}_t.pkl'),'wb') as fp:
         pickle.dump(t,fp)
 
     spkt = list(simData['spkt'])
-    with open(os.path.join(output_dir,'spkt.pkl'),'wb') as fp:
+    with open(os.path.join(output_dir,f'{sim_label}_spkt.pkl'),'wb') as fp:
         pickle.dump(spkt,fp)
 
-    lfp_bp_low, lfp_bp_spikes = get_filtered_signal(simData['LFP'], dt)
+    # lfp_bp_low, lfp_bp_spikes = get_filtered_signal(simData['LFP'], dt)
 
-    with open(os.path.join(output_dir,'lfp_bp_low.pkl'),'wb') as fp:
-        pickle.dump(lfp_bp_low,fp)
+    # with open(os.path.join(output_dir,f'{sim_label}lfp_bp_low.pkl'),'wb') as fp:
+    #     pickle.dump(lfp_bp_low,fp)
     
-    with open(os.path.join(output_dir,'lfp_bp_spikes.pkl'),'wb') as fp:
-        pickle.dump(lfp_bp_spikes,fp)
+    # with open(os.path.join(output_dir,f'{sim_label}lfp_bp_spikes.pkl'),'wb') as fp:
+    #     pickle.dump(lfp_bp_spikes,fp)
 
-    fig, ax = plt.subplots(1, 1, figsize=(20,12))
+    # fig, ax = plt.subplots(1, 1, figsize=(20,12))
 
-    ax.plot(t[0:len(lfp_bp_low)],lfp_bp_low*10000-200,color='cornflowerblue',label='BP filtered: 10-300Hz')
-    ax.plot(t[0:len(lfp_bp_spikes)],lfp_bp_spikes*10000-800,color='orchid',label='BP filtered: >300Hz')
-    ax.vlines(spkt, [195], [205], 'k')
-    ax.legend(loc='upper right')
-    ax.set_xlabel('Time (ms)')
-    ax.set_ylabel('LFP')      
-    ax.set_title('LFPs')
+    # ax.plot(t[0:len(lfp_bp_low)],lfp_bp_low*10000-200,color='cornflowerblue',label='BP filtered: 10-300Hz')
+    # ax.plot(t[0:len(lfp_bp_spikes)],lfp_bp_spikes*10000-800,color='orchid',label='BP filtered: >300Hz')
+    # ax.vlines(spkt, [195], [205], 'k')
+    # ax.legend(loc='upper right')
+    # ax.set_xlabel('Time (ms)')
+    # ax.set_ylabel('LFP')      
+    # ax.set_title('LFPs')
 
 
-    fig.savefig(os.path.join(output_dir,'lfp_fig.png'),bbox_inches='tight',dpi=300)
+    # fig.savefig(os.path.join(output_dir,'lfp_fig.png'),bbox_inches='tight',dpi=300)
 
