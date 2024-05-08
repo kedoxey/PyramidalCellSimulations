@@ -15,7 +15,7 @@ time_flag = False
 start_t = time.time()
 
 ### Import simulation config ###
-config_name = 'lfp_config'
+config_name = 'inh_config'
 params = Namespace(**mh.load_config(config_name))
 
 ### Model information ###
@@ -112,12 +112,17 @@ cfg.recordTraces['V_syn'] = {'sec':secrets.choice(syn_secs),'loc':0.5,'var':'v'}
 ### Add AMPA/NMDA synapse ###
 if 'HS' in params.syns_source:
     # Hay & Segev 2015
-    netParams.synMechParams['AMPA'] = {'mod':'ProbAMPA2', 'tau_r_AMPA': 0.2, 'tau_d_AMPA': 1.7, 'e': 0}
-    netParams.synMechParams['NMDA'] = {'mod': 'ProbNMDA2', 'tau_r_NMDA': 0.29, 'tau_d_NMDA': 43, 'e': 0}
+    netParams.synMechParams['AMPA'] = {'mod':'ProbAMPA2', 'tau_r_AMPA': 0.2, 'tau_d_AMPA': 1.7, 'e': 0, 'gmax': 0.0004}
+    netParams.synMechParams['NMDA'] = {'mod': 'ProbNMDA2', 'tau_r_NMDA': 0.29, 'tau_d_NMDA': 43, 'e': 0, 'gmax': 0.0004}
+    netParams.synMechParams['GABAA'] = {'mod': 'ProbUDFsyn2', 'tau_r': 1, 'tau_d': 20, 'e': -80, 'gmax': 0.001}
+    inh_syns = ['GABAA']
 else:
     # Dura-Bernal et al. 2024
     netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}
-    netParams.synMechParams['NMDA'] = {'mod': 'MyExp2SynNMDABB', 'tau1NMDA': 15, 'tau2NMDA': 150, 'e': 0}
+    netParams.synMechParams['NMDA'] = {'mod': 'MyExp2SynNMDABB', 'tau1NMDA': 15, 'tau2NMDA': 150, 'e': 0} 
+    netParams.synMechParams['GABAA'] = {'mod':'MyExp2SynBB', 'tau1': 0.07, 'tau2': 18.2, 'e': -80}
+    netParams.synMechParams['GABAB'] = {'mod':'MyExp2SynBB', 'tau1': 3.5, 'tau2': 260.9, 'e': -93}
+    inh_syns = ['GABAA', 'GABAB']
 
 exc_syns = ['AMPA', 'NMDA']
 
@@ -132,6 +137,14 @@ if params.enable_syns:
             netParams.popParams['vecstim'] = {
                 'cellModel': 'VecStim',
                 'numCells': params.num_syns,  # int(len(syn_secs)/4),
+                'spikePattern': {'type': 'poisson',
+                                'start': params.stim_delay,
+                                'stop': params.stim_delay+params.stim_dur,
+                                'frequency': params.spk_freq}
+            }
+            netParams.popParams['vecstimI'] = {
+                'cellModel': 'VecStim',
+                'numCells': params.num_syns//4,  # int(len(syn_secs)/4),
                 'spikePattern': {'type': 'poisson',
                                 'start': params.stim_delay,
                                 'stop': params.stim_delay+params.stim_dur,
@@ -166,6 +179,27 @@ if params.enable_syns:
             'groupSynMech': exc_syns,
             'density': 'uniform'
         }
+
+        if params.add_inh:
+            netParams.connParams[f'vecstimI->{pop_label}'] = {
+                'preConds': {'pop': 'vecstimI'},
+                'postConds': {'pop': pop_label},
+                'sec': syn_secs,
+                'synsPerConn': params.synsPerConn,
+                'synMech': inh_syns,
+                'weight': params.syns_weight,  # 
+                # 'synMechWeightFactor': [0.5,0.5],
+                'delay': 5,  # 'defaultDelay + dist_2D/propVelocity',
+                'probability': 1.0,
+            }
+
+            netParams.subConnParams[f'vecstimI->{pop_label}'] = {
+                'preConds': {'pop': 'vecstimI'},
+                'postConds': {'pop': pop_label},
+                'sec': syn_secs,
+                'groupSynMech': inh_syns,
+                'density': 'uniform'
+            }
     else:
         f = 50  # Hz, frequency of input
         p_mean = 1000/f  # ms, mean time between spikes

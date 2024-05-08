@@ -15,9 +15,8 @@ syns_weight: &sw 1.05  # Hay & Segev 2015 (HS), Dura-Bernal et al. 2024 (DB)
 num_syns: &ns 50 
 synsPerConn: &spc 1
 add_soma: False
+add_inh: False
 
-sim_name: &sn !join ['SYNS_SOURCE-', *st]
-sim_label: !join [*sn, '-', *ns, 'x', *spc, 'x', *sw, '_', *ss]
 vinit: -80
 dt: 0.01
 recordStep: 0.1
@@ -31,10 +30,13 @@ stim_dur: 2000
 sim_dur: 3000
 
 # Poisson spike trains
-spk_freq: 20
+spk_freq: &sf 20
 
 # Gaussian spike trains
 gauss_mean: 1.4
 gauss_std: 0.4
+
+sim_name: &sn !join ['SYNS_SOURCE-', *st]
+sim_label: !join [*sn, '-', *ns, 'x', *spc, 'x', *sw, '_', *ss]
 
 sim_message: 'Simulation parameters for testing differnt sources of AMPA and NMDA synapses (Hay & Segev 2015 or Dura-Bernal et al. 2024).'

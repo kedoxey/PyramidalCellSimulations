@@ -10,12 +10,12 @@ spk_type: 'poisson'  # poisson or gaussian
 syns_lb: &sl 0 # 0 if not distibuted by distance from soma
 syns_ub: &su 1
 syns_type: &st 'all'  # soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
-syns_source: &ss 'DB'
-syns_weight: &sw 1  # Hay & Segev 2015 (HS) = 1.05, Dura-Bernal et al. 2024 (DB) = 1
+syns_source: &ss 'HS'
+syns_weight: &sw 1  # Hay & Segev 2015 (HS) = 1.5, Dura-Bernal et al. 2024 (DB) = 1
 num_syns: &ns 50 
 synsPerConn: &spc 1
 add_soma: False
-add_inh: False
+add_inh: True
 
 vinit: -80
 dt: 0.01
@@ -30,13 +30,13 @@ stim_dur: 2000
 sim_dur: 3000
 
 # Poisson spike trains
-spk_freq: 20
+spk_freq: &sf 100
 
 # Gaussian spike trains
 gauss_mean: 1.4
 gauss_std: 0.4
 
-sim_name: &sn !join ['FIGURES-', *st]
-sim_label: !join [*sn, '-dist_', *sl, '-', *su]
+sim_name: &sn !join ['INH-', *st]
+sim_label: !join [*sn, '-', *sf, 'Hz_', *ns, 'x', *spc, 'x', *sw, '_', *ss]
 
-sim_message: 'Simulation parameters for generating more detailed figures.'
+sim_message: 'Simulation parameters for testing including inhibitory synapses.'

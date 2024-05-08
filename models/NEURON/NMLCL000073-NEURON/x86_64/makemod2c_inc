@@ -127,6 +127,14 @@
 	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
 	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
 
+./ProbUDFsyn2.c: .././ProbUDFsyn2.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) ProbUDFsyn2.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+
+./ProbUDFsyn2.o: ./ProbUDFsyn2.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
 ./SAM_gaussstim.c: .././SAM_gaussstim.mod
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
 	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) SAM_gaussstim.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")

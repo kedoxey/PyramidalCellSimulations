@@ -19,6 +19,7 @@ extern void _pas_nml2_reg(void);
 extern void _ProbAMPA2_reg(void);
 extern void _ProbAMPANMDA2_reg(void);
 extern void _ProbNMDA2_reg(void);
+extern void _ProbUDFsyn2_reg(void);
 extern void _SAM_gaussstim_reg(void);
 extern void _SK_E2_reg(void);
 extern void _SKv3_1_reg(void);
@@ -44,6 +45,7 @@ void modl_reg(){
     fprintf(stderr," \"./ProbAMPA2.mod\"");
     fprintf(stderr," \"./ProbAMPANMDA2.mod\"");
     fprintf(stderr," \"./ProbNMDA2.mod\"");
+    fprintf(stderr," \"./ProbUDFsyn2.mod\"");
     fprintf(stderr," \"./SAM_gaussstim.mod\"");
     fprintf(stderr," \"./SK_E2.mod\"");
     fprintf(stderr," \"./SKv3_1.mod\"");
@@ -66,6 +68,7 @@ void modl_reg(){
   _ProbAMPA2_reg();
   _ProbAMPANMDA2_reg();
   _ProbNMDA2_reg();
+  _ProbUDFsyn2_reg();
   _SAM_gaussstim_reg();
   _SK_E2_reg();
   _SKv3_1_reg();
