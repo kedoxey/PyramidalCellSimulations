@@ -15,7 +15,7 @@ time_flag = False
 start_t = time.time()
 
 ### Import simulation config ###
-config_name = 'inh_config'
+config_name = 'lfp_config'
 params = Namespace(**mh.load_config(config_name))
 
 ### Model information ###
@@ -107,6 +107,8 @@ if params.syns_lb > 0:
 else:
     syn_secs = mh.get_components(importedCellParams, params.syns_type)
 
+syn_secs_E, syn_secs_I = mh.get_rand_secs(syn_secs, params.num_syns)
+
 cfg.recordTraces['V_syn'] = {'sec':secrets.choice(syn_secs),'loc':0.5,'var':'v'}
 
 ### Add AMPA/NMDA synapse ###
@@ -144,7 +146,7 @@ if params.enable_syns:
             }
             netParams.popParams['vecstimI'] = {
                 'cellModel': 'VecStim',
-                'numCells': params.num_syns//4,  # int(len(syn_secs)/4),
+                'numCells': params.num_syns//5,  # int(len(syn_secs)/4),
                 'spikePattern': {'type': 'poisson',
                                 'start': params.stim_delay,
                                 'stop': params.stim_delay+params.stim_dur,
@@ -163,7 +165,7 @@ if params.enable_syns:
         netParams.connParams[f'vecstim->{pop_label}'] = {
             'preConds': {'pop': 'vecstim'},
             'postConds': {'pop': pop_label},
-            'sec': syn_secs,
+            'sec': syn_secs_E,
             'synsPerConn': params.synsPerConn,
             'synMech': exc_syns,
             'weight': params.syns_weight,  # 
@@ -175,7 +177,7 @@ if params.enable_syns:
         netParams.subConnParams[f'vecstim->{pop_label}'] = {
             'preConds': {'pop': 'vecstim'},
             'postConds': {'pop': pop_label},
-            'sec': syn_secs,
+            'sec': syn_secs_E,
             'groupSynMech': exc_syns,
             'density': 'uniform'
         }
@@ -184,7 +186,7 @@ if params.enable_syns:
             netParams.connParams[f'vecstimI->{pop_label}'] = {
                 'preConds': {'pop': 'vecstimI'},
                 'postConds': {'pop': pop_label},
-                'sec': syn_secs,
+                'sec': syn_secs_I,
                 'synsPerConn': params.synsPerConn,
                 'synMech': inh_syns,
                 'weight': params.syns_weight,  # 
@@ -196,7 +198,7 @@ if params.enable_syns:
             netParams.subConnParams[f'vecstimI->{pop_label}'] = {
                 'preConds': {'pop': 'vecstimI'},
                 'postConds': {'pop': pop_label},
-                'sec': syn_secs,
+                'sec': syn_secs_I,
                 'groupSynMech': inh_syns,
                 'density': 'uniform'
             }

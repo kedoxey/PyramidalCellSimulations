@@ -225,6 +225,15 @@ def get_secs_from_dist(filename, cell_name, lb, ub=1):
 
     return secs_from_dist
 
+def get_rand_secs(sec_list, num_syns):
+
+    sec_list = np.array(sec_list)
+
+    locs_E = np.random.randint(len(sec_list),size=num_syns)
+    locs_I = np.random.randint(len(sec_list),size=num_syns)
+
+    return list(sec_list[locs_E]), list(sec_list[locs_I])
+
 
 ### Signal processing ###
 def butter_bandpass(lowcut, highcut, fs, order=5):
