@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "scoplib_ansi.h"
+#include "mech_api.h"
 #undef PI
 #define nil 0
 #include "md1redef.h"
@@ -46,20 +46,35 @@ extern double hoc_Exp(double);
 #define t nrn_threads->_t
 #define dt nrn_threads->_dt
 #define gamma _p[0]
+#define gamma_columnindex 0
 #define minCai _p[1]
+#define minCai_columnindex 1
 #define decay _p[2]
+#define decay_columnindex 2
 #define depth _p[3]
+#define depth_columnindex 3
 #define Faraday _p[4]
+#define Faraday_columnindex 4
 #define currDensCa _p[5]
+#define currDensCa_columnindex 5
 #define concentration _p[6]
+#define concentration_columnindex 6
 #define extConcentration _p[7]
+#define extConcentration_columnindex 7
 #define cai _p[8]
+#define cai_columnindex 8
 #define cao _p[9]
+#define cao_columnindex 9
 #define ica _p[10]
+#define ica_columnindex 10
 #define rate_concentration _p[11]
+#define rate_concentration_columnindex 11
 #define Dconcentration _p[12]
+#define Dconcentration_columnindex 12
 #define DextConcentration _p[13]
+#define DextConcentration_columnindex 13
 #define _g _p[14]
+#define _g_columnindex 14
 #define _ion_cai	*_ppvar[0]._pval
 #define _ion_cao	*_ppvar[1]._pval
 #define _ion_ica	*_ppvar[2]._pval
@@ -159,15 +174,15 @@ extern void hoc_reg_nmodl_filename(int, const char*);
 };
  static double _sav_indep;
  static void nrn_alloc(Prop*);
-static void  nrn_init(_NrnThread*, _Memb_list*, int);
-static void nrn_state(_NrnThread*, _Memb_list*, int);
- static void nrn_cur(_NrnThread*, _Memb_list*, int);
-static void  nrn_jacob(_NrnThread*, _Memb_list*, int);
+static void  nrn_init(NrnThread*, _Memb_list*, int);
+static void nrn_state(NrnThread*, _Memb_list*, int);
+ static void nrn_cur(NrnThread*, _Memb_list*, int);
+static void  nrn_jacob(NrnThread*, _Memb_list*, int);
  
 static int _ode_count(int);
 static void _ode_map(int, double**, double**, double*, Datum*, double*, int);
-static void _ode_spec(_NrnThread*, _Memb_list*, int);
-static void _ode_matsol(_NrnThread*, _Memb_list*, int);
+static void _ode_spec(NrnThread*, _Memb_list*, int);
+static void _ode_matsol(NrnThread*, _Memb_list*, int);
  
 #define _cvode_ieq _ppvar[6]._i
  static void _ode_synonym(int, double**, Datum**);
@@ -230,7 +245,7 @@ static void nrn_alloc(Prop* _prop) {
  static void _update_ion_pointer(Datum*);
  extern Symbol* hoc_lookup(const char*);
 extern void _nrn_thread_reg(int, int, void(*)(Datum*));
-extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, _NrnThread*, int));
+extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, NrnThread*, int));
 extern void hoc_register_tolerance(int, HocStateTolerance*, Symbol***);
 extern void _cvode_abstol( Symbol**, double*, int);
 
@@ -320,7 +335,7 @@ static void _hoc_rates(void) {
  
 static int _ode_count(int _type){ return 1;}
  
-static void _ode_spec(_NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void _ode_spec(NrnThread* _nt, _Memb_list* _ml, int _type) {
    Datum* _thread;
    Node* _nd; double _v; int _iml, _cntml;
   _cntml = _ml->_nodecount;
@@ -355,7 +370,7 @@ static void _ode_matsol_instance1(_threadargsproto_) {
  _ode_matsol1 ();
  }
  
-static void _ode_matsol(_NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void _ode_matsol(NrnThread* _nt, _Memb_list* _ml, int _type) {
    Datum* _thread;
    Node* _nd; double _v; int _iml, _cntml;
   _cntml = _ml->_nodecount;
@@ -397,7 +412,7 @@ static void initmodel() {
 }
 }
 
-static void nrn_init(_NrnThread* _nt, _Memb_list* _ml, int _type){
+static void nrn_init(NrnThread* _nt, _Memb_list* _ml, int _type){
 Node *_nd; double _v; int* _ni; int _iml, _cntml;
 #if CACHEVEC
     _ni = _ml->_nodeindices;
@@ -428,7 +443,7 @@ static double _nrn_current(double _v){double _current=0.;v=_v;{
 } return _current;
 }
 
-static void nrn_cur(_NrnThread* _nt, _Memb_list* _ml, int _type){
+static void nrn_cur(NrnThread* _nt, _Memb_list* _ml, int _type){
 Node *_nd; int* _ni; double _rhs, _v; int _iml, _cntml;
 #if CACHEVEC
     _ni = _ml->_nodeindices;
@@ -448,7 +463,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  
 }}
 
-static void nrn_jacob(_NrnThread* _nt, _Memb_list* _ml, int _type){
+static void nrn_jacob(NrnThread* _nt, _Memb_list* _ml, int _type){
 Node *_nd; int* _ni; int _iml, _cntml;
 #if CACHEVEC
     _ni = _ml->_nodeindices;
@@ -468,7 +483,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  
 }}
 
-static void nrn_state(_NrnThread* _nt, _Memb_list* _ml, int _type){
+static void nrn_state(NrnThread* _nt, _Memb_list* _ml, int _type){
 Node *_nd; double _v = 0.0; int* _ni; int _iml, _cntml;
 #if CACHEVEC
     _ni = _ml->_nodeindices;
@@ -506,7 +521,7 @@ static void terminal(){}
 static void _initlists() {
  int _i; static int _first = 1;
   if (!_first) return;
- _slist1[0] = &(concentration) - _p;  _dlist1[0] = &(Dconcentration) - _p;
+ _slist1[0] = concentration_columnindex;  _dlist1[0] = Dconcentration_columnindex;
 _first = 0;
 }
 

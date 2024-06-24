@@ -33,6 +33,28 @@ def compile_mechs(cwd, hocs_dir, mod_dir, force=False):
     else:
         print('Mechanisms already compiled!')
 
+# get the name of the cell from the hoc file
+def get_cell_name(model_dir):
+    
+    model_files = np.array(os.listdir(model_dir))
+    hoc_file = model_files[np.char.endswith(model_files,'.hoc')][0]
+    cell_name = hoc_file.split('.')[0]
+    # for model_file in model_files:
+    #     if '.hoc' in model_file:
+    #         cell_name = model_file.split('.')[0]
+    #         break
+    return cell_name
+
+def copy_synapses(model_dir):
+
+    synapse_dir = os.path.join(cwd,'models','synapses')
+    synapse_files = os.listdir(synapse_dir)
+    for synapse_file in synapse_files:
+        src = os.path.join(synapse_dir,synapse_file)
+        dst = os.path.join(model_dir,synapse_file)
+        shutil.copy2(src, dst)
+
+
 # download specified version of model from neuroml-db 
 def download_from_nmldb(model_id, version):
     
@@ -43,13 +65,15 @@ def download_from_nmldb(model_id, version):
 
     if not os.path.exists(unzip_path):
         # download model if it has not been already
-        nmldb_response = requests.get(zip_url)
+        nmldb_response = requests.get(zip_url, verify=False)
         open(zip_path,'wb').write(nmldb_response.content)
 
         os.makedirs(unzip_path)
 
         with ZipFile(zip_path,'r') as zObject:
             zObject.extractall(path=unzip_path)
+
+        # copy_synapses(unzip_path)
 
         print(f'Model {model_id} successfully downloaded!')
     else:

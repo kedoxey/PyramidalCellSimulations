@@ -15,21 +15,17 @@ time_flag = False
 start_t = time.time()
 
 ### Import simulation config ###
-config_name = 'lfp_config'
+config_name = 'layer_config'
 params = Namespace(**mh.load_config(config_name))
 
 ### Model information ###
-code_version = 'Hay'
 model_version = 'NeuroML' if params.run_NML else 'NEURON'
 
-nmldb_id = 'NMLCL000073'  # 'NMLCL000073' (Hay et al. 2011)
+nmldb_id =  params.nmldb_id  # 'NMLCL000073'  # 'NMLCL000073' (Hay et al. 2011)
 model_name = f'{nmldb_id}-{model_version}'
 
-cell_model = 'Hay2011'  # 'Hay2011'
-cell_type = 'PYR'
-cell_name = 'L5PC'  # 'L5PC'
-cell_label = cell_name+'_hoc'
-pop_label = cell_name+'_Pop'
+### Download model ###
+mh.download_from_nmldb(nmldb_id, model_version)
 
 ### Define paths ###
 cwd = os.getcwd()
@@ -38,11 +34,13 @@ model_dir = os.path.join(models_dir, model_version, model_name)  # 'L5bPCmodelsE
 hocs_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir,'models')
 mod_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir, 'mod')
 
-hoc_fname = 'L5PC'
-hoc_file = os.path.join(hocs_dir, f'{cell_name}.hoc')
+cell_model = params.publication  # 'Hay2011'
+cell_type = 'PYR'
+cell_name = mh.get_cell_name(model_dir)  # 'L5PC'
+cell_label = cell_name+'_hoc'
+pop_label = cell_name+'_Pop'
 
-### Download model ###
-mh.download_from_nmldb(nmldb_id, model_version)
+hoc_file = os.path.join(hocs_dir, f'{cell_name}.hoc')
 
 ### Get output directories ###
 output_dir, sim_dir = mh.create_output_dirs(params.sim_name, model_dir)
@@ -107,6 +105,9 @@ if params.syns_lb > 0:
 else:
     syn_secs = mh.get_components(importedCellParams, params.syns_type)
 
+# Layer 1 input
+syn_secs_L1 = mh.get_secs_from_dist(hoc_file, cell_name, 0.9, 1)
+
 syn_secs_E, syn_secs_I = mh.get_rand_secs(syn_secs, params.num_syns)
 
 cfg.recordTraces['V_syn'] = {'sec':secrets.choice(syn_secs),'loc':0.5,'var':'v'}
@@ -136,6 +137,7 @@ if params.enable_syns:
 
         # Poisson spike pattern
         if 'poisson' in params.spk_type:
+            ### Excitatory synapses ###
             netParams.popParams['vecstim'] = {
                 'cellModel': 'VecStim',
                 'numCells': params.num_syns,  # int(len(syn_secs)/4),
@@ -144,14 +146,25 @@ if params.enable_syns:
                                 'stop': params.stim_delay+params.stim_dur,
                                 'frequency': params.spk_freq}
             }
-            netParams.popParams['vecstimI'] = {
+            ## Layer 1 ##
+            netParams.popParams['vecstimL1'] = {
                 'cellModel': 'VecStim',
-                'numCells': params.num_syns//5,  # int(len(syn_secs)/4),
+                'numCells': params.num_syns//2,  # int(len(syn_secs)/4),
                 'spikePattern': {'type': 'poisson',
                                 'start': params.stim_delay,
                                 'stop': params.stim_delay+params.stim_dur,
                                 'frequency': params.spk_freq}
             }
+            ### Inhibitory synapses ###
+            if params.add_inh:
+                netParams.popParams['vecstimI'] = {
+                    'cellModel': 'VecStim',
+                    'numCells': params.num_syns//5,  # int(len(syn_secs)/4),
+                    'spikePattern': {'type': 'poisson',
+                                    'start': params.stim_delay,
+                                    'stop': params.stim_delay+params.stim_dur,
+                                    'frequency': params.spk_freq}
+                }
         # Gaussian spike pattern
         else:
             netParams.popParams['vecstim'] = {
@@ -162,6 +175,7 @@ if params.enable_syns:
                                 'sigma': params.gauss_std}
             }
 
+        ### Excitatory synapses ###
         netParams.connParams[f'vecstim->{pop_label}'] = {
             'preConds': {'pop': 'vecstim'},
             'postConds': {'pop': pop_label},
@@ -181,7 +195,28 @@ if params.enable_syns:
             'groupSynMech': exc_syns,
             'density': 'uniform'
         }
+        ## Layer 1 ##
+        netParams.connParams[f'vecstimL1->{pop_label}'] = {
+            'preConds': {'pop': 'vecstimL1'},
+            'postConds': {'pop': pop_label},
+            'sec': syn_secs_L1,
+            'synsPerConn': params.synsPerConn,
+            'synMech': exc_syns,
+            'weight': params.syns_weight,  # 
+            # 'synMechWeightFactor': [0.5,0.5],
+            'delay': 5,  # 'defaultDelay + dist_2D/propVelocity',
+            'probability': 1.0,
+        }
 
+        netParams.subConnParams[f'vecstimL1->{pop_label}'] = {
+            'preConds': {'pop': 'vecstimL1'},
+            'postConds': {'pop': pop_label},
+            'sec': syn_secs_L1,
+            'groupSynMech': exc_syns,
+            'density': 'uniform'
+        }
+
+        ### Inhibitory synapses ###
         if params.add_inh:
             netParams.connParams[f'vecstimI->{pop_label}'] = {
                 'preConds': {'pop': 'vecstimI'},
@@ -228,7 +263,7 @@ netParams.stimSourceParams['Input_IC'] = {
     'type': 'IClamp',
     'del': params.stim_delay,
     'dur': params.stim_dur,
-    'amp': params.input_amp  
+    'amp': params.input_amps[params.amp_idx] 
 }
 
 netParams.stimTargetParams['Input_IC->Soma'] = {

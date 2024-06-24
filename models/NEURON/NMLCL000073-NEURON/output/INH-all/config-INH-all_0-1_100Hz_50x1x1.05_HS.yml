@@ -24,7 +24,6 @@ recordStep: 0.1
 ### Input parameters ###
 input_amps : [0, 0.35477, 0.44346, 0.53215, 1.0643]
 amp_idx: 0
-# input_amp: input_amps[amp_idx]
 stim_delay: 700
 stim_dur: 2000
 sim_dur: 3000
