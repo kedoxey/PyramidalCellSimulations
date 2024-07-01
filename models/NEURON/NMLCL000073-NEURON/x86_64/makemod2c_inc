@@ -1,168 +1,168 @@
-./CaDynamics_E2_NML2__decay122__gamma5_09Emin4.c: .././CaDynamics_E2_NML2__decay122__gamma5_09Emin4.mod
+CaDynamics_E2_NML2__decay122__gamma5_09Emin4.cpp: .././CaDynamics_E2_NML2__decay122__gamma5_09Emin4.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "CaDynamics_E2_NML2__decay122__gamma5_09Emin4.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "CaDynamics_E2_NML2__decay122__gamma5_09Emin4.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./CaDynamics_E2_NML2__decay122__gamma5_09Emin4.o: ./CaDynamics_E2_NML2__decay122__gamma5_09Emin4.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./CaDynamics_E2_NML2__decay122__gamma5_09Emin4.o: CaDynamics_E2_NML2__decay122__gamma5_09Emin4.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./CaDynamics_E2_NML2__decay460__gamma5_01Emin4.c: .././CaDynamics_E2_NML2__decay460__gamma5_01Emin4.mod
+CaDynamics_E2_NML2__decay460__gamma5_01Emin4.cpp: .././CaDynamics_E2_NML2__decay460__gamma5_01Emin4.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "CaDynamics_E2_NML2__decay460__gamma5_01Emin4.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "CaDynamics_E2_NML2__decay460__gamma5_01Emin4.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./CaDynamics_E2_NML2__decay460__gamma5_01Emin4.o: ./CaDynamics_E2_NML2__decay460__gamma5_01Emin4.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./CaDynamics_E2_NML2__decay460__gamma5_01Emin4.o: CaDynamics_E2_NML2__decay460__gamma5_01Emin4.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./Ca_HVA.c: .././Ca_HVA.mod
+Ca_HVA.cpp: .././Ca_HVA.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Ca_HVA.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Ca_HVA.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./Ca_HVA.o: ./Ca_HVA.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./Ca_HVA.o: Ca_HVA.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./Ca_LVAst.c: .././Ca_LVAst.mod
+Ca_LVAst.cpp: .././Ca_LVAst.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Ca_LVAst.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Ca_LVAst.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./Ca_LVAst.o: ./Ca_LVAst.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./Ca_LVAst.o: Ca_LVAst.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./Ih.c: .././Ih.mod
+Ih.cpp: .././Ih.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Ih.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Ih.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./Ih.o: ./Ih.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./Ih.o: Ih.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./Im.c: .././Im.mod
+Im.cpp: .././Im.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Im.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Im.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./Im.o: ./Im.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./Im.o: Im.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./K_Pst.c: .././K_Pst.mod
+K_Pst.cpp: .././K_Pst.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "K_Pst.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "K_Pst.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./K_Pst.o: ./K_Pst.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./K_Pst.o: K_Pst.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./K_Tst.c: .././K_Tst.mod
+K_Tst.cpp: .././K_Tst.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "K_Tst.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "K_Tst.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./K_Tst.o: ./K_Tst.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./K_Tst.o: K_Tst.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./MyExp2SynBB.c: .././MyExp2SynBB.mod
+MyExp2SynBB.cpp: .././MyExp2SynBB.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "MyExp2SynBB.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "MyExp2SynBB.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./MyExp2SynBB.o: ./MyExp2SynBB.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./MyExp2SynBB.o: MyExp2SynBB.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./MyExp2SynNMDABB.c: .././MyExp2SynNMDABB.mod
+MyExp2SynNMDABB.cpp: .././MyExp2SynNMDABB.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "MyExp2SynNMDABB.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "MyExp2SynNMDABB.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./MyExp2SynNMDABB.o: ./MyExp2SynNMDABB.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./MyExp2SynNMDABB.o: MyExp2SynNMDABB.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./Nap_Et2.c: .././Nap_Et2.mod
+Nap_Et2.cpp: .././Nap_Et2.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Nap_Et2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "Nap_Et2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./Nap_Et2.o: ./Nap_Et2.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./Nap_Et2.o: Nap_Et2.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./NaTa_t.c: .././NaTa_t.mod
+NaTa_t.cpp: .././NaTa_t.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "NaTa_t.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "NaTa_t.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./NaTa_t.o: ./NaTa_t.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./NaTa_t.o: NaTa_t.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./pas_nml2.c: .././pas_nml2.mod
+pas_nml2.cpp: .././pas_nml2.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "pas_nml2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "pas_nml2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./pas_nml2.o: ./pas_nml2.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./pas_nml2.o: pas_nml2.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./ProbAMPA2.c: .././ProbAMPA2.mod
+ProbAMPA2.cpp: .././ProbAMPA2.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbAMPA2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbAMPA2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./ProbAMPA2.o: ./ProbAMPA2.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./ProbAMPA2.o: ProbAMPA2.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./ProbAMPANMDA2.c: .././ProbAMPANMDA2.mod
+ProbAMPANMDA2.cpp: .././ProbAMPANMDA2.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbAMPANMDA2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbAMPANMDA2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./ProbAMPANMDA2.o: ./ProbAMPANMDA2.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./ProbAMPANMDA2.o: ProbAMPANMDA2.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./ProbNMDA2.c: .././ProbNMDA2.mod
+ProbNMDA2.cpp: .././ProbNMDA2.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbNMDA2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbNMDA2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./ProbNMDA2.o: ./ProbNMDA2.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./ProbNMDA2.o: ProbNMDA2.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./ProbUDFsyn2.c: .././ProbUDFsyn2.mod
+ProbUDFsyn2.cpp: .././ProbUDFsyn2.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbUDFsyn2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "ProbUDFsyn2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./ProbUDFsyn2.o: ./ProbUDFsyn2.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./ProbUDFsyn2.o: ProbUDFsyn2.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./SAM_gaussstim.c: .././SAM_gaussstim.mod
+SAM_gaussstim.cpp: .././SAM_gaussstim.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "SAM_gaussstim.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "SAM_gaussstim.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./SAM_gaussstim.o: ./SAM_gaussstim.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./SAM_gaussstim.o: SAM_gaussstim.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./SK_E2.c: .././SK_E2.mod
+SK_E2.cpp: .././SK_E2.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "SK_E2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "SK_E2.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./SK_E2.o: ./SK_E2.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./SK_E2.o: SK_E2.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./SKv3_1.c: .././SKv3_1.mod
+SKv3_1.cpp: .././SKv3_1.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "SKv3_1.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "SKv3_1.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./SKv3_1.o: ./SKv3_1.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./SKv3_1.o: SKv3_1.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
-./vecevent.c: .././vecevent.mod
+vecevent.cpp: .././vecevent.mod $(NOCMODL)
 	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\\n"
-	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "vecevent.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64")
+	(cd "../.";  MODLUNIT=$(NRNUNITS) $(NOCMODL) "vecevent.mod" -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64" )
 
-./vecevent.o: ./vecevent.c
-	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\\n"
-	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+./vecevent.o: vecevent.cpp
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) /home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<\\n"
+	$(CXXCOMPILE) -I"../." $(INCLUDES) -fPIC -c "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/NEURON/NMLCL000073-NEURON/x86_64/$<" -o $@
 
