@@ -52,7 +52,13 @@ def copy_synapses(model_dir):
     for synapse_file in synapse_files:
         src = os.path.join(synapse_dir,synapse_file)
         dst = os.path.join(model_dir,synapse_file)
-        shutil.copy2(src, dst)
+
+        if not os.path.exists(dst):
+            with open(src, 'r') as f_in:
+                data_in = f_in.read()
+            with open(dst, 'w') as f_out:
+                f_out.write(data_in)
+        # shutil.copy2(src, dst)
 
 
 # download specified version of model from neuroml-db 
@@ -249,12 +255,12 @@ def get_secs_from_dist(filename, cell_name, lb, ub=1):
 
     return secs_from_dist
 
-def get_rand_secs(sec_list, num_syns):
+def get_rand_secs(sec_list, num_syns_E, num_syns_I):
 
     sec_list = np.array(sec_list)
 
-    locs_E = np.random.randint(len(sec_list),size=num_syns)
-    locs_I = np.random.randint(len(sec_list),size=num_syns)
+    locs_E = np.random.randint(len(sec_list),size=num_syns_E)
+    locs_I = np.random.randint(len(sec_list),size=num_syns_I)
 
     return list(sec_list[locs_E]), list(sec_list[locs_I])
 

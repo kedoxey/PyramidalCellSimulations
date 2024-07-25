@@ -2,30 +2,33 @@
 #include "hocdec.h"
 extern int nrnmpi_myid;
 extern int nrn_nobanner_;
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
-extern "C" void _CaDynamics_E2_NML2__decay122__gamma5_09Emin4_reg(void);
-extern "C" void _CaDynamics_E2_NML2__decay460__gamma5_01Emin4_reg(void);
-extern "C" void _Ca_HVA_reg(void);
-extern "C" void _Ca_LVAst_reg(void);
-extern "C" void _Ih_reg(void);
-extern "C" void _Im_reg(void);
-extern "C" void _K_Pst_reg(void);
-extern "C" void _K_Tst_reg(void);
-extern "C" void _MyExp2SynBB_reg(void);
-extern "C" void _MyExp2SynNMDABB_reg(void);
-extern "C" void _Nap_Et2_reg(void);
-extern "C" void _NaTa_t_reg(void);
-extern "C" void _pas_nml2_reg(void);
-extern "C" void _ProbAMPA2_reg(void);
-extern "C" void _ProbAMPANMDA2_reg(void);
-extern "C" void _ProbNMDA2_reg(void);
-extern "C" void _ProbUDFsyn2_reg(void);
-extern "C" void _SAM_gaussstim_reg(void);
-extern "C" void _SK_E2_reg(void);
-extern "C" void _SKv3_1_reg(void);
-extern "C" void _vecevent_reg(void);
+extern void _CaDynamics_E2_NML2__decay122__gamma5_09Emin4_reg(void);
+extern void _CaDynamics_E2_NML2__decay460__gamma5_01Emin4_reg(void);
+extern void _Ca_HVA_reg(void);
+extern void _Ca_LVAst_reg(void);
+extern void _Ih_reg(void);
+extern void _Im_reg(void);
+extern void _K_Pst_reg(void);
+extern void _K_Tst_reg(void);
+extern void _MyExp2SynBB_reg(void);
+extern void _MyExp2SynNMDABB_reg(void);
+extern void _Nap_Et2_reg(void);
+extern void _NaTa_t_reg(void);
+extern void _pas_nml2_reg(void);
+extern void _ProbAMPA2_reg(void);
+extern void _ProbAMPANMDA2_reg(void);
+extern void _ProbNMDA2_reg(void);
+extern void _ProbUDFsyn2_reg(void);
+extern void _SAM_gaussstim_reg(void);
+extern void _SK_E2_reg(void);
+extern void _SKv3_1_reg(void);
+extern void _vecevent_reg(void);
 
-extern "C" void modl_reg() {
+void modl_reg() {
   if (!nrn_nobanner_) if (nrnmpi_myid < 1) {
     fprintf(stderr, "Additional mechanisms from files\n");
     fprintf(stderr, " \"./CaDynamics_E2_NML2__decay122__gamma5_09Emin4.mod\"");
@@ -73,3 +76,7 @@ extern "C" void modl_reg() {
   _SKv3_1_reg();
   _vecevent_reg();
 }
+
+#if defined(__cplusplus)
+}
+#endif

@@ -15,7 +15,7 @@ time_flag = False
 start_t = time.time()
 
 ### Import simulation config ###
-config_name = 'layer_config'
+config_name = 'poisson_config'
 params = Namespace(**mh.load_config(config_name))
 
 ### Model information ###
@@ -41,6 +41,9 @@ cell_label = cell_name+'_hoc'
 pop_label = cell_name+'_Pop'
 
 hoc_file = os.path.join(hocs_dir, f'{cell_name}.hoc')
+
+### Copy synapses ###
+mh.copy_synapses(model_dir)
 
 ### Get output directories ###
 output_dir, sim_dir = mh.create_output_dirs(params.sim_name, model_dir)
@@ -108,7 +111,7 @@ else:
 # Layer 1 input
 syn_secs_L1 = mh.get_secs_from_dist(hoc_file, cell_name, 0.9, 1)
 
-syn_secs_E, syn_secs_I = mh.get_rand_secs(syn_secs, params.num_syns)
+syn_secs_E, syn_secs_I = mh.get_rand_secs(syn_secs, params.num_syns_E, params.num_syns_I)
 
 cfg.recordTraces['V_syn'] = {'sec':secrets.choice(syn_secs),'loc':0.5,'var':'v'}
 
@@ -133,6 +136,9 @@ exc_syns = ['AMPA', 'NMDA']
 if params.enable_syns:
 
     # Poisson spike pattern
+
+    # TODO: add stationary inhibitory input
+    # TODO: iterate over poisson inputs for excitatory input
 
     num_E_each = params.num_syns_E // params.num_poisson
     num_I_each = params.num_syns_I // params.num_poisson
