@@ -236,22 +236,29 @@ def get_total_soma_distance(cell):
     return dist_from_soma, furthest_sec
 
 
-def get_secs_from_dist(filename, cell_name, lb, ub=1):
+def get_secs_from_dist(filename, cell_name, lb, ub=1, secs_lim='all'):
     cell = get_hoc_cell(filename, cell_name)
     soma = cell.soma_0
 
     total_distance, _ = get_total_soma_distance(cell)
-    distance = lb*total_distance
-    dist_bound = ub*total_distance
+    dist_lb = lb*total_distance
+    dist_ub = ub*total_distance
 
     secs_from_dist = []
 
     for sec in h.allsec():
         sec_name = sec.name().split('.')[1]
-        
-        dist = h.distance(soma(0.5), sec(0.5))
-        if (distance < dist) and (dist < dist_bound):
-            secs_from_dist.append(sec_name)
+
+        get_dist = True
+        if 'all' not in secs_lim:
+            if secs_lim not in sec_name:
+                get_dist = False
+
+        if get_dist:
+            dist = h.distance(soma(0.5), sec(0.5))
+            if (dist_lb < dist) and (dist < dist_ub):
+                secs_from_dist.append(sec_name)
+
 
     return secs_from_dist
 

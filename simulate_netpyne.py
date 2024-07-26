@@ -108,8 +108,20 @@ if params.syns_lb > 0:
 else:
     syn_secs = mh.get_components(importedCellParams, params.syns_type)
 
-# Layer 1 input
-syn_secs_L1 = mh.get_secs_from_dist(hoc_file, cell_name, 0.9, 1)
+# Layer inhibitory sections
+layer_bounds = {'L1': {'lb': 5/6, 'ub': 1},
+                'L2': {'lb': 2/3, 'ub': 5/6},
+                'L4': {'lb': 1/6, 'ub': 5/12}}
+layer_secs = {'L1': [],
+              'L2': [],
+              'L4': []}
+
+for layer, bounds in layer_bounds.items():
+    layer_secs[layer] = mh.get_secs_from_dist(hoc_file, cell_name, bounds['lb'], bounds['ub'], secs_lim='apic')
+
+layer_secs['L5'] = ['soma_0']
+
+# syn_secs_L1 = mh.get_secs_from_dist(hoc_file, cell_name, 0.9, 1)
 
 syn_secs_E, syn_secs_I = mh.get_rand_secs(syn_secs, params.num_syns_E, params.num_syns_I)
 
@@ -140,8 +152,40 @@ if params.enable_syns:
     # TODO: add stationary inhibitory input
     # TODO: iterate over poisson inputs for excitatory input
 
+    ### Layer inhibitory input
     num_E_each = params.num_syns_E // params.num_poisson
-    num_I_each = params.num_syns_I // params.num_poisson
+    num_I_each = params.num_syns_I // len(layer_secs.keys())
+
+    for layer, layer_secs in layer_secs.items():
+        netParams.popParams[f'vecstim_I{layer}'] = {
+                'cellModel': 'VecStim',
+                'numCells': num_I_each,  # int(len(syn_secs)/4),
+                'spikePattern': {'type': 'poisson',
+                                'start': params.stim_delay,
+                                'stop': params.stim_delay+params.stim_dur,
+                                'frequency': np.random.randint(params.spk_freq_lb, params.spk_freq_ub, 1)[0]}
+            }
+        
+        netParams.connParams[f'vecstim_I{layer}->{pop_label}'] = {
+                'preConds': {'pop': f'vecstim_I{layer}'},
+                'postConds': {'pop': pop_label},
+                'sec': layer_secs,
+                'synsPerConn': params.synsPerConn,
+                'synMech': inh_syns,
+                'weight': params.syns_weight,  # 
+                # 'synMechWeightFactor': [0.5,0.5],
+                'delay': 5,  # 'defaultDelay + dist_2D/propVelocity',
+                'probability': 1.0,
+            }
+
+        netParams.subConnParams[f'vecstimI{layer}->{pop_label}'] = {
+            'preConds': {'pop': f'vecstimI{layer}'},
+            'postConds': {'pop': pop_label},
+            'sec': layer_secs,
+            'groupSynMech': inh_syns,
+            'density': 'uniform'
+        }
+
     
     for i_poisson in range(params.num_poisson):
 
@@ -155,15 +199,15 @@ if params.enable_syns:
                             'frequency': np.random.randint(params.spk_freq_lb, params.spk_freq_ub, 1)[0]}
         }
         ### Inhibitory synapses ###
-        if params.add_inh:
-            netParams.popParams[f'vecstim_I{i_poisson}'] = {
-                'cellModel': 'VecStim',
-                'numCells': num_I_each,  # int(len(syn_secs)/4),
-                'spikePattern': {'type': 'poisson',
-                                'start': params.stim_delay,
-                                'stop': params.stim_delay+params.stim_dur,
-                                'frequency': np.random.randint(params.spk_freq_lb, params.spk_freq_ub, 1)[0]}
-            }
+        # if params.add_inh:
+        #     netParams.popParams[f'vecstim_I{i_poisson}'] = {
+        #         'cellModel': 'VecStim',
+        #         'numCells': num_I_each,  # int(len(syn_secs)/4),
+        #         'spikePattern': {'type': 'poisson',
+        #                         'start': params.stim_delay,
+        #                         'stop': params.stim_delay+params.stim_dur,
+        #                         'frequency': np.random.randint(params.spk_freq_lb, params.spk_freq_ub, 1)[0]}
+        #     }
         ## Layer 1 ##
         # netParams.popParams['vecstimL1'] = {
         #     'cellModel': 'VecStim',
@@ -196,47 +240,26 @@ if params.enable_syns:
         }
 
         ### Inhibitory synapses ###
-        if params.add_inh:
-            netParams.connParams[f'vecstim_I{i_poisson}->{pop_label}'] = {
-                'preConds': {'pop': f'vecstim_I{i_poisson}'},
-                'postConds': {'pop': pop_label},
-                'sec': syn_secs_I,
-                'synsPerConn': params.synsPerConn,
-                'synMech': inh_syns,
-                'weight': params.syns_weight,  # 
-                # 'synMechWeightFactor': [0.5,0.5],
-                'delay': 5,  # 'defaultDelay + dist_2D/propVelocity',
-                'probability': 1.0,
-            }
+        # if params.add_inh:
+        #     netParams.connParams[f'vecstim_I{i_poisson}->{pop_label}'] = {
+        #         'preConds': {'pop': f'vecstim_I{i_poisson}'},
+        #         'postConds': {'pop': pop_label},
+        #         'sec': syn_secs_I,
+        #         'synsPerConn': params.synsPerConn,
+        #         'synMech': inh_syns,
+        #         'weight': params.syns_weight,  # 
+        #         # 'synMechWeightFactor': [0.5,0.5],
+        #         'delay': 5,  # 'defaultDelay + dist_2D/propVelocity',
+        #         'probability': 1.0,
+        #     }
 
-            netParams.subConnParams[f'vecstimI->{pop_label}'] = {
-                'preConds': {'pop': 'vecstimI'},
-                'postConds': {'pop': pop_label},
-                'sec': syn_secs_I,
-                'groupSynMech': inh_syns,
-                'density': 'uniform'
-            }
-
-        ## Layer 1 ##
-        netParams.connParams[f'vecstimL1->{pop_label}'] = {
-            'preConds': {'pop': 'vecstimL1'},
-            'postConds': {'pop': pop_label},
-            'sec': syn_secs_L1,
-            'synsPerConn': params.synsPerConn,
-            'synMech': exc_syns,
-            'weight': params.syns_weight,  # 
-            # 'synMechWeightFactor': [0.5,0.5],
-            'delay': 5,  # 'defaultDelay + dist_2D/propVelocity',
-            'probability': 1.0,
-        }
-
-        netParams.subConnParams[f'vecstimL1->{pop_label}'] = {
-            'preConds': {'pop': 'vecstimL1'},
-            'postConds': {'pop': pop_label},
-            'sec': syn_secs_L1,
-            'groupSynMech': exc_syns,
-            'density': 'uniform'
-        }
+        #     netParams.subConnParams[f'vecstimI->{pop_label}'] = {
+        #         'preConds': {'pop': 'vecstimI'},
+        #         'postConds': {'pop': pop_label},
+        #         'sec': syn_secs_I,
+        #         'groupSynMech': inh_syns,
+        #         'density': 'uniform'
+        #     }
 
 ### Add input ###
 netParams.stimSourceParams['Input_IC'] = {
