@@ -149,9 +149,6 @@ if params.enable_syns:
 
     # Poisson spike pattern
 
-    # TODO: add stationary inhibitory input
-    # TODO: iterate over poisson inputs for excitatory input
-
     ### Layer inhibitory input
     num_E_each = params.num_syns_E // params.num_poisson
     num_I_each = params.num_syns_I // len(layer_secs.keys())
@@ -301,8 +298,7 @@ mh.plot_lfp(simData, params.recordStep, params.sim_label, sim_dir)
 ### Plot morphology ###
 if params.plot_morphology:
     sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], 
-                           saveFig=True, axisLabels=True, returnPlotter=True, synColor='darkcyan') 
-
+                           saveFig=True, axisLabels=True, returnPlotter=True, synColorI='darkcyan', synColorE='firebrick') 
 
 ### Simulation time ###
 if time_flag:
