@@ -1,11 +1,15 @@
 run_NML: False
 plot_morphology: True
-enable_syns: False
+enable_syns: True
 
 record_LFP: True
 depths: 5
 
 spk_type: 'poisson'  # poisson or gaussian
+# Poisson spike trains
+num_poisson: 10
+spk_freq_lb: &sfl 20
+spk_freq_ub: &sfu 120
 
 nmldb_id: 'NMLCL000073'
 publication: 'Hay2011'

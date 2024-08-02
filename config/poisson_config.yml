@@ -2,14 +2,16 @@ run_NML: False
 plot_morphology: True
 enable_syns: True
 
+seed: 74
+
 record_LFP: True
 depths: 5
 
 spk_type: 'poisson'  # poisson or gaussian
 # Poisson spike trains
 num_poisson: 10
-spk_freq_lb: &sfl 20
-spk_freq_ub: &sfu 120
+spk_freq_lb: &sfl 20  # 20
+spk_freq_ub: &sfu 120  # 120
 
 nmldb_id: 'NMLCL000073'
 publication: 'Hay2011'
@@ -19,11 +21,11 @@ syns_ub: &su 1
 syns_type: &st 'all'  # soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
 syns_source: &ss 'HS'
 syns_weight: &sw 1.05  # Hay & Segev 2015 (HS) = 1.5, Dura-Bernal et al. 2024 (DB) = 1
-num_syns_E: &nse 10000   # 10000
-num_syns_I: &nsi 250   # 250
+num_syns_E: &nse 50   # 10000
+num_syns_I: &nsi 0   # 250
 synsPerConn: &spc 1
 add_soma: False
-add_inh: True
+add_inh: False
 
 vinit: -80
 dt: 0.01

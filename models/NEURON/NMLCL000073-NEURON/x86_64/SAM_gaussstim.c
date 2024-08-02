@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "mech_api.h"
+#include "scoplib_ansi.h"
 #undef PI
 #define nil 0
 #include "md1redef.h"
@@ -47,49 +47,27 @@ extern double hoc_Exp(double);
 #define t nrn_threads->_t
 #define dt nrn_threads->_dt
 #define interval _p[0]
-#define interval_columnindex 0
 #define number _p[1]
-#define number_columnindex 1
 #define start _p[2]
-#define start_columnindex 2
 #define factor _p[3]
-#define factor_columnindex 3
 #define refrac _p[4]
-#define refrac_columnindex 4
 #define k _p[5]
-#define k_columnindex 5
 #define fm _p[6]
-#define fm_columnindex 6
 #define t_shift _p[7]
-#define t_shift_columnindex 7
 #define x _p[8]
-#define x_columnindex 8
 #define N_forward _p[9]
-#define N_forward_columnindex 9
 #define N_backward _p[10]
-#define N_backward_columnindex 10
 #define N_normal _p[11]
-#define N_normal_columnindex 11
 #define N_total _p[12]
-#define N_total_columnindex 12
 #define amp_mean _p[13]
-#define amp_mean_columnindex 13
 #define amp_std _p[14]
-#define amp_std_columnindex 14
 #define rand _p[15]
-#define rand_columnindex 15
 #define event _p[16]
-#define event_columnindex 16
 #define on _p[17]
-#define on_columnindex 17
 #define end _p[18]
-#define end_columnindex 18
 #define m _p[19]
-#define m_columnindex 19
 #define diff _p[20]
-#define diff_columnindex 20
 #define _tsav _p[21]
-#define _tsav_columnindex 21
 #define _nd_area  *_ppvar[0]._pval
  
 #if MAC
@@ -107,10 +85,10 @@ extern "C" {
  static int hoc_nrnpointerindex =  -1;
  /* external NEURON variables */
  /* declaration of user functions */
- static double _hoc_event_time(void*);
- static double _hoc_init_sequence(void*);
- static double _hoc_invl(void*);
- static double _hoc_seed(void*);
+ static double _hoc_event_time();
+ static double _hoc_init_sequence();
+ static double _hoc_invl();
+ static double _hoc_seed();
  static int _mechtype;
 extern void _nrn_cacheloop_reg(int, int);
 extern void hoc_register_prop_size(int, int, int);
@@ -129,18 +107,18 @@ extern void hoc_reg_nmodl_filename(int, const char*);
 
  extern Prop* nrn_point_prop_;
  static int _pointtype;
- static void* _hoc_create_pnt(Object* _ho) { void* create_point_process(int, Object*);
+ static void* _hoc_create_pnt(_ho) Object* _ho; { void* create_point_process();
  return create_point_process(_pointtype, _ho);
 }
- static void _hoc_destroy_pnt(void*);
- static double _hoc_loc_pnt(void* _vptr) {double loc_point_process(int, void*);
+ static void _hoc_destroy_pnt();
+ static double _hoc_loc_pnt(_vptr) void* _vptr; {double loc_point_process();
  return loc_point_process(_pointtype, _vptr);
 }
- static double _hoc_has_loc(void* _vptr) {double has_loc_point(void*);
+ static double _hoc_has_loc(_vptr) void* _vptr; {double has_loc_point();
  return has_loc_point(_vptr);
 }
- static double _hoc_get_loc_pnt(void* _vptr) {
- double get_loc_point_process(void*); return (get_loc_point_process(_vptr));
+ static double _hoc_get_loc_pnt(_vptr)void* _vptr; {
+ double get_loc_point_process(); return (get_loc_point_process(_vptr));
 }
  extern void _nrn_setdata_reg(int, void(*)(Prop*));
  static void _setdata(Prop* _prop) {
@@ -195,9 +173,9 @@ extern void hoc_reg_nmodl_filename(int, const char*);
 };
  static double _sav_indep;
  static void nrn_alloc(Prop*);
-static void  nrn_init(NrnThread*, _Memb_list*, int);
-static void nrn_state(NrnThread*, _Memb_list*, int);
- static void _hoc_destroy_pnt(void* _vptr) {
+static void  nrn_init(_NrnThread*, _Memb_list*, int);
+static void nrn_state(_NrnThread*, _Memb_list*, int);
+ static void _hoc_destroy_pnt(_vptr) void* _vptr; {
    destroy_point_process(_vptr);
 }
  /* connect range variables in _p that hoc is supposed to know about */
@@ -261,7 +239,7 @@ static void nrn_alloc(Prop* _prop) {
  static void _net_receive(Point_process*, double*, double);
  extern Symbol* hoc_lookup(const char*);
 extern void _nrn_thread_reg(int, int, void(*)(Datum*));
-extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, NrnThread*, int));
+extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, _NrnThread*, int));
 extern void hoc_register_tolerance(int, HocStateTolerance*, Symbol***);
 extern void _cvode_abstol( Symbol**, double*, int);
 
@@ -385,7 +363,7 @@ static double _hoc_event_time(void* _vptr) {
  return(_r);
 }
  
-static void _net_receive (Point_process* _pnt, double* _args, double _lflag) 
+static void _net_receive (_pnt, _args, _lflag) Point_process* _pnt; double* _args; double _lflag; 
 {    _p = _pnt->_prop->param; _ppvar = _pnt->_prop->dparam;
   if (_tsav > t){ extern char* hoc_object_name(); hoc_execerror(hoc_object_name(_pnt->ob), ":Event arrived out of order. Must call ParallelContext.set_maxstep AFTER assigning minimum NetCon.delay");}
  _tsav = t;   if (_lflag == 1. ) {*(_tqitem) = 0;}
@@ -456,7 +434,7 @@ static void initmodel() {
 }
 }
 
-static void nrn_init(NrnThread* _nt, _Memb_list* _ml, int _type){
+static void nrn_init(_NrnThread* _nt, _Memb_list* _ml, int _type){
 Node *_nd; double _v; int* _ni; int _iml, _cntml;
 #if CACHEVEC
     _ni = _ml->_nodeindices;
@@ -482,7 +460,7 @@ static double _nrn_current(double _v){double _current=0.;v=_v;{
 } return _current;
 }
 
-static void nrn_state(NrnThread* _nt, _Memb_list* _ml, int _type){
+static void nrn_state(_NrnThread* _nt, _Memb_list* _ml, int _type){
 Node *_nd; double _v = 0.0; int* _ni; int _iml, _cntml;
 #if CACHEVEC
     _ni = _ml->_nodeindices;

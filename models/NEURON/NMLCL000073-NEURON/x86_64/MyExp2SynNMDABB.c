@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "mech_api.h"
+#include "scoplib_ansi.h"
 #undef PI
 #define nil 0
 #include "md1redef.h"
@@ -32,9 +32,9 @@ extern double hoc_Exp(double);
 #define state state__MyExp2SynNMDABB 
  
 #define _threadargscomma_ _p, _ppvar, _thread, _nt,
-#define _threadargsprotocomma_ double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt,
+#define _threadargsprotocomma_ double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt,
 #define _threadargs_ _p, _ppvar, _thread, _nt
-#define _threadargsproto_ double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt
+#define _threadargsproto_ double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt
  	/*SUPPRESS 761*/
 	/*SUPPRESS 762*/
 	/*SUPPRESS 763*/
@@ -45,49 +45,27 @@ extern double hoc_Exp(double);
 #define t _nt->_t
 #define dt _nt->_dt
 #define tau1NMDA _p[0]
-#define tau1NMDA_columnindex 0
 #define tau2NMDA _p[1]
-#define tau2NMDA_columnindex 1
 #define e _p[2]
-#define e_columnindex 2
 #define r _p[3]
-#define r_columnindex 3
 #define smax _p[4]
-#define smax_columnindex 4
 #define sNMDAmax _p[5]
-#define sNMDAmax_columnindex 5
 #define Vwt _p[6]
-#define Vwt_columnindex 6
 #define iNMDA _p[7]
-#define iNMDA_columnindex 7
 #define sNMDA _p[8]
-#define sNMDA_columnindex 8
 #define ica _p[9]
-#define ica_columnindex 9
 #define g _p[10]
-#define g_columnindex 10
 #define A2 _p[11]
-#define A2_columnindex 11
 #define B2 _p[12]
-#define B2_columnindex 12
 #define mgblock _p[13]
-#define mgblock_columnindex 13
 #define factor2 _p[14]
-#define factor2_columnindex 14
 #define cai _p[15]
-#define cai_columnindex 15
 #define cao _p[16]
-#define cao_columnindex 16
 #define DA2 _p[17]
-#define DA2_columnindex 17
 #define DB2 _p[18]
-#define DB2_columnindex 18
 #define v _p[19]
-#define v_columnindex 19
 #define _g _p[20]
-#define _g_columnindex 20
 #define _tsav _p[21]
-#define _tsav_columnindex 21
 #define _nd_area  *_ppvar[0]._pval
 #define _ion_cai	*_ppvar[2]._pval
 #define _ion_cao	*_ppvar[3]._pval
@@ -112,8 +90,8 @@ extern "C" {
  /* external NEURON variables */
  extern double celsius;
  /* declaration of user functions */
- static double _hoc_ghk(void*);
- static double _hoc_ghkg(void*);
+ static double _hoc_ghk();
+ static double _hoc_ghkg();
  static int _mechtype;
 extern void _nrn_cacheloop_reg(int, int);
 extern void hoc_register_prop_size(int, int, int);
@@ -132,18 +110,18 @@ extern void hoc_reg_nmodl_filename(int, const char*);
 
  extern Prop* nrn_point_prop_;
  static int _pointtype;
- static void* _hoc_create_pnt(Object* _ho) { void* create_point_process(int, Object*);
+ static void* _hoc_create_pnt(_ho) Object* _ho; { void* create_point_process();
  return create_point_process(_pointtype, _ho);
 }
- static void _hoc_destroy_pnt(void*);
- static double _hoc_loc_pnt(void* _vptr) {double loc_point_process(int, void*);
+ static void _hoc_destroy_pnt();
+ static double _hoc_loc_pnt(_vptr) void* _vptr; {double loc_point_process();
  return loc_point_process(_pointtype, _vptr);
 }
- static double _hoc_has_loc(void* _vptr) {double has_loc_point(void*);
+ static double _hoc_has_loc(_vptr) void* _vptr; {double has_loc_point();
  return has_loc_point(_vptr);
 }
- static double _hoc_get_loc_pnt(void* _vptr) {
- double get_loc_point_process(void*); return (get_loc_point_process(_vptr));
+ static double _hoc_get_loc_pnt(_vptr)void* _vptr; {
+ double get_loc_point_process(); return (get_loc_point_process(_vptr));
 }
  extern void _nrn_setdata_reg(int, void(*)(Prop*));
  static void _setdata(Prop* _prop) {
@@ -203,18 +181,18 @@ extern void hoc_reg_nmodl_filename(int, const char*);
 };
  static double _sav_indep;
  static void nrn_alloc(Prop*);
-static void  nrn_init(NrnThread*, _Memb_list*, int);
-static void nrn_state(NrnThread*, _Memb_list*, int);
- static void nrn_cur(NrnThread*, _Memb_list*, int);
-static void  nrn_jacob(NrnThread*, _Memb_list*, int);
- static void _hoc_destroy_pnt(void* _vptr) {
+static void  nrn_init(_NrnThread*, _Memb_list*, int);
+static void nrn_state(_NrnThread*, _Memb_list*, int);
+ static void nrn_cur(_NrnThread*, _Memb_list*, int);
+static void  nrn_jacob(_NrnThread*, _Memb_list*, int);
+ static void _hoc_destroy_pnt(_vptr) void* _vptr; {
    destroy_point_process(_vptr);
 }
  
 static int _ode_count(int);
 static void _ode_map(int, double**, double**, double*, Datum*, double*, int);
-static void _ode_spec(NrnThread*, _Memb_list*, int);
-static void _ode_matsol(NrnThread*, _Memb_list*, int);
+static void _ode_spec(_NrnThread*, _Memb_list*, int);
+static void _ode_matsol(_NrnThread*, _Memb_list*, int);
  
 #define _cvode_ieq _ppvar[6]._i
  static void _ode_matsol_instance1(_threadargsproto_);
@@ -286,7 +264,7 @@ static void nrn_alloc(Prop* _prop) {
  static void _update_ion_pointer(Datum*);
  extern Symbol* hoc_lookup(const char*);
 extern void _nrn_thread_reg(int, int, void(*)(Datum*));
-extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, NrnThread*, int));
+extern void _nrn_thread_table_reg(int, void(*)(double*, Datum*, Datum*, _NrnThread*, int));
 extern void hoc_register_tolerance(int, HocStateTolerance*, Symbol***);
 extern void _cvode_abstol( Symbol**, double*, int);
 
@@ -361,11 +339,11 @@ return _lghkg;
  
 static double _hoc_ghkg(void* _vptr) {
  double _r;
-   double* _p; Datum* _ppvar; Datum* _thread; NrnThread* _nt;
+   double* _p; Datum* _ppvar; Datum* _thread; _NrnThread* _nt;
    _p = ((Point_process*)_vptr)->_prop->param;
   _ppvar = ((Point_process*)_vptr)->_prop->dparam;
   _thread = _extcall_thread;
-  _nt = (NrnThread*)((Point_process*)_vptr)->_vnt;
+  _nt = (_NrnThread*)((Point_process*)_vptr)->_vnt;
  _r =  ghkg ( _p, _ppvar, _thread, _nt, *getarg(1) , *getarg(2) , *getarg(3) , *getarg(4) );
  return(_r);
 }
@@ -389,38 +367,38 @@ return _lghk;
  
 static double _hoc_ghk(void* _vptr) {
  double _r;
-   double* _p; Datum* _ppvar; Datum* _thread; NrnThread* _nt;
+   double* _p; Datum* _ppvar; Datum* _thread; _NrnThread* _nt;
    _p = ((Point_process*)_vptr)->_prop->param;
   _ppvar = ((Point_process*)_vptr)->_prop->dparam;
   _thread = _extcall_thread;
-  _nt = (NrnThread*)((Point_process*)_vptr)->_vnt;
+  _nt = (_NrnThread*)((Point_process*)_vptr)->_vnt;
  _r =  ghk ( _p, _ppvar, _thread, _nt, *getarg(1) , *getarg(2) , *getarg(3) , *getarg(4) );
  return(_r);
 }
  
 /*CVODE*/
- static int _ode_spec1 (double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) {int _reset = 0; {
+ static int _ode_spec1 (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {int _reset = 0; {
    DA2 = - A2 / tau1NMDA ;
    DB2 = - B2 / tau2NMDA ;
    }
  return _reset;
 }
- static int _ode_matsol1 (double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) {
+ static int _ode_matsol1 (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
  DA2 = DA2  / (1. - dt*( ( - 1.0 ) / tau1NMDA )) ;
  DB2 = DB2  / (1. - dt*( ( - 1.0 ) / tau2NMDA )) ;
   return 0;
 }
  /*END CVODE*/
- static int state (double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) { {
+ static int state (double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) { {
     A2 = A2 + (1. - exp(dt*(( - 1.0 ) / tau1NMDA)))*(- ( 0.0 ) / ( ( - 1.0 ) / tau1NMDA ) - A2) ;
     B2 = B2 + (1. - exp(dt*(( - 1.0 ) / tau2NMDA)))*(- ( 0.0 ) / ( ( - 1.0 ) / tau2NMDA ) - B2) ;
    }
   return 0;
 }
  
-static void _net_receive (Point_process* _pnt, double* _args, double _lflag) 
-{  double* _p; Datum* _ppvar; Datum* _thread; NrnThread* _nt;
-   _thread = (Datum*)0; _nt = (NrnThread*)_pnt->_vnt;   _p = _pnt->_prop->param; _ppvar = _pnt->_prop->dparam;
+static void _net_receive (_pnt, _args, _lflag) Point_process* _pnt; double* _args; double _lflag; 
+{  double* _p; Datum* _ppvar; Datum* _thread; _NrnThread* _nt;
+   _thread = (Datum*)0; _nt = (_NrnThread*)_pnt->_vnt;   _p = _pnt->_prop->param; _ppvar = _pnt->_prop->dparam;
   if (_tsav > t){ extern char* hoc_object_name(); hoc_execerror(hoc_object_name(_pnt->ob), ":Event arrived out of order. Must call ParallelContext.set_maxstep AFTER assigning minimum NetCon.delay");}
  _tsav = t; {
    double _lww ;
@@ -449,7 +427,7 @@ static void _net_receive (Point_process* _pnt, double* _args, double _lflag)
  
 static int _ode_count(int _type){ return 2;}
  
-static void _ode_spec(NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void _ode_spec(_NrnThread* _nt, _Memb_list* _ml, int _type) {
    double* _p; Datum* _ppvar; Datum* _thread;
    Node* _nd; double _v; int _iml, _cntml;
   _cntml = _ml->_nodecount;
@@ -477,7 +455,7 @@ static void _ode_matsol_instance1(_threadargsproto_) {
  _ode_matsol1 (_p, _ppvar, _thread, _nt);
  }
  
-static void _ode_matsol(NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void _ode_matsol(_NrnThread* _nt, _Memb_list* _ml, int _type) {
    double* _p; Datum* _ppvar; Datum* _thread;
    Node* _nd; double _v; int _iml, _cntml;
   _cntml = _ml->_nodecount;
@@ -498,7 +476,7 @@ static void _ode_matsol(NrnThread* _nt, _Memb_list* _ml, int _type) {
    nrn_update_ion_pointer(_ca_sym, _ppvar, 5, 4);
  }
 
-static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt) {
+static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt) {
   int _i; double _save;{
   A2 = A20;
   B2 = B20;
@@ -518,7 +496,7 @@ static void initmodel(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt)
 }
 }
 
-static void nrn_init(NrnThread* _nt, _Memb_list* _ml, int _type){
+static void nrn_init(_NrnThread* _nt, _Memb_list* _ml, int _type){
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; double _v; int* _ni; int _iml, _cntml;
 #if CACHEVEC
@@ -545,7 +523,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  }
 }
 
-static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
+static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, _NrnThread* _nt, double _v){double _current=0.;v=_v;{ {
    double _liTOT ;
  mgblock = 1.0 / ( 1.0 + 0.28 * exp ( - 0.062 * v ) ) ;
    sNMDA = B2 - A2 ;
@@ -564,7 +542,7 @@ static double _nrn_current(double* _p, Datum* _ppvar, Datum* _thread, NrnThread*
 } return _current;
 }
 
-static void nrn_cur(NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_cur(_NrnThread* _nt, _Memb_list* _ml, int _type) {
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; int* _ni; double _rhs, _v; int _iml, _cntml;
 #if CACHEVEC
@@ -608,7 +586,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  
 }
 
-static void nrn_jacob(NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_jacob(_NrnThread* _nt, _Memb_list* _ml, int _type) {
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; int* _ni; int _iml, _cntml;
 #if CACHEVEC
@@ -632,7 +610,7 @@ for (_iml = 0; _iml < _cntml; ++_iml) {
  
 }
 
-static void nrn_state(NrnThread* _nt, _Memb_list* _ml, int _type) {
+static void nrn_state(_NrnThread* _nt, _Memb_list* _ml, int _type) {
 double* _p; Datum* _ppvar; Datum* _thread;
 Node *_nd; double _v = 0.0; int* _ni; int _iml, _cntml;
 #if CACHEVEC
@@ -667,8 +645,8 @@ static void _initlists(){
  double _x; double* _p = &_x;
  int _i; static int _first = 1;
   if (!_first) return;
- _slist1[0] = A2_columnindex;  _dlist1[0] = DA2_columnindex;
- _slist1[1] = B2_columnindex;  _dlist1[1] = DB2_columnindex;
+ _slist1[0] = &(A2) - _p;  _dlist1[0] = &(DA2) - _p;
+ _slist1[1] = &(B2) - _p;  _dlist1[1] = &(DB2) - _p;
 _first = 0;
 }
 

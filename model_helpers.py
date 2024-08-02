@@ -129,7 +129,7 @@ def load_config(config_name='default_config'):
     with open(config_file) as f:
         config_params = yaml.full_load(f)
 
-    config_params['input_amp'] = config_params['input_amps'][config_params['amp_idx']]
+    # config_params['input_amp'] = config_params['input_amp']
     
     return config_params
 
@@ -262,9 +262,11 @@ def get_secs_from_dist(filename, cell_name, lb, ub=1, secs_lim='all'):
 
     return secs_from_dist
 
-def get_rand_secs(sec_list, num_syns_E, num_syns_I):
+def get_rand_secs(sec_list, num_syns_E, num_syns_I, seed=74):
 
     sec_list = np.array(sec_list)
+
+    np.random.seed(seed)
 
     locs_E = np.random.randint(len(sec_list),size=num_syns_E)
     locs_I = np.random.randint(len(sec_list),size=num_syns_I)
@@ -294,7 +296,7 @@ def get_filtered_signal(lfp, dt):
 
     return lfp_bp_low, lfp_bp_spikes
 
-def plot_lfp(simData, dt, sim_label, output_dir):
+def save_simData(simData, sim_label, output_dir):
     with open(os.path.join(output_dir,f'{sim_label}_simData.pkl'),'wb') as fp:
         pickle.dump(simData,fp)
 
