@@ -1,0 +1,42 @@
+!!python/object:argparse.Namespace
+add_inh: false
+add_soma: false
+channel_toggles:
+  Ca: 1
+  Na: 1
+depths: 6
+dt: 0.01
+enable_syns: true
+gauss_mean: 1.4
+gauss_std: 0.4
+input_amp: 0
+nmldb_id: NMLCL000073
+num_poisson: 1
+num_syns_E: 20
+num_syns_I: 0
+plot_morphology: true
+publication: Hay2011
+recordStep: 0.1
+record_LFP: false
+run_NML: false
+seed: 74
+sim_dur: 1500
+sim_flag: _spiking
+sim_label: EXC-basal_soma_20Ex1_1x40Hz_spiking
+sim_message: Simulation parameters for characterizing cell dynamics with just excitatory
+  synapses.
+sim_name: EXC-basal_soma
+soma_na_toggle: 1
+spk_freq: 40
+spk_freq_lb: 40
+spk_freq_ub: 41
+spk_type: poisson
+stim_delay: 350
+stim_dur: 1000
+synsPerConn: 1
+syns_lb: 0
+syns_source: HS
+syns_type: basal_soma
+syns_ub: 1
+syns_weight: 1
+vinit: -80

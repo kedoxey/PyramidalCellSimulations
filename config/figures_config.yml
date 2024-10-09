@@ -1,0 +1,45 @@
+run_NML: False
+plot_morphology: True
+enable_syns: True
+
+record_LFP: True
+depths: 5
+
+spk_type: 'poisson'  # poisson or gaussian
+
+nmldb_id: 'NMLCL000073'
+publication: 'Hay2011'
+
+syns_lb: &sl 0 # 0 if not distibuted by distance from soma
+syns_ub: &su 1
+syns_type: &st 'all'  # soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+syns_source: &ss 'DB'
+syns_weight: &sw 1  # Hay & Segev 2015 (HS) = 1.05, Dura-Bernal et al. 2024 (DB) = 1
+num_syns: &ns 50 
+synsPerConn: &spc 1
+add_soma: False
+add_inh: False
+
+vinit: -80
+dt: 0.01
+recordStep: 0.1
+
+### Input parameters ###
+input_amps : [0, 0.35477, 0.44346, 0.53215, 1.0643]
+amp_idx: 0
+# input_amp: input_amps[amp_idx]
+stim_delay: 700
+stim_dur: 2000
+sim_dur: 3000
+
+# Poisson spike trains
+spk_freq: 20
+
+# Gaussian spike trains
+gauss_mean: 1.4
+gauss_std: 0.4
+
+sim_name: &sn !join ['FIGURES-', *st]
+sim_label: !join [*sn, '-dist_', *sl, '-', *su]
+
+sim_message: 'Simulation parameters for generating more detailed figures.'
