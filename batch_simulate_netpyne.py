@@ -6,12 +6,13 @@ from sklearn.model_selection import ParameterGrid
 
 configName = 'exc_config'
 
-group_num_syns = {'soma': 30,
-                  'basal': 30,
-                  'basal_soma': 30,
-                  'apical_proximal': 35,
-                  'apical_distal': 700}
-param_sets = {'_syns': {'enable_syns': True}}
+group_num_syns = {'soma': 30}
+                  # 'basal': 30}
+                  # 'basal_soma': 30,
+                  # 'apical_proximal': 35,
+                  # 'apical_distal': 700}
+param_sets = {'_syns': {'enable_syns': True},
+              '_no-Na': {'channel_toggles': {'Na': 0}}}
 paramGrids = []
 
 for sim_flag, param_set in param_sets.items():

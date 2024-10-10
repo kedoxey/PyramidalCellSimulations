@@ -6,7 +6,7 @@ import pickle
 import model_helpers as mh
 import numpy as np
 from neuron import h, load_mechanisms
-from netpyne import specs, sim, conversion
+from netpyne import specs, sim
 import argparse as ap
 import time
 
@@ -305,7 +305,7 @@ def run_sim(config_name, *batch_params):
     mh.plot_soma(simData, params.sim_label, sim_dir)
 
     if params.record_LFP:
-        mh.plot_isolated_LFP(simData, params.syns_type, params.sim_label, sim_dir)
+        mh.plot_isolated_LFP(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
 
     ### Plot morphology ###
     if params.plot_morphology:

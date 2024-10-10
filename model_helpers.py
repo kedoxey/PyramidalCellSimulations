@@ -380,14 +380,31 @@ def get_syn_sec_colors(cell, colormaps, synColors):
 
     return secSynColors
 
-def plot_isolated_LFP(simData, syns_type, sim_label, sim_dir):
+def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
     t = np.array(simData['t'])
     dt = t[1] - t[0]
 
     V_soma = np.array(simData['V_soma']['cell_0'])
-    t_spikes = t[np.where(V_soma>10)]
     t_bound = 500 if 'distal' in syns_type else 600
-    t_spike = t_spikes[np.where(t_spikes>t_bound)[0][0]]
+    t_spikes = t[np.where(V_soma>10)]
+
+    if len(t_spikes) > 0:
+        t_spike = t_spikes[np.where(t_spikes>t_bound)[0][0]]
+        slice_start = int((t_spike - 2.25)/dt)
+        slice_end = int((t_spike + 4.5)/dt)
+
+        save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir)
+    else:
+        time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+        with open(time_window_path,'rb') as fp:
+            time_windows = pickle.load(fp)
+        
+        slice_start = time_windows[syns_type][num_syns][0]
+        slice_end = time_windows[syns_type][num_syns][1]
+        t_spike = time_windows[syns_type][num_syns][2]
+
+    
+    t_slice = t[slice_start:slice_end]
     
     lfp = simData['LFP']
     num_elecs = len(lfp[0])
@@ -405,10 +422,6 @@ def plot_isolated_LFP(simData, syns_type, sim_label, sim_dir):
 
     fig, axs = plt.subplots(num_elecs//2, 2, figsize=(5,10))
     axs = axs.ravel()
-
-    slice_start = int((t_spike - 2.25)/dt)
-    slice_end = int((t_spike + 4.5)/dt)
-    t_slice = t[slice_start:slice_end]
 
     for ax_i, i in enumerate(reversed(range(num_elecs))):
 
@@ -432,6 +445,28 @@ def plot_isolated_LFP(simData, syns_type, sim_label, sim_dir):
     fig.tight_layout()
 
     fig.savefig(os.path.join(sim_dir,f'{sim_label}_isolated_LFP.png'),bbox_inches='tight',dpi=300)
+
+    return slice_start, slice_end
+
+
+def save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir):
+
+    file_name = 'eap_time_windows.pkl'
+    file_path = os.path.join(output_dir,file_name)
+
+    if os.path.exists(file_path):
+        with open(file_path,'rb') as fp:
+            time_windows = pickle.load(fp)
+
+        if syns_type not in time_windows.keys():
+            time_windows[syns_type] = {'num_syns': (slice_start, slice_end, t_spike)}
+        else:
+            time_windows[syns_type][num_syns] = (slice_start, slice_end, t_spike)
+    else:
+        time_windows = {syns_type: {num_syns: (slice_start, slice_end, t_spike)}}
+
+    with open(file_path,'wb') as fp:
+        pickle.dump(time_windows,fp)
 
 
 def plot_pre_spike_trains(cells, conns, sim_label, sim_dir):
