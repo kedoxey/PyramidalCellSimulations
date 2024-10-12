@@ -167,7 +167,7 @@ def run_sim(config_name, *batch_params):
         cfg.recordTraces[f'I_{syn_sec_E}_ampa'] = {'sec':syn_sec_E,'loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_AMPA'}
         cfg.recordTraces[f'I_{syn_sec_E}_nmda'] = {'sec':syn_sec_E,'loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_NMDA'}
 
-    if 'apic_32' not in syn_sec_E:
+    if 'apic_32' not in syn_secs_E:
         cfg.recordTraces[f'V_apic_32'] = {'sec':'apic_32','loc':0.5,'var':'v'}
         cfg.recordTraces[f'I_apic_32_ampa'] = {'sec':'apic_32','loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_AMPA'}
         cfg.recordTraces[f'I_apic_32_nmda'] = {'sec':'apic_32','loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_NMDA'}
@@ -291,7 +291,7 @@ def run_sim(config_name, *batch_params):
     (pops, cells, conns, stims, simData) = sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=True)
 
     # mh.save_simData(simData, params.sim_label, sim_dir)
-    mh.save_firing_rate(simData, params.stim_delay, params.stim_dir, params.syns_type, params.num_syns_E, output_dir)
+    mh.save_firing_rate(simData, params.stim_delay, params.stim_dur, params.syns_type, params.num_syns_E, output_dir)
 
     ### Plot sections ###
     synColors = ('firebrick','darkcyan')
@@ -306,11 +306,11 @@ def run_sim(config_name, *batch_params):
 
     ### Plot somatic spiking ###
     mh.plot_soma(simData, params.sim_label, sim_dir)
-
+        
     ### Plot isolated LFP ###
     if params.record_LFP:
         mh.plot_isolated_LFP(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
-        
+
 
     ### Plot morphology ###
     if params.plot_morphology:
