@@ -368,8 +368,8 @@ def get_syn_sec_colors(cell, colormaps, synColors):
     secSynColors = {}
     for secName, sec in cell.secs.items():
         for synMech in sec['synMechs']:
-            secSynColors[secName] = {'E': synColors[0],
-                                     'I': synColors[1]}
+            secSynColors[secName] = {'E': synColors['E'],
+                                     'I': synColors['I']}
             if 'GABA' in synMech['label']:
                 secSynColors[secName]['I'] = colormaps[1][secSynCount]
             else:
@@ -380,17 +380,22 @@ def get_syn_sec_colors(cell, colormaps, synColors):
 
     return secSynColors
 
+
+### Plotting ###
 def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
     t = np.array(simData['t'])
     dt = t[1] - t[0]
 
     V_soma = np.array(simData['V_soma']['cell_0'])
-    t_bound = 500 if 'distal' in syns_type else 600
     t_spikes = t[np.where(V_soma>10)]
+    # t_bound = 600 if len(np.where(t_spikes>600)[0])>0 else 500
+    
+    # t_bound = 500 if 'distal' in syns_type else 600
 
     plot_flag = True
 
     if len(t_spikes) > 0:
+        t_bound = int(100*np.floor(t_spikes[-1]/100))
         t_spike = t_spikes[np.where(t_spikes>t_bound)[0][0]]
         slice_start = int((t_spike - 2.25)/dt)
         slice_end = int((t_spike + 4.5)/dt)
@@ -449,7 +454,7 @@ def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_d
         fig.suptitle('Normalized Amplitude')
         fig.tight_layout()
 
-        fig.savefig(os.path.join(sim_dir,f'{sim_label}_isolated_LFP.png'),bbox_inches='tight',dpi=300)
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_LFP.png'),bbox_inches='tight',dpi=300)
 
 
 def save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir):
@@ -502,7 +507,6 @@ def save_firing_rate(simData, stim_delay, stim_dur, syns_type, num_syns, output_
         pickle.dump(firing_rates,fp)
                 
 
-
 def plot_pre_spike_trains(cells, conns, sim_label, sim_dir):
 
     spike_trains = {}
@@ -525,7 +529,7 @@ def plot_pre_spike_trains(cells, conns, sim_label, sim_dir):
     axs.set_yticklabels(spike_trains.keys())
     axs.set_xlim([0,1500])
 
-    fig.savefig(os.path.join(sim_dir,f'{sim_label}_presyn-spike-trains.png'),bbox_inches='tight',dpi=300)
+    fig.savefig(os.path.join(sim_dir,f'{sim_label}-presyn_spike_trains.png'),bbox_inches='tight',dpi=300)
 
     return spike_trains
 
@@ -543,7 +547,7 @@ def plot_soma(simData, sim_label, sim_dir):
     axs.set_xlabel('Time (ms)')
 
     fig.tight_layout()
-    fig.savefig(os.path.join(sim_dir,f'{sim_label}_soma-pot.png'),bbox_inches='tight',dpi=300)
+    fig.savefig(os.path.join(sim_dir,f'{sim_label}-soma_pot.png'),bbox_inches='tight',dpi=300)
 
     ### PLOT SOMA AND APICAL DISTAL COMPARTMENT MEMBRANE POTENTIALS FOR BACKPROPAGATION ###
     fig, axs = plt.subplots(figsize=(8,5))
@@ -555,10 +559,9 @@ def plot_soma(simData, sim_label, sim_dir):
     axs.set_xlabel('Time (ms)')
 
     fig.tight_layout()
-    fig.savefig(os.path.join(sim_dir,f'{sim_label}_backpropagation.png'),bbox_inches='tight',dpi=300)
+    fig.savefig(os.path.join(sim_dir,f'{sim_label}-backpropagation.png'),bbox_inches='tight',dpi=300)
 
 
-### Plotting ###
 def plot_secs(simData, spike_trains, sim_label, sim_dir, sec_syn_colors):
 
     sec_traces = list(simData.keys())
@@ -629,7 +632,7 @@ def plot_secs(simData, spike_trains, sim_label, sim_dir, sec_syn_colors):
             axs[idx_1].set_ylabel('g (uS)')
         
         fig.tight_layout()
-        fig.savefig(os.path.join(sim_dir,f'{sim_label}_secs.png'),bbox_inches='tight',dpi=300)
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-secs.png'),bbox_inches='tight',dpi=300)
 
         ## separate synaptic conductances ##
         fig = plt.figure(figsize=(15,num_secs*5))
@@ -697,40 +700,62 @@ def plot_secs(simData, spike_trains, sim_label, sim_dir, sec_syn_colors):
             # ax2.legend(loc='upper right')
 
         fig.tight_layout()
-        fig.savefig(os.path.join(sim_dir,f'{sim_label}_secs-synsSep.png'),bbox_inches='tight')  # ,dpi=200)
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-secs_synsSep.png'),bbox_inches='tight')  # ,dpi=200)
 
     return "Section membrane potential and synaptic conductances plotted!"
 
-def save_simData(simData, sim_label, output_dir):
-    with open(os.path.join(output_dir,f'{sim_label}_simData.pkl'),'wb') as fp:
-        pickle.dump(simData,fp)
 
-    t = list(simData['t'])
-    with open(os.path.join(output_dir,f'{sim_label}_t.pkl'),'wb') as fp:
-        pickle.dump(t,fp)
+def plot_syns_traces(simData, syn_secs, sim_label, sim_dir, syn_colors):
 
-    spkt = list(simData['spkt'])
-    with open(os.path.join(output_dir,f'{sim_label}_spkt.pkl'),'wb') as fp:
-        pickle.dump(spkt,fp)
+    t = np.array(simData['t'])
 
-    # lfp_bp_low, lfp_bp_spikes = get_filtered_signal(simData['LFP'], dt)
+    ### PLOT SYNAPSE MEMBRANE POTENTIALS ###
+    fig, axs = plt.subplots(figsize=(8,5))
+    for syn_sec in syn_secs:
+        V_sec = np.array(simData[f'V_{syn_sec}']['cell_0'])
+        
+        axs.plot(t, V_sec, color=syn_colors['E'])
 
-    # with open(os.path.join(output_dir,f'{sim_label}lfp_bp_low.pkl'),'wb') as fp:
-    #     pickle.dump(lfp_bp_low,fp)
+    axs.set_title(f'Synapse Location Membrane Potentials')
+    axs.set_ylabel('Voltage (mV)')
+    axs.set_xlabel('Time (ms)')
+
+    fig.tight_layout()
+    fig.savefig(os.path.join(sim_dir,f'{sim_label}-syns_pot.png'),bbox_inches='tight',dpi=300)
+
+
+def plot_isoalted_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
+
+    t = np.array(simData['t'])
+    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    with open(time_window_path,'rb') as fp:
+        time_windows = pickle.load(fp)
     
-    # with open(os.path.join(output_dir,f'{sim_label}lfp_bp_spikes.pkl'),'wb') as fp:
-    #     pickle.dump(lfp_bp_spikes,fp)
-
-    # fig, ax = plt.subplots(1, 1, figsize=(20,12))
-
-    # ax.plot(t[0:len(lfp_bp_low)],lfp_bp_low*10000-200,color='cornflowerblue',label='BP filtered: 10-300Hz')
-    # ax.plot(t[0:len(lfp_bp_spikes)],lfp_bp_spikes*10000-800,color='orchid',label='BP filtered: >300Hz')
-    # ax.vlines(spkt, [195], [205], 'k')
-    # ax.legend(loc='upper right')
-    # ax.set_xlabel('Time (ms)')
-    # ax.set_ylabel('LFP')      
-    # ax.set_title('LFPs')
+    plot_flag = True
+    try:
+        slice_start = time_windows[syns_type][num_syns][0]
+        slice_end = time_windows[syns_type][num_syns][1]
+    except KeyError:
+        plot_flag = False
 
 
-    # fig.savefig(os.path.join(output_dir,'lfp_fig.png'),bbox_inches='tight',dpi=300)
+    ### PLOT SYNAPSE LOCATION MEMBRANE POTENTIALS OF ISOLATED EAP ###
+    if plot_flag:
+        t_window = t[slice_start:slice_end]
+
+        fig, axs = plt.subplots(figsize=(8,5))
+        for syn_sec in syn_secs:
+            # TODO: support for empty V_syn_sec
+            if f'V_{syn_sec}' in simData.keys():
+                V_sec = np.array(simData[f'V_{syn_sec}']['cell_0'])
+                V_sec_window = V_sec[slice_start:slice_end]
+            
+                axs.plot(t_window, V_sec_window, color=syn_colors['E'])
+
+        axs.set_title(f'Synapse Location Membrane Potentials')
+        axs.set_ylabel('Voltage (mV)')
+        axs.set_xlabel('Time (ms)')
+
+        fig.tight_layout()
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_syns_pot.png'),bbox_inches='tight',dpi=300)
 
