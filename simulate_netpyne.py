@@ -313,6 +313,7 @@ def run_sim(config_name, *batch_params):
     if params.record_LFP:
         mh.plot_isolated_LFP(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
         mh.plot_isoalted_syn_traces(simData, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+        mh.plot_isoalted_soma_pot(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
 
 
     ### Plot morphology ###

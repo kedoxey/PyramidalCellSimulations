@@ -382,85 +382,6 @@ def get_syn_sec_colors(cell, colormaps, synColors):
 
 
 ### Plotting ###
-def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
-    t = np.array(simData['t'])
-    dt = t[1] - t[0]
-
-    V_soma = np.array(simData['V_soma']['cell_0'])
-    t_spikes = t[np.where(V_soma>10)]
-    # t_bound = 600 if len(np.where(t_spikes>600)[0])>0 else 500
-    
-    # t_bound = 500 if 'distal' in syns_type else 600
-
-    plot_flag = True
-    plot_spike = True
-
-    if len(t_spikes) > 0:
-        t_bound = int(100*np.floor(t_spikes[-1]/100))
-        t_spike = t_spikes[np.where(t_spikes>t_bound)[0][0]]
-        slice_start = int((t_spike - 2.25)/dt)
-        slice_end = int((t_spike + 4.5)/dt)
-
-        save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir)
-    else:
-        time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
-        with open(time_window_path,'rb') as fp:
-            time_windows = pickle.load(fp)
-
-        slice_group = 'soma' if 'distal' in syns_type else syns_type
-        if 'distal' in syns_type: plot_spike = False
-        try:
-            slice_start = time_windows[slice_group][num_syns][0]
-            slice_end = time_windows[slice_group][num_syns][1]
-            t_spike = time_windows[slice_group][num_syns][2]
-        except KeyError:
-            plot_flag = False
-
-    if plot_flag:
-        t_slice = t[slice_start:slice_end]
-        
-        lfp = simData['LFP']
-        num_elecs = len(lfp[0])
-        lfp_elec = {i: np.zeros(len(lfp)) for i in range(num_elecs)}
-        for t_i, lfp_t in enumerate(lfp):
-            for elec_i, lfp_t_i in enumerate(lfp_t):
-                lfp_elec[elec_i][t_i] = lfp_t_i
-
-        colors = {0: (91/255,154/255,204/255),
-                1: (223/255,183/255,10/255),
-                2: (89/255,199/255,128/255),
-                3: (221/255,59/255,5/255),
-                4: (72/255,156/255,155/255),
-                5: (223/255,132/255,7/255)}
-
-        fig, axs = plt.subplots(num_elecs//2, 2, figsize=(5,10))
-        axs = axs.ravel()
-
-        for ax_i, i in enumerate(reversed(range(num_elecs))):
-
-            lfp_i = lfp_elec[i]
-            lfp_slice = lfp_i[slice_start:slice_end]
-
-            height = max(lfp_slice) - min(lfp_slice)
-            lfp_slice_norm = lfp_slice/height
-            lfp_slice_norm -= lfp_slice_norm[0]
-
-            axs[ax_i].plot(t_slice,lfp_slice_norm,color=colors[i],zorder=12)
-            if plot_spike:
-                axs[ax_i].axvline(t_spike,alpha=0.4,color='k',zorder=1,linestyle='--')
-            xticks = [(int(t_spike.round(0))-2)+2*i for i in range(4)]
-            axs[ax_i].set_xticks(xticks)
-            axs[ax_i].set_title(i)
-
-        axs[-1].set_xlabel('Time (ms)')
-        axs[-2].set_xlabel('Time (ms)')
-
-        fig.suptitle('Normalized Amplitude')
-        fig.tight_layout()
-
-        fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_LFP.png'),bbox_inches='tight',dpi=300)
-
-
 def save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir):
 
     file_name = 'eap_time_windows.pkl'
@@ -734,10 +655,17 @@ def plot_isoalted_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, 
     time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
+
+    V_soma = np.array(simData['V_soma']['cell_0'])
+    t_spikes = t[np.where(V_soma>10)]
+
+    if len(t_spikes) > 0:
+        slice_group = syns_type
+    else:
+        slice_group = 'soma' if 'distal' in syns_type else syns_type
     
     plot_flag = True
     try:
-        slice_group = 'soma' if 'distal' in syns_type else syns_type
         slice_start = time_windows[slice_group][num_syns][0]
         slice_end = time_windows[slice_group][num_syns][1]
     except KeyError:
@@ -762,4 +690,122 @@ def plot_isoalted_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, 
 
         fig.tight_layout()
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_syns_pot.png'),bbox_inches='tight',dpi=300)
+
+
+def plot_isoalted_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
+
+    t = np.array(simData['t'])
+    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    with open(time_window_path,'rb') as fp:
+        time_windows = pickle.load(fp)
+
+    V_soma = np.array(simData['V_soma']['cell_0'])
+    t_spikes = t[np.where(V_soma>10)]
+    
+    if len(t_spikes) > 0:
+        slice_group = syns_type
+    else:
+        slice_group = 'soma' if 'distal' in syns_type else syns_type
+
+    plot_flag = True
+    try:
+        slice_group = 'soma' if 'distal' in syns_type else syns_type
+        slice_start = time_windows[slice_group][num_syns][0]
+        slice_end = time_windows[slice_group][num_syns][1]
+    except KeyError:
+        plot_flag = False
+
+
+    ### PLOT SYNAPSE LOCATION MEMBRANE POTENTIALS OF ISOLATED EAP ###
+    if plot_flag:
+        t_window = t[slice_start:slice_end]
+
+        fig, axs = plt.subplots(figsize=(8,5))
+        V_soma_window = V_soma[slice_start:slice_end]
+        axs.plot(t_window, V_soma_window, color='tab:blue')
+        axs.set_title(f'Soma Membrane Potential')
+        axs.set_ylabel('Voltage (mV)')
+        axs.set_xlabel('Time (ms)')
+
+        fig.tight_layout()
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_soma_pot.png'),bbox_inches='tight',dpi=300)
+
+
+def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
+    t = np.array(simData['t'])
+    dt = t[1] - t[0]
+
+    V_soma = np.array(simData['V_soma']['cell_0'])
+    t_spikes = t[np.where(V_soma>10)]
+    # t_bound = 600 if len(np.where(t_spikes>600)[0])>0 else 500
+    
+    # t_bound = 500 if 'distal' in syns_type else 600
+
+    plot_flag = True
+    plot_spike = True
+
+    if len(t_spikes) > 0:
+        t_bound = int(100*np.floor(t_spikes[-1]/100))
+        t_spike = t_spikes[np.where(t_spikes>t_bound)[0][0]]
+        slice_start = int((t_spike - 2.25)/dt)
+        slice_end = int((t_spike + 4.5)/dt)
+
+        save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir)
+    else:
+        time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+        with open(time_window_path,'rb') as fp:
+            time_windows = pickle.load(fp)
+
+        slice_group = 'soma' if 'distal' in syns_type else syns_type
+        if 'distal' in syns_type: plot_spike = False
+        try:
+            slice_start = time_windows[slice_group][num_syns][0]
+            slice_end = time_windows[slice_group][num_syns][1]
+            t_spike = time_windows[slice_group][num_syns][2]
+        except KeyError:
+            plot_flag = False
+
+    if plot_flag:
+        t_slice = t[slice_start:slice_end]
+        
+        lfp = simData['LFP']
+        num_elecs = len(lfp[0])
+        lfp_elec = {i: np.zeros(len(lfp)) for i in range(num_elecs)}
+        for t_i, lfp_t in enumerate(lfp):
+            for elec_i, lfp_t_i in enumerate(lfp_t):
+                lfp_elec[elec_i][t_i] = lfp_t_i
+
+        colors = {0: (91/255,154/255,204/255),
+                1: (223/255,183/255,10/255),
+                2: (89/255,199/255,128/255),
+                3: (221/255,59/255,5/255),
+                4: (72/255,156/255,155/255),
+                5: (223/255,132/255,7/255)}
+
+        fig, axs = plt.subplots(num_elecs//2, 2, figsize=(5,10))
+        axs = axs.ravel()
+
+        for ax_i, i in enumerate(reversed(range(num_elecs))):
+
+            lfp_i = lfp_elec[i]
+            lfp_slice = lfp_i[slice_start:slice_end]
+
+            height = max(lfp_slice) - min(lfp_slice)
+            lfp_slice_norm = lfp_slice/height
+            lfp_slice_norm -= lfp_slice_norm[0]
+
+            axs[ax_i].plot(t_slice,lfp_slice_norm,color=colors[i],zorder=12)
+            if plot_spike:
+                axs[ax_i].axvline(t_spike,alpha=0.4,color='k',zorder=1,linestyle='--')
+            xticks = [(int(t_spike.round(0))-2)+2*i for i in range(4)]
+            axs[ax_i].set_xticks(xticks)
+            axs[ax_i].set_title(i)
+
+        axs[-1].set_xlabel('Time (ms)')
+        axs[-2].set_xlabel('Time (ms)')
+
+        fig.suptitle('Normalized Amplitude')
+        fig.tight_layout()
+
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_LFP.png'),bbox_inches='tight',dpi=300)
 
