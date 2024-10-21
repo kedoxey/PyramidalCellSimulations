@@ -393,6 +393,7 @@ def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_d
     # t_bound = 500 if 'distal' in syns_type else 600
 
     plot_flag = True
+    plot_spike = True
 
     if len(t_spikes) > 0:
         t_bound = int(100*np.floor(t_spikes[-1]/100))
@@ -405,11 +406,13 @@ def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_d
         time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
         with open(time_window_path,'rb') as fp:
             time_windows = pickle.load(fp)
-        
+
+        slice_group = 'soma' if 'distal' in syns_type else syns_type
+        if 'distal' in syns_type: plot_spike = False
         try:
-            slice_start = time_windows[syns_type][num_syns][0]
-            slice_end = time_windows[syns_type][num_syns][1]
-            t_spike = time_windows[syns_type][num_syns][2]
+            slice_start = time_windows[slice_group][num_syns][0]
+            slice_end = time_windows[slice_group][num_syns][1]
+            t_spike = time_windows[slice_group][num_syns][2]
         except KeyError:
             plot_flag = False
 
@@ -443,7 +446,8 @@ def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_d
             lfp_slice_norm -= lfp_slice_norm[0]
 
             axs[ax_i].plot(t_slice,lfp_slice_norm,color=colors[i],zorder=12)
-            axs[ax_i].axvline(t_spike,alpha=0.4,color='k',zorder=1,linestyle='--')
+            if plot_spike:
+                axs[ax_i].axvline(t_spike,alpha=0.4,color='k',zorder=1,linestyle='--')
             xticks = [(int(t_spike.round(0))-2)+2*i for i in range(4)]
             axs[ax_i].set_xticks(xticks)
             axs[ax_i].set_title(i)
@@ -733,8 +737,9 @@ def plot_isoalted_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, 
     
     plot_flag = True
     try:
-        slice_start = time_windows[syns_type][num_syns][0]
-        slice_end = time_windows[syns_type][num_syns][1]
+        slice_group = 'soma' if 'distal' in syns_type else syns_type
+        slice_start = time_windows[slice_group][num_syns][0]
+        slice_end = time_windows[slice_group][num_syns][1]
     except KeyError:
         plot_flag = False
 
@@ -745,7 +750,6 @@ def plot_isoalted_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, 
 
         fig, axs = plt.subplots(figsize=(8,5))
         for syn_sec in syn_secs:
-            # TODO: support for empty V_syn_sec
             if f'V_{syn_sec}' in simData.keys():
                 V_sec = np.array(simData[f'V_{syn_sec}']['cell_0'])
                 V_sec_window = V_sec[slice_start:slice_end]

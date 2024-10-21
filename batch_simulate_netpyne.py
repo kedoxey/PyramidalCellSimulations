@@ -9,9 +9,12 @@ configName = 'exc_config'
 
 param_sets = {'-syns': {'enable_syns': True}}
               # '_no-Na': {'channel_toggles': {'Na': 0}}}
-group_num_syns = {'soma': [10, 50, 100, 200, 300],  # [5*i for i in range(50,61)],
-                  'basal': list(chain([10, 50, 100, 200, 300],[5*i for i in range(61,101)])),
-                  'apical_distal': list(chain([10, 50, 100, 200, 300],[5*i for i in range(181,241)]))}
+group_num_syns = {'soma': [25],
+                  'basal': [25],
+                  'apical_distal': [50, 100]}
+  #  'soma': [10, 50, 100, 200, 300],  # [5*i for i in range(50,61)],
+  #                 'basal': list(chain([10, 50, 100, 200, 300],[5*i for i in range(61,101)])),
+  #                 'apical_distal': list(chain([10, 50, 100, 200, 300],[5*i for i in range(181,241)]))}
                   # 'basal': 30}
                   # 'basal_soma': 30,
                   # 'apical_proximal': 35,
