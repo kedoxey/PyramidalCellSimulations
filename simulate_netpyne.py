@@ -296,7 +296,7 @@ def run_sim(config_name, *batch_params):
     ### Plot sections ###
     synColors = {'E': 'firebrick', 'I': 'darkcyan'}
     colormapE, colormapI = mh.get_colormaps(params.num_syns_E, params.num_syns_I)
-    secSynColors = mh.get_syn_sec_colors(cells[0], (colormapE, colormapI), synColors)
+    secSynColors = mh.get_syn_sec_colors(cells[0], params.use_colormaps, (colormapE, colormapI), synColors)
 
     if params.enable_syns:
         spikeTrains = mh.plot_pre_spike_trains(cells, conns, params.sim_label, sim_dir)
@@ -316,6 +316,7 @@ def run_sim(config_name, *batch_params):
         mh.plot_isoalted_soma_pot(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
 
 
+    # TODO - solid color synapses
     ### Plot morphology ###
     if params.plot_morphology:
         sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], 

@@ -363,17 +363,19 @@ def get_colormaps(numSynsE=None, numSynsI=None):
     
     return colorsE, colorsI
 
-def get_syn_sec_colors(cell, colormaps, synColors):
+def get_syn_sec_colors(cell, use_colormaps, colormaps, synColors):
     secSynCount = 0
     secSynColors = {}
     for secName, sec in cell.secs.items():
         for synMech in sec['synMechs']:
-            secSynColors[secName] = {'E': synColors['E'],
-                                     'I': synColors['I']}
-            if 'GABA' in synMech['label']:
-                secSynColors[secName]['I'] = colormaps[1][secSynCount]
+            if use_colormaps:
+                if 'GABA' in synMech['label']:
+                    secSynColors[secName]['I'] = colormaps[1][secSynCount]
+                else:
+                    secSynColors[secName]['E'] = colormaps[0][secSynCount]
             else:
-                secSynColors[secName]['E'] = colormaps[0][secSynCount]
+                secSynColors[secName] = {'E': synColors['E'],
+                                         'I': synColors['I']}
 
         if bool(sec['synMechs']):
             secSynCount += 1
@@ -709,7 +711,6 @@ def plot_isoalted_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, out
 
     plot_flag = True
     try:
-        slice_group = 'soma' if 'distal' in syns_type else syns_type
         slice_start = time_windows[slice_group][num_syns][0]
         slice_end = time_windows[slice_group][num_syns][1]
     except KeyError:
