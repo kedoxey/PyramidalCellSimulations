@@ -651,7 +651,7 @@ def plot_syns_traces(simData, syn_secs, sim_label, sim_dir, syn_colors):
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-syns_pot.png'),bbox_inches='tight',dpi=300)
 
 
-def plot_isoalted_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
+def plot_isolated_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
 
     t = np.array(simData['t'])
     time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
@@ -694,7 +694,7 @@ def plot_isoalted_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, 
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_syns_pot.png'),bbox_inches='tight',dpi=300)
 
 
-def plot_isoalted_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
+def plot_isolated_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
 
     t = np.array(simData['t'])
     time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
@@ -713,6 +713,7 @@ def plot_isoalted_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, out
     try:
         slice_start = time_windows[slice_group][num_syns][0]
         slice_end = time_windows[slice_group][num_syns][1]
+        t_spike = time_windows[slice_group][num_syns][2]
     except KeyError:
         plot_flag = False
 
@@ -728,8 +729,63 @@ def plot_isoalted_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, out
         axs.set_ylabel('Voltage (mV)')
         axs.set_xlabel('Time (ms)')
 
+        xticks = [(int(t_spike.round(0))-2)+2*i for i in range(4)]
+        axs.set_xticks(xticks)
+
         fig.tight_layout()
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_soma_pot.png'),bbox_inches='tight',dpi=300)
+
+
+def plot_isolated_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
+
+    t = np.array(simData['t'])
+    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    with open(time_window_path,'rb') as fp:
+        time_windows = pickle.load(fp)
+
+    V_soma = np.array(simData['V_soma']['cell_0'])
+    t_spikes = t[np.where(V_soma>10)]
+
+    if len(t_spikes) > 0:
+        slice_group = syns_type
+    else:
+        slice_group = 'soma' if 'distal' in syns_type else syns_type
+    
+    plot_flag = True
+    try:
+        slice_start = time_windows[slice_group][num_syns][0]
+        slice_end = time_windows[slice_group][num_syns][1]
+        t_spike = time_windows[slice_group][num_syns][2]
+    except KeyError:
+        plot_flag = False
+
+    ### PLOT SYNAPSE LOCATION MEMBRANE POTENTIALS OF ISOLATED EAP ###
+    if plot_flag:
+        t_window = t[slice_start:slice_end]
+
+        fig, axs = plt.subplots(1, 2, figsize=(5,4))
+        axs = axs.ravel()
+
+        V_soma_window = V_soma[slice_start:slice_end]
+        axs[0].plot(t_window, V_soma_window, color='tab:blue')
+        for syn_sec in syn_secs:
+            if f'V_{syn_sec}' in simData.keys():
+                V_sec = np.array(simData[f'V_{syn_sec}']['cell_0'])
+                V_sec_window = V_sec[slice_start:slice_end]
+            
+                axs[1].plot(t_window, V_sec_window, color=syn_colors['E'])
+
+        axs[0].set_title(f'Soma')
+        axs[0].set_ylabel('Voltage (mV)')
+        axs[1].set_title('Synapse Location')
+
+        for ax_i in axs:
+            xticks = [(int(t_spike.round(0))-2)+2*i for i in range(4)]
+            ax_i.set_xticks(xticks)
+            ax_i.set_xlabel('Time (ms)')
+
+        fig.tight_layout()
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_traces.png'),bbox_inches='tight',dpi=300)
 
 
 def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):

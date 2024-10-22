@@ -2,6 +2,7 @@ run_NML: False
 plot_morphology: True
 enable_syns: True
 use_colormaps: False
+save_pickle: False
 
 seed: 74
 
