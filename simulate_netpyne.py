@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import os
 import secrets
 import json
@@ -86,7 +87,7 @@ def run_sim(config_name, *batch_params):
     cfg.recordStep = params.recordStep
     # cfg.recordStim = True
     cfg.filename = os.path.join(sim_dir,cell_name+'_'+params.sim_label) 	# Set file output name
-    cfg.savePickle = False
+    cfg.savePickle = params.save_pickle
     cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': False}  # Plot recorded traces for this list of cells
     cfg.hParams['celsius'] = 34.0 
     cfg.hParams['v_init'] = params.vinit
@@ -312,17 +313,14 @@ def run_sim(config_name, *batch_params):
     ### Plot isolated LFP ###
     if params.record_LFP:
         mh.plot_isolated_LFP(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
-        mh.plot_isoalted_syn_traces(simData, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
-        mh.plot_isoalted_soma_pot(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
+        mh.plot_isolated_syn_traces(simData, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+        mh.plot_isolated_traces(simData, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+        mh.plot_isolated_soma_pot(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
 
 
     # TODO - solid color synapses
     ### Plot morphology ###
     if params.plot_morphology:
-        sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], 
-                            saveFig=True, axisLabels=True, returnPlotter=True, secSynColors=secSynColors, colormaps=(colormapE,colormapI), synColors=synColors)
-
-
-
-
-# run_sim('exc_config', ('syns_weight',0.5))
+        sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], axisLabels=False, includeGrid=False,
+                               saveFig=True, fontSize=10, returnPlotter=True, bkgColor=mpl.colors.to_rgba('w'), 
+                               secSynColors=secSynColors, colormaps=(colormapE,colormapI), synColors=synColors)
