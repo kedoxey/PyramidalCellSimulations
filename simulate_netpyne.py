@@ -6,7 +6,7 @@ import pickle
 import model_helpers as mh
 import numpy as np
 from neuron import h, load_mechanisms
-from netpyne import specs, sim, conversion
+from netpyne import specs, sim
 import argparse as ap
 import time
 
@@ -21,11 +21,11 @@ def run_sim(config_name, *batch_params):
         setattr(params, batch_param, batch_value)
 
     ### Set simulation name and label ###
-    params.sim_name = f'{params.sim_name}-{params.syns_type}'
+    params.sim_name = f'{params.sim_name}_{params.syns_type}'
     if isinstance(params.syns_weight, list):
-        params.sim_label = f'{params.sim_name}_{params.num_syns_E}Ex{params.syns_weight[0]}AMPAx{params.syns_weight[1]}NMDA_{params.num_poisson}x{params.spk_freq}Hz'
+        params.sim_label = f'{params.sim_name}-{params.num_syns_E}Ex{params.syns_weight[0]}AMPAx{params.syns_weight[1]}NMDA-{params.num_poisson}x{params.spk_freq}Hz'
     else:
-        params.sim_label = f'{params.sim_name}_{params.num_syns_E}Ex{params.syns_weight}_{params.num_poisson}x{params.spk_freq}Hz'
+        params.sim_label = f'{params.sim_name}-{params.num_syns_E}Ex{params.syns_weight}-{params.num_poisson}x{params.spk_freq}Hz'
     
     if params.add_bkg:
         params.sim_label += '+bkg'
@@ -87,7 +87,7 @@ def run_sim(config_name, *batch_params):
     # cfg.recordStim = True
     cfg.filename = os.path.join(sim_dir,cell_name+'_'+params.sim_label) 	# Set file output name
     cfg.savePickle = False
-    cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': True}  # Plot recorded traces for this list of cells
+    cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': False}  # Plot recorded traces for this list of cells
     cfg.hParams['celsius'] = 34.0 
     cfg.hParams['v_init'] = params.vinit
 
@@ -167,7 +167,7 @@ def run_sim(config_name, *batch_params):
         cfg.recordTraces[f'I_{syn_sec_E}_ampa'] = {'sec':syn_sec_E,'loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_AMPA'}
         cfg.recordTraces[f'I_{syn_sec_E}_nmda'] = {'sec':syn_sec_E,'loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_NMDA'}
 
-    if 'apic_32' not in syn_sec_E:
+    if 'apic_32' not in syn_secs_E:
         cfg.recordTraces[f'V_apic_32'] = {'sec':'apic_32','loc':0.5,'var':'v'}
         cfg.recordTraces[f'I_apic_32_ampa'] = {'sec':'apic_32','loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_AMPA'}
         cfg.recordTraces[f'I_apic_32_nmda'] = {'sec':'apic_32','loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_NMDA'}
@@ -291,8 +291,10 @@ def run_sim(config_name, *batch_params):
     (pops, cells, conns, stims, simData) = sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=True)
 
     # mh.save_simData(simData, params.sim_label, sim_dir)
+    mh.save_firing_rate(simData, params.stim_delay, params.stim_dur, params.syns_type, params.num_syns_E, output_dir)
 
-    synColors = ('firebrick','darkcyan')
+    ### Plot sections ###
+    synColors = {'E': 'firebrick', 'I': 'darkcyan'}
     colormapE, colormapI = mh.get_colormaps(params.num_syns_E, params.num_syns_I)
     secSynColors = mh.get_syn_sec_colors(cells[0], (colormapE, colormapI), synColors)
 
@@ -302,10 +304,17 @@ def run_sim(config_name, *batch_params):
         if len(syn_secs_E) < 175:
             mh.plot_secs(simData, spikeTrains, params.sim_label, sim_dir, secSynColors)
 
-    mh.plot_soma(simData, params.sim_label, sim_dir)
+        mh.plot_syns_traces(simData, syn_secs_E, params.sim_label, sim_dir, synColors)
 
+    ### Plot somatic spiking ###
+    mh.plot_soma(simData, params.sim_label, sim_dir)
+        
+    ### Plot isolated LFP ###
     if params.record_LFP:
-        mh.plot_isolated_LFP(simData, params.syns_type, params.sim_label, sim_dir)
+        mh.plot_isolated_LFP(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
+        mh.plot_isoalted_syn_traces(simData, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+        mh.plot_isoalted_soma_pot(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
+
 
     ### Plot morphology ###
     if params.plot_morphology:
