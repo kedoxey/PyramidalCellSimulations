@@ -23,15 +23,21 @@ def run_sim(config_name, *batch_params):
 
     ### Set simulation name and label ###
     params.sim_name = f'{params.sim_name}_{params.syns_type}'
-    if isinstance(params.syns_weight, list):
-        params.sim_label = f'{params.sim_name}-{params.num_syns_E}Ex{params.syns_weight[0]}AMPAx{params.syns_weight[1]}NMDA-{params.num_poisson}x{params.spk_freq}Hz'
-    else:
-        params.sim_label = f'{params.sim_name}-{params.num_syns_E}Ex{params.syns_weight}-{params.num_poisson}x{params.spk_freq}Hz'
+    params.sim_label = f'{params.sim_name}'
+
+    if params.input_amp > 0:
+        params.sim_label += f'-{params.input_amp}nA'
+
+    if params.enable_syns:
+        if isinstance(params.syns_weight, list):
+            params.sim_label += f'-{params.num_syns_E}Ex{params.syns_weight[0]}AMPAx{params.syns_weight[1]}NMDA-{params.num_poisson}x{params.spk_freq}Hz'
+        else:
+            params.sim_label += f'-{params.num_syns_E}Ex{params.syns_weight}-{params.num_poisson}x{params.spk_freq}Hz'
     
     if params.add_bkg:
         params.sim_label += '+bkg'
 
-    params.sim_label += f'{params.sim_flag}'
+    params.sim_label += f'-{params.sim_flag}'
 
     ### Model information ###
     model_version = 'NeuroML' if params.run_NML else 'NEURON'
@@ -278,9 +284,9 @@ def run_sim(config_name, *batch_params):
 
         elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(params.depths)]
 
-        apic_pos = [[0, -930-(y*elec_dist - disp), 0] for y in range(2)]
-
-        elec_pos.extend(apic_pos)  # 
+        if params.apical_depths > 0:
+            apic_pos = [[0, -930-(y*elec_dist - disp), 0] for y in range(params.apical_depths)]
+            elec_pos.extend(apic_pos)  # 
         # -x is left and -y is above soma
         # elec_pos.reverse()
 

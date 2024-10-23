@@ -1,56 +1,50 @@
-run_NML: False
-plot_morphology: True
-enable_syns: True
-use_colormaps: False
-save_pickle: False
+run_NML: False          # download and run with NeuroML version of model otherwise use NEURON version
+plot_morphology: True   # plot morphology of cell 
+enable_syns: True       # include synaptic input
+use_colormaps: False    # color synpases in the morphology plot with a colormap, i.e. each synapse has a unique color
+save_pickle: False      # save simulation output to a pickle file
 
-seed: 74
+seed: 74                # random sead
 
-record_LFP: False
-depths: 4
+record_LFP: False       # record LFP
+depths: 4               # number of electrodes around soma
+apical_depths: 2        # number of electrodes in apical distal dendrites  
 
-spk_type: 'poisson'  # poisson or gaussian
 # Poisson spike trains
-num_poisson: 1
-spk_freq: 40
-spk_freq_lb: &sfl 40  # 20
-spk_freq_ub: &sfu 41  # 120
+num_poisson: 1          # number of Poisson instances
+spk_freq: 40            # Poisson spike frequency
+spk_freq_lb: 40    
+spk_freq_ub: 41    
 
-nmldb_id: 'NMLCL000073'
-publication: 'Hay2011'
+nmldb_id: 'NMLCL000073' # NeuroML database cell id
+publication: 'Hay2011'  # Main author and publication year of corresponding article
  
-syns_lb: &sl 0  # 0 if not distibuted by distance from soma
-syns_ub: &su 1
-syns_type: &st 'apical'  # soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
-syns_source: &ss 'HS'
-syns_weight: &sw 1  # Hay & Segev 2015 (HS) = 1.5, Dura-Bernal et al. 2024 (DB) = 1
-num_syns_E: &nse 50   # 10000
-num_syns_I: &nsi 0   # 250
-synsPerConn: &spc 1
-channel_toggles: {'Na': 1, 'Ca': 1, 'K': 1}
-channel_secs: 'soma' # soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
-add_soma: False
-add_inh: False
-add_bkg: False
+syns_lb: 0              # lower bound of distance from soma for synapse location - 0 if not distibuted by distance from soma
+syns_ub: 1              # upper bound 
+syns_type: 'apical'     # synaptic input locations -  soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+syns_source: 'HS'       # use synapses from Hay & Segev 2015 model
+syns_weight: 1          # synaptic weight
+num_syns_E: 50          # number of excitatory synapses
+num_syns_I: 0           # number of inhibitory synapses
+synsPerConn: 1          # number of synapses per connection
+channel_toggles: {'Na': 1, 'Ca': 1, 'K': 1}   # strength of channels in channel_secs
+channel_secs: 'soma'    # toggle channels of compartments in this group - soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+add_soma: False         # include soma in synapse locations
+add_bkg: False          # add background input
 
-vinit: -80
-dt: 0.01
-recordStep: 0.1
+vinit: -80              # initial cell membrane potential
+dt: 0.01                # dt for simulation
+recordStep: 0.1         # recording time step
 
 ### Input parameters ###
-input_amp: &in 0  # [0, 0.35477, 0.44346, 0.53215, 1.0643]
-stim_delay: 350
-stim_dur: 1000
-sim_dur: 1500
+input_amp: 0            # amplitude of injected current to soma
+stim_delay: 350         # stimulus (synaptic or current) delay
+stim_dur: 1000          # stimulus (synaptic or current) duration
+sim_dur: 1500           # simulation duration
 
-# Gaussian spike trains
-gauss_mean: 1.4
-gauss_std: 0.4
 
-# sim_name: &sn !join ['EXC-', *st]
-sim_name: 'EXC'
-sim_label: ''  # !join [*sn, '_', *nse, 'E', 'x', *sw]
-sim_flag: ''
-# sim_label: !join [*sn, '_', *sl, '-', *su, '_', *sf, 'Hz_', *ns, 'x', *spc, 'x', *sw, '_', *ss]
+sim_name: 'DF'      # name for batch simulations
+sim_flag: ''        # name for specific simulation
+sim_label: ''       # label for simulation that includes identifiable parameters - populated in simulate_netpyne.py
 
 sim_message: 'Simulation parameters for characterizing cell dynamics with just excitatory synapses.'
