@@ -272,7 +272,13 @@ def toggle_channels(cell_params, sec_names, toggles):  #, ion_name, toggle):
         for ion_name, toggle in toggles.items():
             for mech_name, mech in list(sec['mechs'].items()):
                 if (ion_name in mech_name) and ('gmax' in mech.keys()):
-                    mech['gmax'] *= toggle
+                    if isinstance(mech['gmax'], list):
+                        for i, gmax in enumerate(mech['gmax']):
+                            gmax *= toggle
+                            mech['gmax'][i] = gmax
+                    else:
+                        mech['gmax'] *= toggle
+                    mech.pop('__dict__', None)
     
     return cell_params
 

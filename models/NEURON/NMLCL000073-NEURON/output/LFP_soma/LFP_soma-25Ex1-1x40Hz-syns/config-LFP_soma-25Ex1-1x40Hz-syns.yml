@@ -22,7 +22,7 @@ publication: Hay2011
 recordStep: 0.1
 record_LFP: true
 run_NML: false
-save_pickle: true
+save_pickle: false
 seed: 74
 sim_dur: 1000
 sim_flag: -syns

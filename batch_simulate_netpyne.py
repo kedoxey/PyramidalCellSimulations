@@ -7,7 +7,11 @@ from itertools import chain
 
 configName = 'exc_config'
 
-param_sets = {'-syns': {'enable_syns': True}}
+param_sets = {#'-syns': {'enable_syns': True}}  #,
+              '-pass_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
+                             'channel_secs': 'soma'},
+              '-pass_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
+                             'channel_secs': 'all'}}
               # '_no-Na': {'channel_toggles': {'Na': 0}}}
 group_num_syns = {'soma': [25, 50, 100, 200, 300],
                   'basal': [25, 50, 100, 200, 300],
