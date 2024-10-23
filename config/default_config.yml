@@ -41,7 +41,7 @@ stim_dur: 1000          # stimulus (synaptic or current) duration
 sim_dur: 1500           # simulation duration
 
 
-sim_name: 'DF'      # name for batch simulations
+sim_name: 'DF'      # name for organizing batch simulations together, i.e. experiment type identifier
 sim_flag: ''        # name for specific simulation
 sim_label: ''       # label for simulation that includes identifiable parameters - populated in simulate_netpyne.py
 
