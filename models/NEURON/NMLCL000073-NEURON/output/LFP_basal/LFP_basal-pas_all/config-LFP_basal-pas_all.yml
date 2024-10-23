@@ -1,7 +1,7 @@
 !!python/object:argparse.Namespace
 add_bkg: false
 add_soma: false
-apical_depths: 0
+apical_depths: 2
 channel_secs: all
 channel_toggles:
   Ca: 0

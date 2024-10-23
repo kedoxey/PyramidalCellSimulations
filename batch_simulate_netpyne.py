@@ -22,25 +22,25 @@ paramGrids = []
 
 for sim_flag, param_set in param_sets.items():
   for syn_group, num_syns in group_num_syns.items():
-    for num_syn in num_syns:
 
-      paramGrid = {'sim_name': [sim_name],
-                    'sim_flag': [sim_flag],
-                    'nmldb_id': ['NMLCL000073'],
-                    'syns_type': [syn_group],  
-                    'num_syns_E': [num_syn],
-                    'add_bkg': [False], 
-                    'record_LFP': [True],
-                    'depths': [4],
-                    'sim_dur': [1000],
-                    'stim_dur': [400],
-                    'stim_delay': [400],
-                    'save_pickle': [False]}
-      
-      for param_name, param in param_set.items():
-        paramGrid[param_name] = [param]
+    paramGrid = {'sim_name': [sim_name],
+                  'sim_flag': [sim_flag],
+                  'nmldb_id': ['NMLCL000073'],
+                  'syns_type': [syn_group],  
+                  'num_syns_E': num_syns,
+                  'add_bkg': [False], 
+                  'record_LFP': [True],
+                  'depths': [4],
+                  'apical_depths': [2],
+                  'sim_dur': [1000],
+                  'stim_dur': [400],
+                  'stim_delay': [400],
+                  'save_pickle': [False]}
+    
+    for param_name, param in param_set.items():
+      paramGrid[param_name] = [param]
 
-      paramGrids.append(paramGrid)
+    paramGrids.append(paramGrid)
       
 batchParamsList = list(ParameterGrid(paramGrids))
 

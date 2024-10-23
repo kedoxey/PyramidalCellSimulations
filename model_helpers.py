@@ -754,8 +754,10 @@ def plot_isolated_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_
 
     if len(t_spikes) > 0:
         slice_group = syns_type
+        ylims = [-65,25]
     else:
         slice_group = 'soma' if 'distal' in syns_type else syns_type
+        ylims = [-85,-50]
     
     plot_flag = True
     try:
@@ -789,7 +791,7 @@ def plot_isolated_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_
             xticks = [(int(t_spike.round(0))-2)+2*i for i in range(4)]
             ax.set_xticks(xticks)
             ax.set_xlabel('Time (ms)')
-            ax.set_ylim([-65,25])
+            ax.set_ylim(ylims)
 
         fig.tight_layout()
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_traces.png'),bbox_inches='tight',dpi=300)
