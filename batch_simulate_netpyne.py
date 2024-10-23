@@ -8,18 +8,15 @@ from itertools import chain
 config_name = 'default_config'
 
 sim_name = 'LFP'
-param_sets = {'syns': {'enable_syns': True}}  #,
-              # '-pass_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
-              #                'channel_secs': 'soma'},
-              # '-pass_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
-              #                'channel_secs': 'all'}}
-              # '_no-Na': {'channel_toggles': {'Na': 0}}}
-group_num_syns = {#'soma': [25, 50, 100, 200, 300],
-                  # 'basal': [25, 50, 100, 200, 300],
-                  # 'apical_distal': [25, 50, 100, 200, 300]}
-  #  'soma': [10, 50, 100, 200, 300],  # [5*i for i in range(50,61)],
-  #                 'basal': list(chain([10, 50, 100, 200, 300],[5*i for i in range(61,101)])),
-                  'apical_distal': [5*i for i in range(228,320)]}
+param_sets = {'syns': {'enable_syns': True},  #,
+              'pas_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
+                             'channel_secs': 'soma'},
+              'pas_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
+                             'channel_secs': 'all'}}
+              
+group_num_syns = {'soma': [25, 50, 100, 200, 300],
+                  'basal': [25, 50, 100, 200, 300],
+                  'apical_distal': [25, 50, 100, 200, 300]}
 
 paramGrids = []
 
