@@ -1,6 +1,6 @@
 # Characterize single cell dynamics in NetPyNE.
 
-In `batch_simulation.py`, simulations can be run one at a time or in batch. Parameter sets are handled by the [ParameterGrid](https://scikit-learn.org/dev/modules/generated/sklearn.model_selection.ParameterGrid.html) module from [scikit-learn](https://scikit-learn.org/dev/index.html). A dictionary consisting of lists of parameter values is passed to `ParamaterGrid` and a list of all possible paramater value combinations is returned. The default parameter set can be found in `config/default-config.py`. All parameters defined with `ParameterGrid` will overwrite the default values.
+In [batch_simulation.py](https://github.com/kedoxey/PyramidalCellSimulations/blob/dev/batch_simulation.py), simulations can be run one at a time or in batch. Parameter sets are handled by the [ParameterGrid](https://scikit-learn.org/dev/modules/generated/sklearn.model_selection.ParameterGrid.html) module from [scikit-learn](https://scikit-learn.org/dev/index.html). A dictionary consisting of lists of parameter values is passed to `ParamaterGrid` and a list of all possible paramater value combinations is returned. The default parameter set can be found in [config/default-config.py](https://github.com/kedoxey/PyramidalCellSimulations/blob/dev/config/default_config.yml). All parameters defined with `ParameterGrid` will overwrite the default values.
 
 
 #### Current supported models:
