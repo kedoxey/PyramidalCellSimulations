@@ -7,13 +7,13 @@ from itertools import chain
 
 config_name = 'default_config'
 
-sim_name = 'EAP'
+sim_name = 'FR'
 
-param_sets = {'active': {'enable_syns': True},  #,
-              'pas_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
-                             'channel_secs': 'soma'},
-              'pas_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
-                             'channel_secs': 'all'}}
+param_sets = {'active': {'log_firing_rate': True}}#,
+              # 'pas_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
+              #                'channel_secs': 'soma'},
+              # 'pas_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
+              #                'channel_secs': 'all'}}
               
 # group_num_syns = {'soma': [25, 50, 100, 200, 300],
 #                   'basal': [25, 50, 100, 200, 300],

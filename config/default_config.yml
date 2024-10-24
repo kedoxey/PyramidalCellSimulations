@@ -3,6 +3,7 @@ plot_morphology: True   # plot morphology of cell
 enable_syns: False       # include synaptic input
 use_colormaps: False    # color synpases in the morphology plot with a colormap, i.e. each synapse has a unique color
 save_pickle: False      # save simulation output to a pickle file
+log_firing_rate: False
 
 seed: 74                # random sead
 

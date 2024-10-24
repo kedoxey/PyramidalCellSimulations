@@ -298,7 +298,8 @@ def run_sim(config_name, *batch_params):
     (pops, cells, conns, stims, simData) = sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=True)
 
     # mh.save_simData(simData, params.sim_label, sim_dir)
-    mh.save_firing_rate(simData, params.stim_delay, params.stim_dur, params.syns_type, params.num_syns_E, output_dir)
+    if params.log_firing_rate:
+        mh.save_firing_rate(simData, params.stim_delay, params.stim_dur, params.syns_type, params.num_syns_E, output_dir)
 
     ### Plot sections ###
     synColors = {'E': 'firebrick', 'I': 'darkcyan'}
