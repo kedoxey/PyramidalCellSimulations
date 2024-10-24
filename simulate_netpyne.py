@@ -324,7 +324,6 @@ def run_sim(config_name, *batch_params):
         mh.plot_isolated_soma_pot(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
 
 
-    # TODO - solid color synapses
     ### Plot morphology ###
     if params.plot_morphology:
         sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], axisLabels=False, includeGrid=False,

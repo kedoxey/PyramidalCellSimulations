@@ -7,40 +7,41 @@ from itertools import chain
 
 config_name = 'default_config'
 
-sim_name = 'LFP'
-param_sets = {'syns': {'enable_syns': True},  #,
+sim_name = 'EAP'
+
+param_sets = {'active': {'enable_syns': True},  #,
               'pas_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
                              'channel_secs': 'soma'},
               'pas_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
                              'channel_secs': 'all'}}
               
-group_num_syns = {'soma': [25, 50, 100, 200, 300],
-                  'basal': [25, 50, 100, 200, 300],
-                  'apical_distal': [25, 50, 100, 200, 300]}
+# group_num_syns = {'soma': [25, 50, 100, 200, 300],
+#                   'basal': [25, 50, 100, 200, 300],
+#                   'apical_distal': [25, 50, 100, 200, 300]}
 
 paramGrids = []
 
 for sim_flag, param_set in param_sets.items():
-  for syn_group, num_syns in group_num_syns.items():
 
-    paramGrid = {'sim_name': [sim_name],
-                  'sim_flag': [sim_flag],
-                  'nmldb_id': ['NMLCL000073'],
-                  'syns_type': [syn_group],  
-                  'num_syns_E': num_syns,
-                  'add_bkg': [False], 
-                  'record_LFP': [True],
-                  'depths': [4],
-                  'apical_depths': [2],
-                  'sim_dur': [1000],
-                  'stim_dur': [400],
-                  'stim_delay': [400],
-                  'save_pickle': [False]}
-    
-    for param_name, param in param_set.items():
-      paramGrid[param_name] = [param]
+  paramGrid = {'sim_name': [sim_name],
+                'sim_flag': [sim_flag],
+                'nmldb_id': ['NMLCL000073'],
+                'enable_syns': [True],
+                'syns_type': ['soma', 'basal', 'apical_distal'],  
+                'num_syns_E': [25, 50, 100, 200, 300],
+                'add_bkg': [False], 
+                'record_LFP': [True],
+                'depths': [4],
+                'apical_depths': [2],
+                'sim_dur': [1000],
+                'stim_dur': [400],
+                'stim_delay': [400],
+                'save_pickle': [False]}
+  
+  for param_name, param in param_set.items():
+    paramGrid[param_name] = [param]
 
-    paramGrids.append(paramGrid)
+  paramGrids.append(paramGrid)
       
 batchParamsList = list(ParameterGrid(paramGrids))
 

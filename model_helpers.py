@@ -754,10 +754,8 @@ def plot_isolated_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_
 
     if len(t_spikes) > 0:
         slice_group = syns_type
-        ylims = [-65,25]
     else:
         slice_group = 'soma' if 'distal' in syns_type else syns_type
-        ylims = [-85,-50]
     
     plot_flag = True
     try:
@@ -775,6 +773,7 @@ def plot_isolated_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_
         axs = axs.ravel()
 
         V_soma_window = V_soma[slice_start:slice_end]
+
         axs[0].plot(t_window, V_soma_window, color='tab:blue')
         for syn_sec in syn_secs:
             if f'V_{syn_sec}' in simData.keys():
@@ -787,11 +786,12 @@ def plot_isolated_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_
         axs[0].set_ylabel('Voltage (mV)')
         axs[1].set_title('Synapse Location')
 
+        ylims = [-85,25]
+        xticks = [(int(t_spike.round(0))-2)+2*i for i in range(4)]
         for ax in axs:
-            xticks = [(int(t_spike.round(0))-2)+2*i for i in range(4)]
+            ax.set_ylim(ylims)
             ax.set_xticks(xticks)
             ax.set_xlabel('Time (ms)')
-            ax.set_ylim(ylims)
 
         fig.tight_layout()
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_traces.png'),bbox_inches='tight',dpi=300)
