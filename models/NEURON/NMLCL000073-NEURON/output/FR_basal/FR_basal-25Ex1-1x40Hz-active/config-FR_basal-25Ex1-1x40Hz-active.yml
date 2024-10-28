@@ -19,19 +19,19 @@ num_syns_I: 0
 plot_morphology: true
 publication: Hay2011
 recordStep: 0.1
-record_LFP: true
+record_LFP: false
 run_NML: false
 save_pickle: false
 seed: 74
-sim_dur: 1000
+sim_dur: 5000
 sim_flag: active
 sim_label: FR_basal-25Ex1-1x40Hz-active
 sim_message: Simulation parameters for characterizing single cell dynamics with default
   parameters.
 sim_name: FR_basal
 spk_freq: 40
-stim_delay: 400
-stim_dur: 400
+stim_delay: 100
+stim_dur: 4900
 synsPerConn: 1
 syns_lb: 0
 syns_source: HS

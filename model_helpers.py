@@ -409,15 +409,15 @@ def save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_d
     with open(file_path,'wb') as fp:
         pickle.dump(time_windows,fp)
 
-def save_firing_rate(simData, stim_delay, stim_dur, syns_type, num_syns, output_dir):
+def save_firing_rate(simData, sim_dur, syns_type, num_syns, output_dir):
     
     V_soma = np.array(simData['V_soma']['cell_0'])
     t = np.array(simData['t'])
     t_spikes = t[np.where(V_soma>0)]
     
     if len(t_spikes) > 0:
-        t_spikes_stim = t_spikes[np.where((t_spikes > stim_delay) & (t_spikes < stim_delay + stim_dur))]
-        firing_rate = len(t_spikes_stim)
+        t_spikes = t_spikes[np.where(t_spikes > 100)]   # don't include spikes from first 100ms so cell can adapt
+        firing_rate = len(t_spikes) / ((sim_dur - 100) / 1000)
     else:
         firing_rate = 0
     
@@ -700,6 +700,30 @@ def plot_isolated_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, 
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_syns_pot.png'),bbox_inches='tight',dpi=300)
 
 
+def get_isolated_time_window(syns_type, num_syns, output_dir):
+
+    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    with open(time_window_path,'rb') as fp:
+        time_windows = pickle.load(fp)
+
+    slice_groups = [syns_type, 'soma']
+    
+    for slice_group in slice_groups:
+        try:
+            slice_start = time_windows[slice_group][num_syns][0]
+            slice_end = time_windows[slice_group][num_syns][1]
+            t_spike = time_windows[slice_group][num_syns][2]
+            plot_flag = True
+            break
+        except KeyError:
+            slice_start = None
+            slice_end = None
+            t_spike = None
+            plot_flag = False
+
+    return plot_flag, slice_start, slice_end, t_spike
+
+
 def plot_isolated_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
 
     t = np.array(simData['t'])
@@ -708,21 +732,21 @@ def plot_isolated_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, out
         time_windows = pickle.load(fp)
 
     V_soma = np.array(simData['V_soma']['cell_0'])
-    t_spikes = t[np.where(V_soma>10)]
+    # t_spikes = t[np.where(V_soma>10)]
+
+    plot_flag, slice_start, slice_end, t_spike = get_isolated_time_window(syns_type, num_syns, output_dir)
     
-    if len(t_spikes) > 0:
-        slice_group = syns_type
-    else:
-        slice_group = 'soma' if 'distal' in syns_type else syns_type
-
-    plot_flag = True
-    try:
-        slice_start = time_windows[slice_group][num_syns][0]
-        slice_end = time_windows[slice_group][num_syns][1]
-        t_spike = time_windows[slice_group][num_syns][2]
-    except KeyError:
-        plot_flag = False
-
+    # slice_groups = [syns_type, 'soma']
+    
+    # for slice_group in slice_groups:
+    #     try:
+    #         slice_start = time_windows[slice_group][num_syns][0]
+    #         slice_end = time_windows[slice_group][num_syns][1]
+    #         t_spike = time_windows[slice_group][num_syns][2]
+    #         plot_flag = True
+    #         break
+    #     except KeyError:
+    #         plot_flag = False
 
     ### PLOT SYNAPSE LOCATION MEMBRANE POTENTIALS OF ISOLATED EAP ###
     if plot_flag:
@@ -750,20 +774,21 @@ def plot_isolated_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_
         time_windows = pickle.load(fp)
 
     V_soma = np.array(simData['V_soma']['cell_0'])
-    t_spikes = t[np.where(V_soma>10)]
+    # t_spikes = t[np.where(V_soma>10)]
 
-    if len(t_spikes) > 0:
-        slice_group = syns_type
-    else:
-        slice_group = 'soma' if 'distal' in syns_type else syns_type
+    # slice_groups = [syns_type, 'soma']
     
-    plot_flag = True
-    try:
-        slice_start = time_windows[slice_group][num_syns][0]
-        slice_end = time_windows[slice_group][num_syns][1]
-        t_spike = time_windows[slice_group][num_syns][2]
-    except KeyError:
-        plot_flag = False
+    # for slice_group in slice_groups:
+    #     try:
+    #         slice_start = time_windows[slice_group][num_syns][0]
+    #         slice_end = time_windows[slice_group][num_syns][1]
+    #         t_spike = time_windows[slice_group][num_syns][2]
+    #         plot_flag = True
+    #         break
+    #     except KeyError:
+    #         plot_flag = False
+
+    plot_flag, slice_start, slice_end, t_spike = get_isolated_time_window(syns_type, num_syns, output_dir)
 
     ### PLOT SYNAPSE LOCATION MEMBRANE POTENTIALS OF ISOLATED EAP ###
     if plot_flag:
@@ -818,18 +843,8 @@ def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_d
 
         save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir)
     else:
-        time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
-        with open(time_window_path,'rb') as fp:
-            time_windows = pickle.load(fp)
+        plot_flag, slice_start, slice_end, t_spike = get_isolated_time_window(syns_type, num_syns, output_dir)
 
-        slice_group = 'soma' if 'distal' in syns_type else syns_type
-        if 'distal' in syns_type: plot_spike = False
-        try:
-            slice_start = time_windows[slice_group][num_syns][0]
-            slice_end = time_windows[slice_group][num_syns][1]
-            t_spike = time_windows[slice_group][num_syns][2]
-        except KeyError:
-            plot_flag = False
 
     if plot_flag:
         t_slice = t[slice_start:slice_end]

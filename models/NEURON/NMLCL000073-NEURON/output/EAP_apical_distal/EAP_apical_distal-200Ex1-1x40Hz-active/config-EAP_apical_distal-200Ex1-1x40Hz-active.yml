@@ -11,6 +11,7 @@ depths: 4
 dt: 0.01
 enable_syns: true
 input_amp: 0
+log_firing_rate: false
 nmldb_id: NMLCL000073
 num_poisson: 1
 num_syns_E: 200
