@@ -7,17 +7,17 @@ from itertools import chain
 
 config_name = 'default_config'
 
-sim_name = 'EAP'
+sim_name = 'FR'
 
-param_sets = {'active': {'log_firing_rate': False},
-              'pas_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
-                             'channel_secs': 'soma'},
-              'pas_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
-                             'channel_secs': 'all'}}
+param_sets = {'active': {'log_firing_rate': True}}
+              # 'pas_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
+              #                'channel_secs': 'soma'},
+              # 'pas_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
+              #                'channel_secs': 'all'}}
               
 group_num_syns = {#'soma': [5*i for i in range(61)]}  #,
                   # 'basal': [5*i for i in range(83,101)]}
-                  'apical_distal': [100*i for i in range(1,4)]}
+                  'apical_distal': [100*i for i in range(42,50)]}
 
 paramGrids = []
 
@@ -31,12 +31,12 @@ for sim_flag, param_set in param_sets.items():
                   'syns_type': [syns_type], #, 'basal', 'apical_distal'],  
                   'num_syns_E': num_syns,
                   'add_bkg': [False], 
-                  'record_LFP': [True],
+                  'record_LFP': [False],
                   'depths': [4],
                   'apical_depths': [2],
-                  'sim_dur': [1000],  # 5000
-                  'stim_dur': [400], # 4900
-                  'stim_delay': [400],  #1000
+                  'sim_dur': [5000],  # 5000 or 1000
+                  'stim_dur': [4900], # 4900 or 400
+                  'stim_delay': [1000],  # 1000 or 400
                   'save_pickle': [False]}
     
     for param_name, param in param_set.items():
