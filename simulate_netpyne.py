@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import os
 import secrets
 import json
@@ -22,15 +23,21 @@ def run_sim(config_name, *batch_params):
 
     ### Set simulation name and label ###
     params.sim_name = f'{params.sim_name}_{params.syns_type}'
-    if isinstance(params.syns_weight, list):
-        params.sim_label = f'{params.sim_name}-{params.num_syns_E}Ex{params.syns_weight[0]}AMPAx{params.syns_weight[1]}NMDA-{params.num_poisson}x{params.spk_freq}Hz'
-    else:
-        params.sim_label = f'{params.sim_name}-{params.num_syns_E}Ex{params.syns_weight}-{params.num_poisson}x{params.spk_freq}Hz'
+    params.sim_label = f'{params.sim_name}'
+
+    if params.input_amp > 0:
+        params.sim_label += f'-{params.input_amp}nA'
+
+    if params.enable_syns:
+        if isinstance(params.syns_weight, list):
+            params.sim_label += f'-{params.num_syns_E}Ex{params.syns_weight[0]}AMPAx{params.syns_weight[1]}NMDA-{params.num_poisson}x{params.spk_freq}Hz'
+        else:
+            params.sim_label += f'-{params.num_syns_E}Ex{params.syns_weight}-{params.num_poisson}x{params.spk_freq}Hz'
     
     if params.add_bkg:
         params.sim_label += '+bkg'
 
-    params.sim_label += f'{params.sim_flag}'
+    params.sim_label += f'-{params.sim_flag}'
 
     ### Model information ###
     model_version = 'NeuroML' if params.run_NML else 'NEURON'
@@ -86,7 +93,7 @@ def run_sim(config_name, *batch_params):
     cfg.recordStep = params.recordStep
     # cfg.recordStim = True
     cfg.filename = os.path.join(sim_dir,cell_name+'_'+params.sim_label) 	# Set file output name
-    cfg.savePickle = False
+    cfg.savePickle = params.save_pickle
     cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': False}  # Plot recorded traces for this list of cells
     cfg.hParams['celsius'] = 34.0 
     cfg.hParams['v_init'] = params.vinit
@@ -277,9 +284,9 @@ def run_sim(config_name, *batch_params):
 
         elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(params.depths)]
 
-        apic_pos = [[0, -930-(y*elec_dist - disp), 0] for y in range(2)]
-
-        elec_pos.extend(apic_pos)  # 
+        if params.apical_depths > 0:
+            apic_pos = [[0, -930-(y*elec_dist - disp), 0] for y in range(params.apical_depths)]
+            elec_pos.extend(apic_pos)  # 
         # -x is left and -y is above soma
         # elec_pos.reverse()
 
@@ -291,12 +298,13 @@ def run_sim(config_name, *batch_params):
     (pops, cells, conns, stims, simData) = sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=True)
 
     # mh.save_simData(simData, params.sim_label, sim_dir)
-    mh.save_firing_rate(simData, params.stim_delay, params.stim_dur, params.syns_type, params.num_syns_E, output_dir)
+    if params.log_firing_rate:
+        mh.save_firing_rate(simData, params.sim_dur, params.syns_type, params.num_syns_E, output_dir)
 
     ### Plot sections ###
     synColors = {'E': 'firebrick', 'I': 'darkcyan'}
     colormapE, colormapI = mh.get_colormaps(params.num_syns_E, params.num_syns_I)
-    secSynColors = mh.get_syn_sec_colors(cells[0], (colormapE, colormapI), synColors)
+    secSynColors = mh.get_syn_sec_colors(cells[0], params.use_colormaps, (colormapE, colormapI), synColors)
 
     if params.enable_syns:
         spikeTrains = mh.plot_pre_spike_trains(cells, conns, params.sim_label, sim_dir)
@@ -312,16 +320,13 @@ def run_sim(config_name, *batch_params):
     ### Plot isolated LFP ###
     if params.record_LFP:
         mh.plot_isolated_LFP(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
-        mh.plot_isoalted_syn_traces(simData, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
-        mh.plot_isoalted_soma_pot(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
+        mh.plot_isolated_syn_traces(simData, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+        mh.plot_isolated_traces(simData, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+        mh.plot_isolated_soma_pot(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
 
 
     ### Plot morphology ###
     if params.plot_morphology:
-        sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], 
-                            saveFig=True, axisLabels=True, returnPlotter=True, secSynColors=secSynColors, colormaps=(colormapE,colormapI), synColors=synColors)
-
-
-
-
-# run_sim('exc_config', ('syns_weight',0.5))
+        sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], axisLabels=False, includeGrid=False,
+                               saveFig=True, fontSize=10, returnPlotter=True, bkgColor=mpl.colors.to_rgba('w'), 
+                               secSynColors=secSynColors, colormaps=(colormapE,colormapI), synColors=synColors)
