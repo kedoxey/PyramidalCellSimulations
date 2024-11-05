@@ -7,6 +7,12 @@ In [batch_simulation.py](https://github.com/kedoxey/PyramidalCellSimulations/blo
 * Hay et al. 2011 Layer 5b Pyramidal Cell from [NeuroML-DB](https://neuroml-db.org/model_info?model_id=NMLCL000073 "NeuorML-DB")
 * Hay and Segev 2015 excitatory (AMPA, NMDA) and inhibitory (GABAA, GABAB) synpases from [ModelDB](https://modeldb.science/156780 "ModelDB")
 
+## Output Location
+All output from the simulation will be saved in the following path:
+```
+models/NEURON/<nmldb-id>-NEURON/output/<sim_name>/<sim_label>
+```
+
 ## Example Parameter Sets
 ### Injected Current
 #### Single Simulation
