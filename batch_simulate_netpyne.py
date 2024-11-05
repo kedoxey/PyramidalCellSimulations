@@ -15,9 +15,9 @@ param_sets = {'active': {'log_firing_rate': True}}
               # 'pas_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
               #                'channel_secs': 'all'}}
               
-group_num_syns = {#'soma': [5*i for i in range(61)]}  #,
+group_num_syns = {#'soma': [5*i for i in range(91, 111)],
                   # 'basal': [5*i for i in range(83,101)]}
-                  'apical_distal': [100*i for i in range(42,50)]}
+                  'apical_distal': [1000*i for i in range(6,11)]}
 
 paramGrids = []
 
