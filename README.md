@@ -1,13 +1,12 @@
 # Characterize single cell dynamics in NetPyNE.
 
+In [batch_simulation.py](https://github.com/kedoxey/PyramidalCellSimulations/blob/dev/batch_simulation.py), simulations can be run one at a time or in batch. Parameter sets are handled by the [ParameterGrid](https://scikit-learn.org/dev/modules/generated/sklearn.model_selection.ParameterGrid.html) module from [scikit-learn](https://scikit-learn.org/dev/index.html). A dictionary consisting of lists of parameter values is passed to `ParamaterGrid` and a list of all possible paramater value combinations is returned. The default parameter set can be found in [config/default-config.py](https://github.com/kedoxey/PyramidalCellSimulations/blob/dev/config/default_config.yml). All parameters defined with `ParameterGrid` will overwrite the default values.
 
 
 #### Current supported models:
 * Hay et al. 2011 Layer 5b Pyramidal Cell from [NeuroML-DB](https://neuroml-db.org/model_info?model_id=NMLCL000073 "NeuorML-DB")
 * Hay and Segev 2015 excitatory (AMPA, NMDA) and inhibitory (GABAA, GABAB) synpases from [ModelDB](https://modeldb.science/156780 "ModelDB")
 
-
-In `batch_simulation.py`, simulations can be run one at a time or in batch. Parameter sets are handled by the [ParameterGrid](https://scikit-learn.org/dev/modules/generated/sklearn.model_selection.ParameterGrid.html) module from [scikit-learn](https://scikit-learn.org/dev/index.html). A dictionary consisting of lists of parameter values is passed to `ParamaterGrid` and a list of all possible paramater value combinations is returned. The default parameter set can be found in `config/default-config.py`. All parameters defined with `ParameterGrid` will overwrite the default values.
 ## Example Parameter Sets
 ### Injected Current
 #### Single Simulation
