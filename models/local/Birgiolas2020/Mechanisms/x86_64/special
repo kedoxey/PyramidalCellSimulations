@@ -1,0 +1,17 @@
+#!/bin/sh
+if test "x${NRNHOME}" = "x" ; then
+    NRNHOME="/opt/mambaforge"
+fi
+if test "${NEURONHOME}" = "" ; then
+    NEURONHOME=${NRNHOME}/share/nrn
+    export NEURONHOME
+fi
+if test "x${NRNBIN}" = "x" ; then
+    NRNBIN="/opt/mambaforge/bin"
+fi
+if test "" = "yes" ; then
+    NRNIV="${NRNBIN}/nrniv.app/Contents/MacOS/nrniv"
+else
+    NRNIV="${NRNBIN}/nrniv"
+fi
+"${NRNIV}" -dll "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64/.libs/libnrnmech.so" "$@"

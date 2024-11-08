@@ -40,23 +40,31 @@ def run_sim(config_name, *batch_params):
     params.sim_label += f'-{params.sim_flag}'
 
     ### Model information ###
-    model_version = 'NeuroML' if params.run_NML else 'NEURON'
+    if params.local:
+        model_version = 'local'
 
-    nmldb_id =  params.nmldb_id  # 'NMLCL000073'  # 'NMLCL000073' (Hay et al. 2011)
-    model_name = f'{nmldb_id}-{model_version}'
+        model_name = params.model_name
 
-    ### Download model ###
-    cell_model = mh.download_from_nmldb(nmldb_id, model_version)  # AuthorYear
+    else:
+        model_version = 'NeuroML' if params.run_NML else 'NEURON'
+
+        nmldb_id =  params.nmldb_id  # 'NMLCL000073'  # 'NMLCL000073' (Hay et al. 2011)
+        model_name = f'{nmldb_id}-{model_version}'
+
+    ### Download or define model ###
+    cell_model = params.cell_model if params.cell_model else mh.download_from_nmldb(nmldb_id, model_version)
+    cell_name = params.cell_name if params.cell_name else mh.get_cell_name(model_dir)
+    if params.local: params.sim_label += f'-{cell_name}'
 
     ### Define paths ###
     cwd = os.getcwd()
-    models_dir = os.path.join(cwd, 'models') 
-    model_dir = os.path.join(models_dir, model_version, model_name)  # 'L5bPCmodelsEH')
-    hocs_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir,'models')
-    mod_dir = model_dir if 'biophys' not in model_name else os.path.join(model_dir, 'mod')
+    models_dir = os.path.join(cwd, 'models')
+    model_dir = os.path.join(models_dir, model_version, model_name)
 
-    cell_type = 'PYR'
-    cell_name = mh.get_cell_name(model_dir)  # 'L5PC'
+    hocs_dir = os.path.join(model_dir, params.hocs_dname) if params.hocs_dname else model_dir
+    mod_dir = os.path.join(model_dir, params.mod_dname) if params.mod_dname else model_dir
+
+    cell_type = params.cell_type
     cell_label = cell_name+'_hoc'
     pop_label = cell_name+'_Pop'
 
@@ -82,21 +90,7 @@ def run_sim(config_name, *batch_params):
 
     ### Compile mechs ###
     mh.compile_mechs(cwd,hocs_dir,mod_dir)  #,force=True)
-    load_mechanisms(model_dir)
-
-    ### Simulation configuration ###
-    cfg = specs.SimConfig()					                    # object of class SimConfig to store simulation configuration
-    cfg.duration = params.sim_dur 						                # Duration of the simulation, in ms
-    cfg.dt = params.dt								                # Internal integration timestep to use
-    cfg.verbose = True							                # Show detailed messages
-    cfg.recordTraces = {'V_soma': {'sec': 'soma_0', 'loc': 0.5, 'var': 'v'}}  # Dict with traces to record
-    cfg.recordStep = params.recordStep
-    # cfg.recordStim = True
-    cfg.filename = os.path.join(sim_dir,cell_name+'_'+params.sim_label) 	# Set file output name
-    cfg.savePickle = params.save_pickle
-    cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': False}  # Plot recorded traces for this list of cells
-    cfg.hParams['celsius'] = 34.0 
-    cfg.hParams['v_init'] = params.vinit
+    load_mechanisms(mod_dir)
 
     ### Import cell ###
     if params.run_NML:
@@ -117,74 +111,66 @@ def run_sim(config_name, *batch_params):
         channel_secs = mh.get_compartments(hoc_file, importedCellParams, cell_name, params.channel_secs)
         importedCellParams = mh.toggle_channels(importedCellParams, channel_secs, params.channel_toggles)  #,'Na',params.soma_na_toggle)
 
+        importedCellParams = mh.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, 'MC_model_params.pkl'))
+
         ### Create population ###
         netParams.popParams[pop_label] = {'cellType': cell_type, 
                                         'cellModel': cell_model,
                                         'numCells': 1}
 
-    ### Get sections ###
-    # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
-    if params.syns_lb > 0:
-        syn_secs = mh.get_secs_from_dist(hoc_file, cell_name, params.syns_lb, params.syns_ub)
-        if params.add_soma:
-            syn_secs.append('soma_0')
-    else:
-        syn_secs = mh.get_compartments(hoc_file, importedCellParams, cell_name, params.syns_type)
-
-    # Layer inhibitory sections
-    layer_bounds = {'L1': {'lb': 5/6, 'ub': 1},
-                    'L2': {'lb': 2/3, 'ub': 5/6},
-                    'L4': {'lb': 1/6, 'ub': 5/12}}
-    layer_secs = {'L1': [],
-                'L2': [],
-                'L4': []}
-
-    for layer, bounds in layer_bounds.items():
-        layer_secs[layer] = mh.get_secs_from_dist(hoc_file, cell_name, bounds['lb'], bounds['ub'], secs_lim='apic')
-
-    layer_secs['L5'] = ['soma_0']
-
-    # syn_secs_L1 = mh.get_secs_from_dist(hoc_file, cell_name, 0.9, 1)
-
-    syn_secs_E, syn_secs_I = mh.get_rand_secs(syn_secs, params.num_syns_E, params.num_syns_I, params.seed)
-
-    ### Add AMPA/NMDA synapse ###
-    if 'HS' in params.syns_source:
-        # Hay & Segev 2015
-        netParams.synMechParams['AMPA_NMDA'] = {'mod':'ProbAMPANMDA2', 'tau_r_AMPA': 0.3, 'tau_d_AMPA': 3, 'tau_r_NMDA': 2, 'tau_d_NMDA': 65, 'e': 0, 'gmax': 0.0004}
-        exc_syns =  ['AMPA_NMDA']
-        exc_syn_locs = [0.5]
-        # netParams.synMechParams['AMPA'] = {'mod':'ProbAMPA2', 'tau_r_AMPA': 0.3, 'tau_d_AMPA': 3, 'e': 0, 'gmax': 0.0004}
-        # netParams.synMechParams['NMDA'] = {'mod': 'ProbNMDA2', 'tau_r_NMDA': 2, 'tau_d_NMDA': 65, 'e': 0, 'gmax': 0.0004}
-        netParams.synMechParams['GABAA'] = {'mod': 'ProbUDFsyn2', 'tau_r': 1, 'tau_d': 20, 'e': -80, 'gmax': 0.001}
-        inh_syns = ['GABAA']
-    else:
-        # Dura-Bernal et al. 2024
-        netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}
-        netParams.synMechParams['NMDA'] = {'mod': 'MyExp2SynNMDABB', 'tau1NMDA': 15, 'tau2NMDA': 150, 'e': 0} 
-        exc_syns = ['AMPA', 'NMDA']
-        exc_syn_locs = [0.5, 0.5]
-        netParams.synMechParams['GABAA'] = {'mod':'MyExp2SynBB', 'tau1': 0.07, 'tau2': 18.2, 'e': -80}
-        netParams.synMechParams['GABAB'] = {'mod':'MyExp2SynBB', 'tau1': 3.5, 'tau2': 260.9, 'e': -93}
-        inh_syns = ['GABAA', 'GABAB']
-
-
-    for syn_sec_E in syn_secs_E:
-        cfg.recordTraces[f'V_{syn_sec_E}'] = {'sec':syn_sec_E,'loc':0.5,'var':'v'}
-        cfg.recordTraces[f'I_{syn_sec_E}_ampa'] = {'sec':syn_sec_E,'loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_AMPA'}
-        cfg.recordTraces[f'I_{syn_sec_E}_nmda'] = {'sec':syn_sec_E,'loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_NMDA'}
-
-    if 'apic_32' not in syn_secs_E:
-        cfg.recordTraces[f'V_apic_32'] = {'sec':'apic_32','loc':0.5,'var':'v'}
-        cfg.recordTraces[f'I_apic_32_ampa'] = {'sec':'apic_32','loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_AMPA'}
-        cfg.recordTraces[f'I_apic_32_nmda'] = {'sec':'apic_32','loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_NMDA'}
-
+    for sec_key in importedCellParams['secs']:
+        if 'soma' in sec_key:
+            soma_name = sec_key
 
     ### Add synaptic input ###
     if params.num_syns_E == 0:
         params.enable_syns = False
 
     if params.enable_syns:
+
+            ### Get sections ###
+        # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+        if params.syns_lb > 0:
+            syn_secs = mh.get_secs_from_dist(hoc_file, cell_name, soma_name, params.syns_lb, params.syns_ub)
+            if params.add_soma:
+                syn_secs.append(soma_name)
+        else:
+            syn_secs = mh.get_compartments(hoc_file, importedCellParams, cell_name, soma_name, params.syns_type)
+
+        # syn_secs_L1 = mh.get_secs_from_dist(hoc_file, cell_name, 0.9, 1)
+
+        syn_secs_E, syn_secs_I = mh.get_rand_secs(syn_secs, params.num_syns_E, params.num_syns_I, params.seed)
+
+        ### Add AMPA/NMDA synapse ###
+        if 'HS' in params.syns_source:
+            # Hay & Segev 2015
+            netParams.synMechParams['AMPA_NMDA'] = {'mod':'ProbAMPANMDA2', 'tau_r_AMPA': 0.3, 'tau_d_AMPA': 3, 'tau_r_NMDA': 2, 'tau_d_NMDA': 65, 'e': 0, 'gmax': 0.0004}
+            exc_syns =  ['AMPA_NMDA']
+            exc_syn_locs = [0.5]
+            # netParams.synMechParams['AMPA'] = {'mod':'ProbAMPA2', 'tau_r_AMPA': 0.3, 'tau_d_AMPA': 3, 'e': 0, 'gmax': 0.0004}
+            # netParams.synMechParams['NMDA'] = {'mod': 'ProbNMDA2', 'tau_r_NMDA': 2, 'tau_d_NMDA': 65, 'e': 0, 'gmax': 0.0004}
+            netParams.synMechParams['GABAA'] = {'mod': 'ProbUDFsyn2', 'tau_r': 1, 'tau_d': 20, 'e': -80, 'gmax': 0.001}
+            inh_syns = ['GABAA']
+        else:
+            # Dura-Bernal et al. 2024
+            netParams.synMechParams['AMPA'] = {'mod':'MyExp2SynBB', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}
+            netParams.synMechParams['NMDA'] = {'mod': 'MyExp2SynNMDABB', 'tau1NMDA': 15, 'tau2NMDA': 150, 'e': 0} 
+            exc_syns = ['AMPA', 'NMDA']
+            exc_syn_locs = [0.5, 0.5]
+            netParams.synMechParams['GABAA'] = {'mod':'MyExp2SynBB', 'tau1': 0.07, 'tau2': 18.2, 'e': -80}
+            netParams.synMechParams['GABAB'] = {'mod':'MyExp2SynBB', 'tau1': 3.5, 'tau2': 260.9, 'e': -93}
+            inh_syns = ['GABAA', 'GABAB']
+
+
+        for syn_sec_E in syn_secs_E:
+            cfg.recordTraces[f'V_{syn_sec_E}'] = {'sec':syn_sec_E,'loc':0.5,'var':'v'}
+            cfg.recordTraces[f'I_{syn_sec_E}_ampa'] = {'sec':syn_sec_E,'loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_AMPA'}
+            cfg.recordTraces[f'I_{syn_sec_E}_nmda'] = {'sec':syn_sec_E,'loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_NMDA'}
+
+        if 'apic_32' not in syn_secs_E:
+            cfg.recordTraces[f'V_apic_32'] = {'sec':'apic_32','loc':0.5,'var':'v'}
+            cfg.recordTraces[f'I_apic_32_ampa'] = {'sec':'apic_32','loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_AMPA'}
+            cfg.recordTraces[f'I_apic_32_nmda'] = {'sec':'apic_32','loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_NMDA'}
         
         # Poisson spike pattern
 
@@ -192,6 +178,19 @@ def run_sim(config_name, *batch_params):
         num_I_each = params.num_syns_I // len(layer_secs.keys())
 
         if params.num_syns_I > 0:
+            # Layer inhibitory sections
+            layer_bounds = {'L1': {'lb': 5/6, 'ub': 1},
+                            'L2': {'lb': 2/3, 'ub': 5/6},
+                            'L4': {'lb': 1/6, 'ub': 5/12}}
+            layer_secs = {'L1': [],
+                        'L2': [],
+                        'L4': []}
+
+            for layer, bounds in layer_bounds.items():
+                layer_secs[layer] = mh.get_secs_from_dist(hoc_file, cell_name, soma_name, bounds['lb'], bounds['ub'], secs_lim='apic')
+
+            layer_secs['L5'] = [soma_name]
+
             for layer, layer_secs in layer_secs.items():
                 netParams.popParams[f'vecstim_I{layer}'] = {
                         'cellModel': 'VecStim',
@@ -258,9 +257,9 @@ def run_sim(config_name, *batch_params):
         'amp': params.input_amp 
     }
 
-    netParams.stimTargetParams['Input_IC->Soma'] = {
+    netParams.stimTargetParams[f'Input_IC->{params.input_sec}'] = {
         'source': 'Input_IC',
-        'sec': 'soma_0',
+        'sec': params.input_sec,
         'loc': 0.5,
         'conds': {'pop': pop_label}
     }
@@ -270,7 +269,7 @@ def run_sim(config_name, *batch_params):
         netParams.stimSourceParams['bkg'] = {'type': 'NetStim', 'rate': 100, 'noise': 1}
         # netParams.stimTargetParams['bkg->ALL'] = {'source': 'bkg', 'conds': {'cellType': [cell_label]}, 
         #                                           'weight': 0.01, 'delay': 'max(1, normal(5,2))', 'synMech': 'AMPA_NMDA'}
-        netParams.stimTargetParams['bkg->ALL'] = {'source': 'bkg', 'sec': 'soma_0', 'loc': 0.5, 
+        netParams.stimTargetParams['bkg->ALL'] = {'source': 'bkg', 'sec': soma_name, 'loc': 0.5, 
                                                 'conds': {'pop': pop_label}, 'weight': 8, 
                                                 'delay': 'max(1, normal(5,2))', 'synMech': 'AMPA_NMDA'}
 
@@ -293,6 +292,20 @@ def run_sim(config_name, *batch_params):
         cfg.recordLFP = elec_pos
         cfg.analysis['plotLFP'] = {'saveFig': True}
 
+
+    ### Simulation configuration ###
+    cfg = specs.SimConfig()					                    # object of class SimConfig to store simulation configuration
+    cfg.duration = params.sim_dur 						                # Duration of the simulation, in ms
+    cfg.dt = params.dt								                # Internal integration timestep to use
+    cfg.verbose = True							                # Show detailed messages
+    cfg.recordTraces = {'V_soma': {'sec': soma_name, 'loc': 0.5, 'var': 'v'}}  # Dict with traces to record
+    cfg.recordStep = params.recordStep
+    # cfg.recordStim = True
+    cfg.filename = os.path.join(sim_dir,cell_name+'_'+params.sim_label) 	# Set file output name
+    cfg.savePickle = params.save_pickle
+    cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': False}  # Plot recorded traces for this list of cells
+    cfg.hParams['celsius'] = 34.0 
+    cfg.hParams['v_init'] = params.vinit
 
     ### Run simulation ###
     (pops, cells, conns, stims, simData) = sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=True)

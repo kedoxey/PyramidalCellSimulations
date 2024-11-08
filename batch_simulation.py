@@ -6,15 +6,23 @@ from sklearn.model_selection import ParameterGrid
 
 config_name = 'default_config'
 
-paramGrids = {'sim_name': ['EXC'],
-              'sim_flag': ['syns'],
-              'nmldb_id': ['NMLCL000073'],
-              'syns_type': ['basal', 'soma'],  
-              'num_syns_E': [50, 100],
-              'enable_syns': [True],
+paramGrids = {'sim_name': ['INJ'],
+              'sim_flag': ['iclamp'],
+
+              'local': [True],
+              'model_name': ['Birgiolas2020'],
+              'hocs_dname': ['Cells'],
+              'mod_dname': ['Mechanisms'],
+              'cell_type': ['MIT'],
+              'cell_model': ['Birgiolas2020'],
+              'cell_name': ['MC5'],
+
+              'enable_syns': [False],
+              'input_amp': [0.25],
+              'input_sec': ['soma'],
               'record_LFP': [False],
-              'sim_dur': [1000],
-              'stim_dur': [600],
+              'sim_dur': [3000],
+              'stim_dur': [2500],
               'stim_delay': [200]}
       
 batchParamsList = list(ParameterGrid(paramGrids))

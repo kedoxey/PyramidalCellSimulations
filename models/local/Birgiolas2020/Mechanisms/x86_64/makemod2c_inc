@@ -1,0 +1,113 @@
+
+./AmpaNmdaSyn.c: .././AmpaNmdaSyn.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) AmpaNmdaSyn.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./AmpaNmdaSyn.o: ./AmpaNmdaSyn.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./CaPool.c: .././CaPool.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) CaPool.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./CaPool.o: ./CaPool.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./CaT.c: .././CaT.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) CaT.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./CaT.o: ./CaT.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./GabaSyn.c: .././GabaSyn.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) GabaSyn.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./GabaSyn.o: ./GabaSyn.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./gapjunction.c: .././gapjunction.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) gapjunction.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./gapjunction.o: ./gapjunction.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./Ih.c: .././Ih.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ih.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./Ih.o: ./Ih.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./KA.c: .././KA.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) KA.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./KA.o: ./KA.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./KCa.c: .././KCa.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) KCa.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./KCa.o: ./KCa.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./Kd.c: .././Kd.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) Kd.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./Kd.o: ./Kd.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./KM.c: .././KM.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) KM.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./KM.o: ./KM.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./Kslow.c: .././Kslow.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) Kslow.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./Kslow.o: ./Kslow.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./LCa.c: .././LCa.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) LCa.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./LCa.o: ./LCa.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./Na.c: .././Na.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) Na.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./Na.o: ./Na.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+
+./VecStim.c: .././VecStim.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "../."; MODLUNIT=$(NRNUNITS) $(NOCMODL) VecStim.mod -o "/home/kedoxey/OB_Model/OlfactoryBulb/prev_ob_models/Birgiolas2020/Mechanisms/x86_64")
+
+./VecStim.o: ./VecStim.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"../." $(INCLUDES) -fPIC -c $< -o $@
+

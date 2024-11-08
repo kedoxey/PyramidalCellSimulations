@@ -17,10 +17,17 @@ spk_freq: 40            # Poisson spike frequency
 
 nmldb_id: 'NMLCL000073' # NeuroML database cell id
 publication: 'Hay2011'  # Main author and publication year of corresponding article
+local: False            # if True use a local copy of a cell model, else download the model from the NeuroML database
+model_name: ''          # if local is True, name of the model directory in models/local/
+hocs_dname: ''          # if local is True, name of directory containing hoc file(s)
+mod_dname: ''           # if local is True, name of directory containing mod files
+cell_type: 'PYR'        # tag for cell type
+cell_model: ''          # tag for AuthorYear of corresponding publication
+cell_name: ''           # if local is True, name of cell, i.e. name of hoc file
  
 syns_lb: 0              # lower bound of distance from soma for synapse location - 0 if not distibuted by distance from soma
 syns_ub: 1              # upper bound 
-syns_type: 'soma'     # synaptic input locations -  soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+syns_type: 'soma'       # synaptic input locations -  soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
 syns_source: 'HS'       # use synapses from Hay & Segev 2015 model
 syns_weight: 1          # synaptic weight
 num_syns_E: 50          # number of excitatory synapses

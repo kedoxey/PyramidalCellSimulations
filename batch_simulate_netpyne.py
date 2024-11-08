@@ -15,9 +15,9 @@ param_sets = {'active': {'log_firing_rate': True}}
               # 'pas_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
               #                'channel_secs': 'all'}}
               
-group_num_syns = {#'soma': [5*i for i in range(91, 111)],
-                  # 'basal': [5*i for i in range(83,101)]}
-                  'apical_distal': [1000*i for i in range(6,11)]}
+group_num_syns = {'soma': [450], # [5*i for i in range(61, 111)]
+                   'basal': [200, 350]}
+                  # 'apical_distal': [1000*i for i in range(6,11)]} [200*i for i in range(2, 50)]
 
 paramGrids = []
 
@@ -36,8 +36,8 @@ for sim_flag, param_set in param_sets.items():
                   'apical_depths': [2],
                   'sim_dur': [5000],  # 5000 or 1000
                   'stim_dur': [4900], # 4900 or 400
-                  'stim_delay': [1000],  # 1000 or 400
-                  'save_pickle': [False]}
+                  'stim_delay': [100],  # 100 or 400
+                  'save_pickle': [True]}
     
     for param_name, param in param_set.items():
       paramGrid[param_name] = [param]

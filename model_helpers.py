@@ -7,6 +7,7 @@ import pickle
 import pyneuroml as pynml
 import neuroml as nml
 import neuroml.writers as writers
+import pandas as pd
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -203,13 +204,13 @@ def create_sim_description(output_dir, **params):
 
 
 ### Model analysis ###
-def get_compartments(hoc_fname, cell, cell_name, group_name='all'):
+def get_compartments(hoc_fname, cell, cell_name, soma_name, group_name='all'):
 
     secs = np.array(list(cell['secs'].keys()))
     basal_group = list(secs[np.where(np.char.find(secs,'dend')>=0)])
     apic_group = list(secs[np.where(np.char.find(secs,'apic')>=0)])
     all_group = list(secs)
-    soma = ['soma_0']
+    soma = [soma_name]
 
     if group_name == 'basal':
         return basal_group
@@ -244,9 +245,10 @@ def get_hoc_cell(filename, cell_name):
     return cell
 
 
-def get_total_soma_distance(cell):
+def get_total_soma_distance(cell, soma_name):
     
-    soma = cell.soma_0
+    # soma = cell.soma_0
+    soma = getattr(cell, soma_name)
 
     dist_from_soma = 0
     furthest_sec = ''
@@ -283,11 +285,12 @@ def toggle_channels(cell_params, sec_names, toggles):  #, ion_name, toggle):
     return cell_params
 
 
-def get_secs_from_dist(filename, cell_name, lb, ub=1, secs_lim='all'):
+def get_secs_from_dist(filename, cell_name, soma_name, lb, ub=1, secs_lim='all'):
     cell = get_hoc_cell(filename, cell_name)
-    soma = cell.soma_0
+    # soma = cell.soma_0
+    soma = getattr(cell, soma_name)
 
-    total_distance, _ = get_total_soma_distance(cell)
+    total_distance, _ = get_total_soma_distance(cell, soma_name)
     dist_lb = lb*total_distance
     dist_ub = ub*total_distance
 
@@ -483,16 +486,17 @@ def plot_soma(simData, sim_label, sim_dir):
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-soma_pot.png'),bbox_inches='tight',dpi=300)
 
     ### PLOT SOMA AND APICAL DISTAL COMPARTMENT MEMBRANE POTENTIALS FOR BACKPROPAGATION ###
-    fig, axs = plt.subplots(figsize=(8,5))
-    axs.plot(t, V_soma, label='soma')
-    axs.plot(t, np.array(simData['V_apic_32']['cell_0']), label='apic_32')
-    axs.legend(loc='upper right')
-    axs.set_title(f'Membrane Potentials')
-    axs.set_ylabel('Voltage (mV)')
-    axs.set_xlabel('Time (ms)')
+    if 'V_apic_32' in simData.keys():
+        fig, axs = plt.subplots(figsize=(8,5))
+        axs.plot(t, V_soma, label='soma')
+        axs.plot(t, np.array(simData['V_apic_32']['cell_0']), label='apic_32')
+        axs.legend(loc='upper right')
+        axs.set_title(f'Membrane Potentials')
+        axs.set_ylabel('Voltage (mV)')
+        axs.set_xlabel('Time (ms)')
 
-    fig.tight_layout()
-    fig.savefig(os.path.join(sim_dir,f'{sim_label}-backpropagation.png'),bbox_inches='tight',dpi=300)
+        fig.tight_layout()
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-backpropagation.png'),bbox_inches='tight',dpi=300)
 
 
 def plot_secs(simData, spike_trains, sim_label, sim_dir, sec_syn_colors):
@@ -890,3 +894,27 @@ def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_d
 
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_LFP.png'),bbox_inches='tight',dpi=300)
 
+def update_cell_params(cell_params, cell_name, params_path):
+
+    params = pd.read_pickle(params_path)
+
+    model_params = params[params['cell'] == cell_name]
+
+    for col in model_params:
+        if 'cell' in col:
+            continue
+        
+        param = col
+        value = model_params[col].values[0][0]
+        secs = model_params[col].values[0][1]
+
+        temp = 5
+
+        # for sec_name, sec_params in cell_params['secs'].items():
+        #     sec_type = sec_name.split('_')[0]
+
+        #     if sec_type in secs:
+                
+    return cell_params
+
+    
