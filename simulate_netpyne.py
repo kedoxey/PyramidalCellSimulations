@@ -51,11 +51,6 @@ def run_sim(config_name, *batch_params):
         nmldb_id =  params.nmldb_id  # 'NMLCL000073'  # 'NMLCL000073' (Hay et al. 2011)
         model_name = f'{nmldb_id}-{model_version}'
 
-    ### Download or define model ###
-    cell_model = params.cell_model if params.cell_model else mh.download_from_nmldb(nmldb_id, model_version)
-    cell_name = params.cell_name if params.cell_name else mh.get_cell_name(model_dir)
-    if params.local: params.sim_label += f'-{cell_name}'
-
     ### Define paths ###
     cwd = os.getcwd()
     models_dir = os.path.join(cwd, 'models')
@@ -63,6 +58,12 @@ def run_sim(config_name, *batch_params):
 
     hocs_dir = os.path.join(model_dir, params.hocs_dname) if params.hocs_dname else model_dir
     mod_dir = os.path.join(model_dir, params.mod_dname) if params.mod_dname else model_dir
+
+
+    ### Download or define model ###
+    cell_model = params.cell_model if params.cell_model else mh.download_from_nmldb(nmldb_id, model_version)
+    cell_name = params.cell_name if params.cell_name else mh.get_cell_name(model_dir)
+    if params.local: params.sim_label += f'-{cell_name}'
 
     cell_type = params.cell_type
     cell_label = cell_name+'_hoc'
@@ -92,6 +93,9 @@ def run_sim(config_name, *batch_params):
     mh.compile_mechs(cwd,hocs_dir,mod_dir)  #,force=True)
     load_mechanisms(mod_dir)
 
+    ### Instantiate simulation configuration ###
+    cfg = specs.SimConfig()					                    # object of class SimConfig to store simulation configuration
+
     ### Import cell ###
     if params.run_NML:
         gid, netParams = sim.importNeuroML2(net_nml_file, simConfig=cfg, simulate=False, analyze=False, return_net_params_also=True)
@@ -111,7 +115,7 @@ def run_sim(config_name, *batch_params):
         channel_secs = mh.get_compartments(hoc_file, importedCellParams, cell_name, params.channel_secs)
         importedCellParams = mh.toggle_channels(importedCellParams, channel_secs, params.channel_toggles)  #,'Na',params.soma_na_toggle)
 
-        importedCellParams = mh.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, 'MC_model_params.pkl'))
+        # importedCellParams = mh.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, 'MC_model_params.pkl'))
 
         ### Create population ###
         netParams.popParams[pop_label] = {'cellType': cell_type, 
@@ -175,8 +179,6 @@ def run_sim(config_name, *batch_params):
         # Poisson spike pattern
 
         ### Layer inhibitory input
-        num_I_each = params.num_syns_I // len(layer_secs.keys())
-
         if params.num_syns_I > 0:
             # Layer inhibitory sections
             layer_bounds = {'L1': {'lb': 5/6, 'ub': 1},
@@ -190,6 +192,8 @@ def run_sim(config_name, *batch_params):
                 layer_secs[layer] = mh.get_secs_from_dist(hoc_file, cell_name, soma_name, bounds['lb'], bounds['ub'], secs_lim='apic')
 
             layer_secs['L5'] = [soma_name]
+
+            num_I_each = params.num_syns_I // len(layer_secs.keys())
 
             for layer, layer_secs in layer_secs.items():
                 netParams.popParams[f'vecstim_I{layer}'] = {
@@ -250,19 +254,20 @@ def run_sim(config_name, *batch_params):
 
 
     ### Add input ###
-    netParams.stimSourceParams['Input_IC'] = {
-        'type': 'IClamp',
-        'del': params.stim_delay,
-        'dur': params.stim_dur,
-        'amp': params.input_amp 
-    }
+    if params.input_amp > 0:
+        netParams.stimSourceParams['Input_IC'] = {
+            'type': 'IClamp',
+            'del': params.stim_delay,
+            'dur': params.stim_dur,
+            'amp': params.input_amp 
+        }
 
-    netParams.stimTargetParams[f'Input_IC->{params.input_sec}'] = {
-        'source': 'Input_IC',
-        'sec': params.input_sec,
-        'loc': 0.5,
-        'conds': {'pop': pop_label}
-    }
+        netParams.stimTargetParams[f'Input_IC->{params.input_sec}'] = {
+            'source': 'Input_IC',
+            'sec': params.input_sec,
+            'loc': 0.5,
+            'conds': {'pop': pop_label}
+        }
 
      ### Background input ###
     if params.add_bkg:
@@ -294,11 +299,10 @@ def run_sim(config_name, *batch_params):
 
 
     ### Simulation configuration ###
-    cfg = specs.SimConfig()					                    # object of class SimConfig to store simulation configuration
     cfg.duration = params.sim_dur 						                # Duration of the simulation, in ms
     cfg.dt = params.dt								                # Internal integration timestep to use
     cfg.verbose = True							                # Show detailed messages
-    cfg.recordTraces = {'V_soma': {'sec': soma_name, 'loc': 0.5, 'var': 'v'}}  # Dict with traces to record
+    cfg.recordTraces[f'V_{soma_name}'] = {'sec': soma_name, 'loc': 0.5, 'var': 'v'}  # Dict with traces to record
     cfg.recordStep = params.recordStep
     # cfg.recordStim = True
     cfg.filename = os.path.join(sim_dir,cell_name+'_'+params.sim_label) 	# Set file output name
@@ -312,7 +316,7 @@ def run_sim(config_name, *batch_params):
 
     # mh.save_simData(simData, params.sim_label, sim_dir)
     if params.log_firing_rate:
-        mh.save_firing_rate(simData, params.sim_dur, params.syns_type, params.num_syns_E, output_dir)
+        mh.save_firing_rate(simData, soma_name, params.sim_dur, params.stim_delay, params.syns_type, params.num_syns_E, output_dir)
 
     ### Plot sections ###
     synColors = {'E': 'firebrick', 'I': 'darkcyan'}
@@ -323,19 +327,19 @@ def run_sim(config_name, *batch_params):
         spikeTrains = mh.plot_pre_spike_trains(cells, conns, params.sim_label, sim_dir)
 
         if len(syn_secs_E) < 175:
-            mh.plot_secs(simData, spikeTrains, params.sim_label, sim_dir, secSynColors)
+            mh.plot_secs(simData, soma_name, spikeTrains, params.sim_label, sim_dir, secSynColors)
 
         mh.plot_syns_traces(simData, syn_secs_E, params.sim_label, sim_dir, synColors)
 
     ### Plot somatic spiking ###
-    mh.plot_soma(simData, params.sim_label, sim_dir)
+    mh.plot_soma(simData, soma_name, params.sim_label, sim_dir)
         
     ### Plot isolated LFP ###
     if params.record_LFP:
-        mh.plot_isolated_LFP(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
-        mh.plot_isolated_syn_traces(simData, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
-        mh.plot_isolated_traces(simData, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
-        mh.plot_isolated_soma_pot(simData, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
+        mh.plot_isolated_LFP(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
+        mh.plot_isolated_syn_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+        mh.plot_isolated_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+        mh.plot_isolated_soma_pot(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
 
 
     ### Plot morphology ###

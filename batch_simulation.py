@@ -30,3 +30,5 @@ batchParamsList = list(ParameterGrid(paramGrids))
 for batchParams in batchParamsList:
 
   simulate_netpyne.run_sim(config_name, batchParams)
+
+# TODO: plot firing rates

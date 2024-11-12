@@ -43,7 +43,8 @@ dt: 0.01                # dt for simulation
 recordStep: 0.1         # recording time step
 
 ### Input parameters ###
-input_amp: 0            # amplitude of injected current to soma
+input_sec: 'soma_0'     # compartment to inject current in to
+input_amp: 0            # amplitude of injected current to input_sec
 stim_delay: 350         # stimulus (synaptic or current) delay
 stim_dur: 1000          # stimulus (synaptic or current) duration
 sim_dur: 1500           # simulation duration

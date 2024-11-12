@@ -412,15 +412,18 @@ def save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_d
     with open(file_path,'wb') as fp:
         pickle.dump(time_windows,fp)
 
-def save_firing_rate(simData, sim_dur, syns_type, num_syns, output_dir):
+def save_firing_rate(simData, soma_name, sim_dur, stim_delay, syns_type, num_syns, output_dir):
     
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     t = np.array(simData['t'])
+    t_adapt = t[np.where(t > stim_delay*3)]
     t_spikes = t[np.where(V_soma>0)]
+
+    # TODO: adapting threshold
     
     if len(t_spikes) > 0:
-        t_spikes = t_spikes[np.where(t_spikes > 100)]   # don't include spikes from first 100ms so cell can adapt
-        firing_rate = len(t_spikes) / ((sim_dur - 100) / 1000)
+        t_spikes = t_spikes[np.where(t_spikes > stim_delay*3)]   # only include spikes after initial burst and once cell has adapted
+        firing_rate = len(t_spikes) / ((sim_dur - stim_delay*3) / 1000)  # calculate firing rate based on excluding time for adaptation and scale to Hz (spikes/s)
     else:
         firing_rate = 0
     
@@ -470,10 +473,10 @@ def plot_pre_spike_trains(cells, conns, sim_label, sim_dir):
     return spike_trains
 
 
-def plot_soma(simData, sim_label, sim_dir):
+def plot_soma(simData, soma_name, sim_label, sim_dir):
 
     t = np.array(simData['t'])
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
 
     ### PLOT SOMA MEMBRANE POTENTIAL ###
     fig, axs = plt.subplots(figsize=(8,5))
@@ -499,14 +502,14 @@ def plot_soma(simData, sim_label, sim_dir):
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-backpropagation.png'),bbox_inches='tight',dpi=300)
 
 
-def plot_secs(simData, spike_trains, sim_label, sim_dir, sec_syn_colors):
+def plot_secs(simData, soma_name, spike_trains, sim_label, sim_dir, sec_syn_colors):
 
     sec_traces = list(simData.keys())
     [sec_traces.remove(key) for key in ['spkt', 'spkid', 't', 'V_soma', 'avgRate', '__dict__'] if key in sec_traces]
     num_secs = len(sec_traces)//3
 
     t = np.array(simData['t'])
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     avg_V_soma = np.average(V_soma)
     t_spikes = t[np.where(V_soma>-10)]
     
@@ -597,7 +600,7 @@ def plot_secs(simData, spike_trains, sim_label, sim_dir, sec_syn_colors):
                 shift = 4*i  # gid%len(spk_train_names)
                 axL.vlines(spike_trains[spk_train_name], (avg_V_soma/2-1)+shift, (avg_V_soma/2+2)+shift, color='royalblue', zorder=12)
 
-            axL.plot(t, simData[f'V_soma']['cell_0'], label='soma')
+            axL.plot(t, simData[f'V_{soma_name}']['cell_0'], label='soma')
             axL.plot(t, simData[f'V_{sec_name}']['cell_0'], label=f'{sec_name}')
             axL.set_title(f'{sec_name} Membrane Potential')
             axL.set_ylabel('Voltage (mV)')
@@ -661,14 +664,14 @@ def plot_syns_traces(simData, syn_secs, sim_label, sim_dir, syn_colors):
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-syns_pot.png'),bbox_inches='tight',dpi=300)
 
 
-def plot_isolated_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
+def plot_isolated_syn_traces(simData, soma_name, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
 
     t = np.array(simData['t'])
     time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
 
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     t_spikes = t[np.where(V_soma>10)]
 
     if len(t_spikes) > 0:
@@ -728,14 +731,14 @@ def get_isolated_time_window(syns_type, num_syns, output_dir):
     return plot_flag, slice_start, slice_end, t_spike
 
 
-def plot_isolated_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
+def plot_isolated_soma_pot(simData, soma_name, syns_type, num_syns, sim_label, sim_dir, output_dir):
 
     t = np.array(simData['t'])
     time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
 
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     # t_spikes = t[np.where(V_soma>10)]
 
     plot_flag, slice_start, slice_end, t_spike = get_isolated_time_window(syns_type, num_syns, output_dir)
@@ -770,14 +773,14 @@ def plot_isolated_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, out
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_soma_pot.png'),bbox_inches='tight',dpi=300)
 
 
-def plot_isolated_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
+def plot_isolated_traces(simData, soma_name, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
 
     t = np.array(simData['t'])
     time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
 
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     # t_spikes = t[np.where(V_soma>10)]
 
     # slice_groups = [syns_type, 'soma']
@@ -826,11 +829,11 @@ def plot_isolated_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_traces.png'),bbox_inches='tight',dpi=300)
 
 
-def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
+def plot_isolated_LFP(simData, soma_name, syns_type, num_syns, sim_label, sim_dir, output_dir):
     t = np.array(simData['t'])
     dt = t[1] - t[0]
 
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     t_spikes = t[np.where(V_soma>10)]
     # t_bound = 600 if len(np.where(t_spikes>600)[0])>0 else 500
     
