@@ -19,7 +19,6 @@ from urllib.request import urlopen
 from scipy import stats
 from scipy.signal import butter, lfilter
 from neuron import h
-
 from neuromllite import Network, Cell, Population, InputSource, Input, NetworkGenerator
 
 cwd = os.getcwd()
@@ -412,18 +411,33 @@ def save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_d
     with open(file_path,'wb') as fp:
         pickle.dump(time_windows,fp)
 
-def save_firing_rate(simData, soma_name, sim_dur, stim_delay, syns_type, num_syns, output_dir):
+def save_firing_rate(simData, soma_name, sim_dur, syns_type, num_syns, output_dir):
     
     V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     t = np.array(simData['t'])
-    t_adapt = t[np.where(t > stim_delay*3)]
+    # t_adapt = t[np.where(t > stim_delay*3)]
     t_spikes = t[np.where(V_soma>0)]
 
+    spkt = np.array(simData['spkt'])
+    spkid = np.array(simData['spkid'])
+
     # TODO: adapting threshold
+    adapt_delay = 200
     
     if len(t_spikes) > 0:
-        t_spikes = t_spikes[np.where(t_spikes > stim_delay*3)]   # only include spikes after initial burst and once cell has adapted
-        firing_rate = len(t_spikes) / ((sim_dur - stim_delay*3) / 1000)  # calculate firing rate based on excluding time for adaptation and scale to Hz (spikes/s)
+        # t_spikes = t_spikes[np.where(t_spikes > stim_delay*4)]   # only include spikes after initial burst and once cell has adapted
+        # firing_rate = len(t_spikes) / ((stim_dur - stim_delay*4) / 1000)  # calculate firing rate based on excluding time for adaptation and scale to Hz (spikes/s)
+        # isis = [t[i+1] - t[i] for i in range(len(t_spikes))]
+        # f_isi = 1/isis[0]
+        # f_ss = 1/np.mean(isis[-3:])
+
+        spike_times = spkt[np.where(spkid == 0)]
+        spike_times = spike_times[np.where(spike_times > adapt_delay)]
+        num_spikes = len(spike_times)
+        num_isi = num_spikes - 1
+        # if num_isi > 0:
+        #     msf = num_isi / (spike_times[-1] - spike_times[0]) * 1000
+        firing_rate = num_spikes / ((sim_dur - adapt_delay) / 1000)
     else:
         firing_rate = 0
     
@@ -484,6 +498,7 @@ def plot_soma(simData, soma_name, sim_label, sim_dir):
     axs.set_title(f'Soma Membrane Potential')
     axs.set_ylabel('Voltage (mV)')
     axs.set_xlabel('Time (ms)')
+    # axs.vlines(200,-80,20,color='k')
 
     fig.tight_layout()
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-soma_pot.png'),bbox_inches='tight',dpi=300)
@@ -912,6 +927,7 @@ def update_cell_params(cell_params, cell_name, params_path):
         secs = model_params[col].values[0][1]
 
         temp = 5
+        
 
         # for sec_name, sec_params in cell_params['secs'].items():
         #     sec_type = sec_name.split('_')[0]

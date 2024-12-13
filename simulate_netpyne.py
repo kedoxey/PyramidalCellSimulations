@@ -25,8 +25,8 @@ def run_sim(config_name, *batch_params):
     params.sim_name = f'{params.sim_name}_{params.syns_type}'
     params.sim_label = f'{params.sim_name}'
 
-    if params.input_amp > 0:
-        params.sim_label += f'-{params.input_amp}nA'
+    # if params.input_amp != 0:
+    params.sim_label += f'-{params.input_amp}nA'
 
     if params.enable_syns:
         if isinstance(params.syns_weight, list):
@@ -109,13 +109,15 @@ def run_sim(config_name, *batch_params):
                                                         cellName=cell_name
                                                         )
 
+        netParams.defaultThreshold = -20
         for sec in importedCellParams['secs']:
             importedCellParams[sec]['vinit'] = params.vinit
         
         channel_secs = mh.get_compartments(hoc_file, importedCellParams, cell_name, params.channel_secs)
         importedCellParams = mh.toggle_channels(importedCellParams, channel_secs, params.channel_toggles)  #,'Na',params.soma_na_toggle)
 
-        # importedCellParams = mh.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, 'MC_model_params.pkl'))
+        if params.local:
+            importedCellParams = mh.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, f'{params.cell_type}_model_params.pkl'))
 
         ### Create population ###
         netParams.popParams[pop_label] = {'cellType': cell_type, 
@@ -254,20 +256,20 @@ def run_sim(config_name, *batch_params):
 
 
     ### Add input ###
-    if params.input_amp > 0:
-        netParams.stimSourceParams['Input_IC'] = {
-            'type': 'IClamp',
-            'del': params.stim_delay,
-            'dur': params.stim_dur,
-            'amp': params.input_amp 
-        }
+    # if params.input_amp != 0:
+    netParams.stimSourceParams['Input_IC'] = {
+        'type': 'IClamp',
+        'del': params.stim_delay,
+        'dur': params.stim_dur,
+        'amp': params.input_amp 
+    }
 
-        netParams.stimTargetParams[f'Input_IC->{params.input_sec}'] = {
-            'source': 'Input_IC',
-            'sec': params.input_sec,
-            'loc': 0.5,
-            'conds': {'pop': pop_label}
-        }
+    netParams.stimTargetParams[f'Input_IC->{params.input_sec}'] = {
+        'source': 'Input_IC',
+        'sec': params.input_sec,
+        'loc': 0.5,
+        'conds': {'pop': pop_label}
+    }
 
      ### Background input ###
     if params.add_bkg:
@@ -315,8 +317,6 @@ def run_sim(config_name, *batch_params):
     (pops, cells, conns, stims, simData) = sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=True)
 
     # mh.save_simData(simData, params.sim_label, sim_dir)
-    if params.log_firing_rate:
-        mh.save_firing_rate(simData, soma_name, params.sim_dur, params.stim_delay, params.syns_type, params.num_syns_E, output_dir)
 
     ### Plot sections ###
     synColors = {'E': 'firebrick', 'I': 'darkcyan'}
@@ -341,6 +341,8 @@ def run_sim(config_name, *batch_params):
         mh.plot_isolated_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
         mh.plot_isolated_soma_pot(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
 
+    if params.log_firing_rate:
+        mh.save_firing_rate(simData, soma_name, params.sim_dur, params.syns_type, params.num_syns_E, output_dir)
 
     ### Plot morphology ###
     if params.plot_morphology:
