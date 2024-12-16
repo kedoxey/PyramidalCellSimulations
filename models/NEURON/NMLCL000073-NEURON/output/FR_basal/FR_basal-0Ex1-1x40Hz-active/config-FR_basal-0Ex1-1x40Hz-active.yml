@@ -2,6 +2,9 @@
 add_bkg: false
 add_soma: false
 apical_depths: 2
+cell_model: ''
+cell_name: ''
+cell_type: PYR
 channel_secs: soma
 channel_toggles:
   Ca: 1
@@ -10,8 +13,13 @@ channel_toggles:
 depths: 4
 dt: 0.01
 enable_syns: true
+hocs_dname: ''
 input_amp: 0
+input_sec: soma_0
+local: false
 log_firing_rate: true
+mod_dname: ''
+model_name: ''
 nmldb_id: NMLCL000073
 num_poisson: 1
 num_syns_E: 0
