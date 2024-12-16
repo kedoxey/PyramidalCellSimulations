@@ -216,9 +216,9 @@ def get_compartments(hoc_fname, cell, cell_name, soma_name, group_name='all'):
     elif group_name == 'apical':
         return apic_group
     elif group_name == 'apical_distal':
-        return get_secs_from_dist(hoc_fname, cell_name, 0.5, 1, secs_lim='apic')
+        return get_secs_from_dist(hoc_fname, cell_name, soma_name, 0.5, 1, secs_lim='apic')
     elif group_name == 'apical_proximal':
-        return get_secs_from_dist(hoc_fname, cell_name, 0, 0.5, secs_lim='apic')
+        return get_secs_from_dist(hoc_fname, cell_name, soma_name, 0, 0.5, secs_lim='apic')
     elif group_name == 'basal_apical':
         return basal_group + apic_group
     elif group_name == 'basal_soma':
@@ -331,6 +331,31 @@ def get_rand_sec(sec_list, seed=74):
     return sec_list[np.random.randint(len(sec_list))]
 
 
+# TODO: implement for OB mitral, tufted, and granule cell models
+def update_cell_params(cell_params, cell_name, params_path):
+
+    params = pd.read_pickle(params_path)
+
+    model_params = params[params['cell'] == cell_name]
+
+    for col in model_params:
+        if 'cell' in col:
+            continue
+        
+        param = col
+        value = model_params[col].values[0][0]
+        secs = model_params[col].values[0][1]
+
+        temp = 5
+
+        # for sec_name, sec_params in cell_params['secs'].items():
+        #     sec_type = sec_name.split('_')[0]
+
+        #     if sec_type in secs:
+                
+    return cell_params
+
+
 ### Signal processing ###
 def butter_bandpass(lowcut, highcut, fs, order=5):
  nyq = 0.5 * fs
@@ -395,7 +420,7 @@ def get_syn_sec_colors(cell, use_colormaps, colormaps, synColors):
 def save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir):
 
     file_name = 'eap_time_windows.pkl'
-    file_path = os.path.join(output_dir,file_name)
+    file_path = os.path.join(output_dir,'time_windows', file_name)
 
     if os.path.exists(file_path):
         with open(file_path,'rb') as fp:
@@ -442,7 +467,7 @@ def save_firing_rate(simData, soma_name, sim_dur, syns_type, num_syns, output_di
         firing_rate = 0
     
     file_name = 'firing_rates.pkl'
-    file_path = os.path.join(output_dir, file_name)
+    file_path = os.path.join(output_dir, 'firing_rates', file_name)
     
     if os.path.exists(file_path):
         with open(file_path,'rb') as fp:
@@ -480,7 +505,8 @@ def plot_pre_spike_trains(cells, conns, sim_label, sim_dir):
         
     axs.set_yticks(range(len(spike_trains.keys())))
     axs.set_yticklabels(spike_trains.keys())
-    axs.set_xlim([0,1500])
+    # axs.set_xlim([0,1500])
+    axs.set_title('Presynaptic Spike Trains')
 
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-presyn_spike_trains.png'),bbox_inches='tight',dpi=300)
 
@@ -549,9 +575,9 @@ def plot_secs(simData, soma_name, spike_trains, sim_label, sim_dir, sec_syn_colo
             sec_name = sec_traces[sec_i].split('V_')[1]
             
             spk_train_names = [key for key in spike_trains.keys() if sec_name in key]
-            for i, spk_train_name in enumerate(spk_train_names):
-                shift = 4*i  # gid%len(spk_train_names)
-                axs[idx_0].vlines(spike_trains[spk_train_name], (avg_V_soma/2-1)+shift, (avg_V_soma/2+2)+shift, color='royalblue', zorder=12)
+            # for i, spk_train_name in enumerate(spk_train_names):
+            #     shift = 4*i  # gid%len(spk_train_names)
+            #     axs[idx_0].vlines(spike_trains[spk_train_name], (avg_V_soma/2-1)+shift, (avg_V_soma/2+2)+shift, color='royalblue', zorder=12)
 
             axs[idx_0].plot(t, V_soma, label='soma', zorder=1)
             axs[idx_0].plot(t, list(simData[sec_traces[sec_i]]['cell_0']), label=f'{sec_name}', zorder=1)
@@ -567,19 +593,19 @@ def plot_secs(simData, soma_name, spike_trains, sim_label, sim_dir, sec_syn_colo
                 axs[idx_1].plot(t, I_ampa, label='AMPA', zorder=1, color='firebrick')
                 if max(I_ampa) > 0:
                     axs[idx_1].vlines(t_spikes, [(max(I_ampa)/2)-0.00005], [(max(I_ampa)/2)+0.00005], 'k', zorder=12)
-                    for i, spk_train_name in enumerate(spk_train_names):
-                        shift = (4*i+1)*0.0001  # gid%len(spk_train_names)
-                        axs[idx_1].vlines(spike_trains[spk_train_name], [((max(I_ampa)/4)-0.00005)+shift], [((max(I_ampa)/4)+0.00005)+shift], color='royalblue', zorder=13)
+                    # for i, spk_train_name in enumerate(spk_train_names):
+                    #     shift = (4*i+1)*0.0001  # gid%len(spk_train_names)
+                    #     axs[idx_1].vlines(spike_trains[spk_train_name], [((max(I_ampa)/4)-0.00005)+shift], [((max(I_ampa)/4)+0.00005)+shift], color='royalblue', zorder=13)
 
                     plot_spike_times = True
             if len(I_nmda) > 100:
-                axs[idx_1].plot(t, I_nmda, label='NMDA', zorder=2, color=sec_syn_colors[sec_name]['E'], path_effects=[path_effects.SimpleLineShadow(offset=(0.5,-0.5)),path_effects.Normal()])  # 'salmon'
+                axs[idx_1].plot(t, I_nmda, label='NMDA', zorder=2, color='salmon', path_effects=[path_effects.SimpleLineShadow(offset=(0.5,-0.5)),path_effects.Normal()])  # 'salmon'
                 
                 if not plot_spike_times:
                     axs[idx_1].vlines(t_spikes, [(max(I_nmda)/2)-0.00005], [(max(I_nmda)/2)+0.00005], 'k', zorder=12)
-                    for i, spk_train_name in enumerate(spk_train_names):
-                        shift = (4*i+1)*0.0001  # gid%len(spk_train_names)
-                        axs[idx_1].vlines(spike_trains[spk_train_name], [((max(I_nmda)/2)-0.00005)+shift], [((max(I_nmda)/2)+0.00005)+shift], color='royalblue', zorder=13)
+                    # for i, spk_train_name in enumerate(spk_train_names):
+                    #     shift = (4*i+1)*0.0001  # gid%len(spk_train_names)
+                    #     axs[idx_1].vlines(spike_trains[spk_train_name], [((max(I_nmda)/2)-0.00005)+shift], [((max(I_nmda)/2)+0.00005)+shift], color='royalblue', zorder=13)
 
                 axs[idx_1].legend(loc='upper right')
                 
@@ -682,7 +708,7 @@ def plot_syns_traces(simData, syn_secs, sim_label, sim_dir, syn_colors):
 def plot_isolated_syn_traces(simData, soma_name, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
 
     t = np.array(simData['t'])
-    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    time_window_path = os.path.join(output_dir,'time_windows', 'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
 
@@ -724,7 +750,7 @@ def plot_isolated_syn_traces(simData, soma_name, syn_secs, syns_type, num_syns, 
 
 def get_isolated_time_window(syns_type, num_syns, output_dir):
 
-    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    time_window_path = os.path.join(output_dir,'time_windows', 'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
 
@@ -749,7 +775,7 @@ def get_isolated_time_window(syns_type, num_syns, output_dir):
 def plot_isolated_soma_pot(simData, soma_name, syns_type, num_syns, sim_label, sim_dir, output_dir):
 
     t = np.array(simData['t'])
-    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    time_window_path = os.path.join(output_dir, 'time_windows', 'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
 
@@ -791,7 +817,7 @@ def plot_isolated_soma_pot(simData, soma_name, syns_type, num_syns, sim_label, s
 def plot_isolated_traces(simData, soma_name, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
 
     t = np.array(simData['t'])
-    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    time_window_path = os.path.join(output_dir, 'time_windows', 'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
 
@@ -911,29 +937,5 @@ def plot_isolated_LFP(simData, soma_name, syns_type, num_syns, sim_label, sim_di
         fig.tight_layout()
 
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_LFP.png'),bbox_inches='tight',dpi=300)
-
-def update_cell_params(cell_params, cell_name, params_path):
-
-    params = pd.read_pickle(params_path)
-
-    model_params = params[params['cell'] == cell_name]
-
-    for col in model_params:
-        if 'cell' in col:
-            continue
-        
-        param = col
-        value = model_params[col].values[0][0]
-        secs = model_params[col].values[0][1]
-
-        temp = 5
-        
-
-        # for sec_name, sec_params in cell_params['secs'].items():
-        #     sec_type = sec_name.split('_')[0]
-
-        #     if sec_type in secs:
-                
-    return cell_params
 
     

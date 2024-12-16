@@ -1,0 +1,50 @@
+!!python/object:argparse.Namespace
+add_bkg: false
+add_soma: false
+apical_depths: 2
+cell_model: ''
+cell_name: ''
+cell_type: PYR
+channel_secs: soma
+channel_toggles:
+  Ca: 1
+  K: 1
+  Na: 1
+depths: 4
+dt: 0.005
+enable_syns: true
+hocs_dname: ''
+input_amp: 0
+input_sec: soma_0
+local: false
+log_firing_rate: true
+mod_dname: ''
+model_name: ''
+nmldb_id: NMLCL000073
+num_poisson: 1
+num_syns_E: 2900
+num_syns_I: 0
+plot_morphology: true
+publication: Hay2011
+recordStep: 0.1
+record_LFP: false
+run_NML: false
+save_pickle: false
+seed: 74
+sim_dur: 1000
+sim_flag: active
+sim_label: FR_apical_distal-0nA-2900Ex1-1x40Hz-active
+sim_message: Simulation parameters for characterizing single cell dynamics with default
+  parameters.
+sim_name: FR_apical_distal
+spk_freq: 40
+stim_delay: 0
+stim_dur: 1000
+synsPerConn: 1
+syns_lb: 0
+syns_source: HS
+syns_type: apical_distal
+syns_ub: 1
+syns_weight: 1
+use_colormaps: false
+vinit: -80
