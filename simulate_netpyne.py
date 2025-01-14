@@ -280,26 +280,29 @@ def run_sim(config_name, *batch_params):
                                                 'conds': {'pop': pop_label}, 'weight': 8, 
                                                 'delay': 'max(1, normal(5,2))', 'synMech': 'AMPA_NMDA'}
 
-
+    rec_electrode = None
     ### Add linear probe ###
     if params.record_LFP:
-        probe_L = 300
-        channels = 1
-        elec_dist = probe_L//params.depths  # microns
-        disp = 130  # 150
 
-        elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(params.depths)]
+        rec_electrode = mh.define_electrode_geom(params.num_probes, params.total_channels, params.sim_label, sim_dir)
 
-        if params.apical_depths > 0:
-            apic_pos = [[0, -930-(y*elec_dist - disp), 0] for y in range(params.apical_depths)]
-            elec_pos.extend(apic_pos)  # 
+        cfg.recordLFP = rec_electrode
+        cfg.analysis['plotLFP'] = {'saveFig': False}
+
+        # probe_L = 300
+        # channels = 1
+        # elec_dist = probe_L//params.depths  # microns
+        # disp = 130  # 150
+
+        # elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(params.depths)]
+
+        # if params.apical_depths > 0:
+        #     apic_pos = [[0, -930-(y*elec_dist - disp), 0] for y in range(params.apical_depths)]
+        #     elec_pos.extend(apic_pos)  # 
         # -x is left and -y is above soma
         # elec_pos.reverse()
 
-        cfg.recordLFP = elec_pos
-        cfg.analysis['plotLFP'] = {'saveFig': True}
-
-
+        
     ### Simulation configuration ###
     cfg.duration = params.sim_dur 						                # Duration of the simulation, in ms
     cfg.dt = params.dt								                # Internal integration timestep to use
@@ -317,6 +320,12 @@ def run_sim(config_name, *batch_params):
     (pops, cells, conns, stims, simData) = sim.createSimulateAnalyze(netParams=netParams, simConfig=cfg, output=True)
 
     # mh.save_simData(simData, params.sim_label, sim_dir)
+
+    ### Save LFP data ###
+    if params.record_LFP:
+
+        mh.reformat_data(simData, rec_electrode, params.nmldb_id, params.sim_label, sim_dir)
+
 
     ### Plot sections ###
     synColors = {'E': 'firebrick', 'I': 'darkcyan'}

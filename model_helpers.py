@@ -356,6 +356,58 @@ def update_cell_params(cell_params, cell_name, params_path):
     return cell_params
 
 
+def define_electrode_geom(num_probes, total_channels, sim_label, sim_dir):
+
+    # fixed normal distribution
+    r_pos = np.random.normal(loc=20, scale=5, size=num_probes)
+    
+    min_radius = 10
+    r_pos = [r if r > min_radius else min_radius for r in r_pos]
+
+    channel_lb = total_channels // 2
+    channel_ub = total_channels // 2
+    grid_spacing = 10
+
+    # sample angle from uniform distribution
+    theta_pos = np.random.uniform(-np.pi, np.pi, size=num_probes)
+
+    all_xs = np.multiply(r_pos, np.cos(theta_pos))
+    all_zs = np.multiply(r_pos, np.sin(theta_pos))
+
+    all_ys = np.random.uniform(low=-0.5*grid_spacing,
+                               high=0.5*grid_spacing,
+                               size=num_probes)
+    
+    rec_probes = []
+    probe_list = []
+
+    lb = int(channel_lb*grid_spacing)
+    ub = int(channel_ub*grid_spacing)
+
+    for y_center, x_center, z_center in zip(all_ys, all_xs, all_zs):
+
+        y_lower = np.arange(y_center - lb, y_center, grid_spacing)
+        y_upper = np.arange(y_center, y_center+ub, grid_spacing)
+
+        y_channels = list(y_lower) + list(y_upper)
+
+        probe = [[x_center, yi, z_center] for yi in y_channels]
+        probe_list.append(probe)
+        
+        rec_probes += probe
+    
+    rec_electrode = rec_probes
+
+    # save probe arrangement
+    file_name = f'{sim_label}-recording_probe_locs.pkl'
+    file_path = os.path.join(sim_dir, file_name)
+    
+    with open(file_path, 'wb') as fp:
+        pickle.dump(probe_list, fp, protocol=3)
+
+    return rec_electrode
+
+
 ### Signal processing ###
 def butter_bandpass(lowcut, highcut, fs, order=5):
  nyq = 0.5 * fs
@@ -414,6 +466,78 @@ def get_syn_sec_colors(cell, use_colormaps, colormaps, synColors):
             secSynCount += 1
 
     return secSynColors
+
+
+### Data Formatting ###
+def reformat_data(simData, rec_electrode, delay, nmldb_id, sim_label, sim_dir):
+
+    columns = ['Model_ID','t','vm','ve','x_bar','y_bar','z_bar',
+                   'num_spikes','did_spike','first_spkt']
+    waveforms_df = pd.DataFrame(columns=columns)
+
+    try:
+        did_spike = True
+        num_spikes = len(np.array(simData['spkt']))
+        spkt = np.array(simData['spkt'])[0]
+    except IndexError:
+        did_spike = False
+        num_spikes = 0
+        spkt = np.nan
+
+    t = np.array(simData['t'])
+    Vm = np.array(simData['Vsoma']['cell_0'])
+    Ve = np.array(simData['LFP'])
+
+    temp_Ve = Ve.T
+
+    max_t = 1040
+
+    num_channels, _ = np.shape(rec_electrode)
+
+    for chan_i in range(num_channels):
+
+        x_bar = rec_electrode[chan_i, 0]
+        y_bar = rec_electrode[chan_i, 1]
+        z_bar = rec_electrode[chan_i, 2]
+
+        ve_i = temp_Ve[chan_i]
+        
+        this_interval = (t >= delay) & (t <= max_t)
+
+        try:
+            reduced_ve_i = ve_i[this_interval]
+        except IndexError:
+            this_interval = this_interval[:-1]
+            reduced_ve_i = ve_i[this_interval]
+
+        try:
+            reduced_t = t[this_interval]
+            reduced_Vm = Vm[this_interval]
+        except IndexError:
+            this_interval = (t >= delay) & (t <= max_t)
+            reduced_t = t[this_interval]
+            reduced_Vm = Vm[this_interval]
+
+        df = pd.DataFrame(columns=columns)
+
+        df['Model_ID'] = [nmldb_id]
+        df['t'] = [reduced_t]
+        df['vm'] = [reduced_Vm]
+        df['ve'] = [reduced_ve_i]
+        df['x_bar'] = [x_bar]
+        df['y_bar'] = [y_bar]
+        df['z_bar'] = [z_bar]
+        df['first_spkt'] = [spkt]
+        df['did_spike'] = [did_spike]
+        df['num_spikes'] = [num_spikes]
+
+        join_frames = [waveforms_df, df]
+        waveforms_df = pd.concat(join_frames, ignore_index=True)
+
+    file_name = f'{sim_label}-simulated_eaps.pkl'
+    file_path = os.path.join(sim_dir, file_name)
+
+    waveforms_df.to_pickle(file_path, protocol=3)
 
 
 ### Plotting ###
