@@ -7,13 +7,16 @@ from itertools import chain
 
 config_name = 'default_config'
 
-sim_name = 'FR'
+sim_name = 'LFP'
 
 sim_dur = 1000 if 'FR' in sim_name else 1000
 stim_delay = 0 if 'FR' in sim_name else 400
 stim_dur = sim_dur
 
-param_sets = {'active': {'log_firing_rate': True}}
+param_sets = {#'active': {'log_firing_rate': True}
+              'probes': {'use_probes': [True],
+                         'num_probes': [2],
+                         'total_channels': [12]}}
               # 'pas_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
               #                'channel_secs': 'soma'},
               # 'pas_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
@@ -35,7 +38,7 @@ for sim_flag, param_set in param_sets.items():
                   'syns_type': [syns_type], #, 'basal', 'apical_distal'],  
                   'num_syns_E': num_syns,
                   'add_bkg': [False], 
-                  'record_LFP': [False],
+                  'record_LFP': [True],
                   'depths': [4],
                   'apical_depths': [2],
                   'sim_dur': [sim_dur],  # 5000 or 1000
@@ -45,7 +48,7 @@ for sim_flag, param_set in param_sets.items():
                   'dt': [0.005]}
     
     for param_name, param in param_set.items():
-      paramGrid[param_name] = [param]
+      paramGrid[param_name] = param
 
     paramGrids.append(paramGrid)
       

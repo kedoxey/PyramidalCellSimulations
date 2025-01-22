@@ -469,7 +469,7 @@ def get_syn_sec_colors(cell, use_colormaps, colormaps, synColors):
 
 
 ### Data Formatting ###
-def reformat_data(simData, rec_electrode, delay, nmldb_id, sim_label, sim_dir):
+def reformat_data(simData, rec_electrode, soma_name, delay, nmldb_id, sim_label, sim_dir):
 
     columns = ['Model_ID','t','vm','ve','x_bar','y_bar','z_bar',
                    'num_spikes','did_spike','first_spkt']
@@ -485,7 +485,7 @@ def reformat_data(simData, rec_electrode, delay, nmldb_id, sim_label, sim_dir):
         spkt = np.nan
 
     t = np.array(simData['t'])
-    Vm = np.array(simData['Vsoma']['cell_0'])
+    Vm = np.array(simData[f'V_{soma_name}']['cell_0'])
     Ve = np.array(simData['LFP'])
 
     temp_Ve = Ve.T
@@ -496,9 +496,9 @@ def reformat_data(simData, rec_electrode, delay, nmldb_id, sim_label, sim_dir):
 
     for chan_i in range(num_channels):
 
-        x_bar = rec_electrode[chan_i, 0]
-        y_bar = rec_electrode[chan_i, 1]
-        z_bar = rec_electrode[chan_i, 2]
+        x_bar = rec_electrode[chan_i][0]
+        y_bar = rec_electrode[chan_i][1]
+        z_bar = rec_electrode[chan_i][2]
 
         ve_i = temp_Ve[chan_i]
         

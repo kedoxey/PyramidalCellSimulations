@@ -34,6 +34,9 @@ def run_sim(config_name, *batch_params):
         else:
             params.sim_label += f'-{params.num_syns_E}Ex{params.syns_weight}-{params.num_poisson}x{params.spk_freq}Hz'
     
+    if params.use_probes:
+        params.sim_label += f'-{params.num_probes}x{params.total_channels}lp'
+
     if params.add_bkg:
         params.sim_label += '+bkg'
 
@@ -284,23 +287,25 @@ def run_sim(config_name, *batch_params):
     ### Add linear probe ###
     if params.record_LFP:
 
-        rec_electrode = mh.define_electrode_geom(params.num_probes, params.total_channels, params.sim_label, sim_dir)
+        if params.use_probes:
+            rec_electrode = mh.define_electrode_geom(params.num_probes, params.total_channels, params.sim_label, sim_dir)
 
-        cfg.recordLFP = rec_electrode
-        cfg.analysis['plotLFP'] = {'saveFig': False}
+            cfg.recordLFP = rec_electrode
+            cfg.analysis['plotLFP'] = {'saveFig': False}
+        else:
+            probe_L = 300
+            channels = 1
+            elec_dist = probe_L//params.depths  # microns
+            disp = 130  # 150
 
-        # probe_L = 300
-        # channels = 1
-        # elec_dist = probe_L//params.depths  # microns
-        # disp = 130  # 150
+            elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(params.depths)]
 
-        # elec_pos = [[x*elec_dist, (y*elec_dist - disp)*-1, 0] for x in range(channels) for y in range(params.depths)]
-
-        # if params.apical_depths > 0:
-        #     apic_pos = [[0, -930-(y*elec_dist - disp), 0] for y in range(params.apical_depths)]
-        #     elec_pos.extend(apic_pos)  # 
-        # -x is left and -y is above soma
-        # elec_pos.reverse()
+            if params.apical_depths > 0:
+                apic_pos = [[0, -930-(y*elec_dist - disp), 0] for y in range(params.apical_depths)]
+                elec_pos.extend(apic_pos)  # 
+            # -x is left and -y is above soma
+            elec_pos.reverse()
+            cfg.recordLFP = elec_pos
 
         
     ### Simulation configuration ###
@@ -324,7 +329,7 @@ def run_sim(config_name, *batch_params):
     ### Save LFP data ###
     if params.record_LFP:
 
-        mh.reformat_data(simData, rec_electrode, params.nmldb_id, params.sim_label, sim_dir)
+        mh.reformat_data(simData, rec_electrode, soma_name, params.stim_delay, params.nmldb_id, params.sim_label, sim_dir)
 
 
     ### Plot sections ###
@@ -345,10 +350,11 @@ def run_sim(config_name, *batch_params):
         
     ### Plot isolated LFP ###
     if params.record_LFP:
-        mh.plot_isolated_LFP(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
-        mh.plot_isolated_syn_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
-        mh.plot_isolated_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
-        mh.plot_isolated_soma_pot(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
+        if not params.use_probes:
+            mh.plot_isolated_LFP(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
+            mh.plot_isolated_syn_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+            mh.plot_isolated_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+            mh.plot_isolated_soma_pot(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
 
     if params.log_firing_rate:
         mh.save_firing_rate(simData, soma_name, params.sim_dur, params.syns_type, params.num_syns_E, output_dir)

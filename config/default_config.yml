@@ -10,6 +10,7 @@ seed: 74                # random sead
 record_LFP: False       # record LFP
 depths: 4               # number of electrodes around soma
 apical_depths: 0        # number of electrodes in apical distal dendrites  
+use_probes: True
 num_probes: 1
 total_channels: 64
 
