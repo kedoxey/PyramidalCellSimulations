@@ -1,8 +1,8 @@
 import os
-import PyramidalCellSimulations.simulate_cell as simulate_cell
 import model_helpers as mh
 from sklearn.model_selection import ParameterGrid
 from itertools import chain
+from simulate_cell import run_sim
 
 
 config_name = 'default_config'
@@ -56,6 +56,6 @@ batchParamsList = list(ParameterGrid(paramGrids))
 
 for batchParams in batchParamsList:
 
-  simulate_cell.run_sim(config_name, batchParams)
+  run_sim(config_name, batchParams)
 
   print(f"!!! Simulation ran for {batchParams['num_syns_E']} {batchParams['syns_type']} synpases !!!")
