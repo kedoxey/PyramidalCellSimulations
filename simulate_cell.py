@@ -292,7 +292,7 @@ def run_sim(config_name, *batch_params):
             rec_electrode = mh.define_electrode_geom(params.num_probes, params.total_channels, params.sim_label, sim_dir)
 
             cfg.recordLFP = rec_electrode
-            cfg.analysis['plotLFP'] = {'saveFig': False}
+            cfg.analysis['plotLFP'] = {'plots': [], 'saveFig': False, 'showFig': False}
         else:
             probe_L = 300
             channels = 1

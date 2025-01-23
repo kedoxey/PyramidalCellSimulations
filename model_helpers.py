@@ -364,8 +364,8 @@ def define_electrode_geom(num_probes, total_channels, sim_label, sim_dir):
     min_radius = 10
     r_pos = [r if r > min_radius else min_radius for r in r_pos]
 
-    channel_lb = total_channels // 2
-    channel_ub = total_channels // 2
+    channel_lb = total_channels // 2 if total_channels > 1 else total_channels
+    channel_ub = total_channels // 2 if total_channels > 1 else total_channels
     grid_spacing = 10
 
     # sample angle from uniform distribution

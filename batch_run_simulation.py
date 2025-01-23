@@ -16,7 +16,7 @@ stim_dur = sim_dur
 param_sets = {#'active': {'log_firing_rate': True}
               'TEST': {'use_probes': [True],
                          'num_probes': [30],
-                         'total_channels': [64]}}
+                         'total_channels': [64]}}  # total_channels must be greater than 1
               # 'pas_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
               #                'channel_secs': 'soma'},
               # 'pas_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
