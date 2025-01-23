@@ -70,6 +70,8 @@ dependencies:
       - networkx
       - neuron
       - pandas
+      - pyneuroml
       - schema
+      - scikit-learn
       - tabulate
       - xyzservices

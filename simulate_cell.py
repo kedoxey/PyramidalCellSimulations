@@ -182,6 +182,34 @@ def run_sim(config_name, *batch_params):
             cfg.recordTraces[f'I_apic_32_nmda'] = {'sec':'apic_32','loc':exc_syn_locs[0],'synMech':'AMPA_NMDA','var':'g_NMDA'}
         
         # Poisson spike pattern
+        ### Excitatory synapses ###
+        num_E_each = params.num_syns_E // params.num_poisson
+
+        for i_poisson in range(params.num_poisson):
+
+            netParams.popParams[f'vecstim_E{i_poisson}'] = {
+                'cellModel': 'VecStim',
+                'numCells': num_E_each,  # int(len(syn_secs)/4),
+                'spikePattern': {'type': 'poisson',
+                                'start': params.stim_delay,
+                                'stop': params.stim_delay+params.stim_dur,
+                                'frequency': params.spk_freq}  #  np.random.randint(params.spk_freq_lb, params.spk_freq_ub, 1)[0]}
+            }
+
+
+
+            netParams.connParams[f'vecstim_E{i_poisson}!->{pop_label}'] = {
+                'preConds': {'pop': f'vecstim_E{i_poisson}'},
+                'postConds': {'pop': pop_label},
+                'sec': syn_secs_E,
+                'loc': exc_syn_locs*num_E_each,
+                'synsPerConn': params.synsPerConn,
+                'synMech': exc_syns,
+                'weight': params.syns_weight,  # 
+                # 'synMechWeightFactor': [0.5,0.5],
+                'delay': 5,  # 'defaultDelay + dist_2D/propVelocity',
+                'probability': 1.0
+            }
 
         ### Layer inhibitory input
         if params.num_syns_I > 0:
@@ -229,33 +257,6 @@ def run_sim(config_name, *batch_params):
                     'groupSynMech': inh_syns,
                     'density': 'uniform'
                 }
-
-        ### Excitatory synapses ###
-        num_E_each = params.num_syns_E // params.num_poisson
-
-        for i_poisson in range(params.num_poisson):
-
-            netParams.popParams[f'vecstim_E{i_poisson}'] = {
-                'cellModel': 'VecStim',
-                'numCells': num_E_each,  # int(len(syn_secs)/4),
-                'spikePattern': {'type': 'poisson',
-                                'start': params.stim_delay,
-                                'stop': params.stim_delay+params.stim_dur,
-                                'frequency': params.spk_freq}  #  np.random.randint(params.spk_freq_lb, params.spk_freq_ub, 1)[0]}
-            }
-
-            netParams.connParams[f'vecstim_E{i_poisson}->{pop_label}'] = {
-                'preConds': {'pop': f'vecstim_E{i_poisson}'},
-                'postConds': {'pop': pop_label},
-                'sec': syn_secs_E,
-                'synsPerConn': params.synsPerConn,
-                'synMech': exc_syns,
-                'weight': params.syns_weight,  # 
-                # 'synMechWeightFactor': [0.5,0.5],
-                'delay': 5,  # 'defaultDelay + dist_2D/propVelocity',
-                'probability': 1.0,
-                'loc': exc_syn_locs
-            }
 
 
     ### Add input ###
