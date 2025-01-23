@@ -1,5 +1,5 @@
 import os
-import simulate_netpyne
+import PyramidalCellSimulations.simulate_cell as simulate_cell
 import model_helpers as mh
 from sklearn.model_selection import ParameterGrid
 
@@ -34,6 +34,6 @@ batchParamsList = list(ParameterGrid(paramGrids))
 
 for batchParams in batchParamsList:
 
-  simulate_netpyne.run_sim(config_name, batchParams)
+  simulate_cell.run_sim(config_name, batchParams)
 
 # TODO: plot firing rates
