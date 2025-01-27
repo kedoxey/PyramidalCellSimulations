@@ -292,7 +292,7 @@ def run_sim(config_name, *batch_params):
             rec_electrode = mh.define_electrode_geom(params.num_probes, params.total_channels, params.sim_label, sim_dir)
 
             cfg.recordLFP = rec_electrode
-            cfg.analysis['plotLFP'] = {'plots': [], 'saveFig': False, 'showFig': False}
+            cfg.analysis['plotLFP'] = {'plots': ['locations'], 'electrodes': ['all'], 'saveFig': True, 'showFig': False}
         else:
             probe_L = 300
             channels = 1
@@ -356,6 +356,8 @@ def run_sim(config_name, *batch_params):
             mh.plot_isolated_syn_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
             mh.plot_isolated_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
             mh.plot_isolated_soma_pot(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
+
+        sim.analysis.plotLFP(plots=['locations'], saveFig=True, showFig=False)
 
     if params.log_firing_rate:
         mh.save_firing_rate(simData, soma_name, params.sim_dur, params.syns_type, params.num_syns_E, output_dir)
