@@ -356,6 +356,16 @@ def update_cell_params(cell_params, cell_name, params_path):
     return cell_params
 
 
+def get_morphophetrics(nmldb_id):
+
+    nmldb_url = f'http://neuroml-db.org/api/morphometrics?id={nmldb_id}'
+
+    nmldb_response = requests.get(nmldb_url)
+
+    return nmldb_response.json()
+    
+
+
 def define_electrode_geom(num_probes, total_channels, sim_label, sim_dir):
 
     # fixed normal distribution

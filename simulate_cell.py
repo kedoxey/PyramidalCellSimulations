@@ -100,32 +100,58 @@ def run_sim(config_name, *batch_params):
     cfg = specs.SimConfig()					                    # object of class SimConfig to store simulation configuration
 
     ### Import cell ###
-    if params.run_NML:
-        gid, netParams = sim.importNeuroML2(net_nml_file, simConfig=cfg, simulate=False, analyze=False, return_net_params_also=True)
-        # sim.importNeuroML2SimulateAnalyze(net_nml_file, simConfig=cfg)
+
+    netParams = specs.NetParams()
+
+    importedCellParams = netParams.importCellParams(label=cell_label,
+                                                    conds={'cellType': cell_type, 'cellModel': cell_model},
+                                                    fileName=hoc_file,
+                                                    cellName=cell_name
+                                                    )
+
+    netParams.defaultThreshold = -20
+    for sec in importedCellParams['secs']:
+        importedCellParams[sec]['vinit'] = params.vinit
+    
+    channel_secs = mh.get_compartments(hoc_file, importedCellParams, cell_name, params.channel_secs)
+    importedCellParams = mh.toggle_channels(importedCellParams, channel_secs, params.channel_toggles)  #,'Na',params.soma_na_toggle)
+
+    if params.local:
+        importedCellParams = mh.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, f'{params.cell_type}_model_params.pkl'))
+
+    ### Define geometry
+    netParams.propVelocity = 100.0
+    netParams.probLengthConst = 150.0
+
+    neuron_morpho = mh.get_morphophetrics(params.nmldb_id)
+    for metric_dict in neuron_morpho:
+        if metric_dict['Metric_ID'] == 'Height':
+            model_height = metric_dict['Maximum']
+        if metric_dict['Metric_ID'] == 'Width':
+            model_width = metric_dict['Maximum']
+        if metric_dict['Metric_ID'] == 'Depth':
+            model_depth = metric_dict['Maximum']
+
+    channel_spacing = 50.
+    buffer_dim = 50.
+
+    x_dim =  channel_spacing*np.floor((model_width+buffer_dim)/channel_spacing)+channel_spacing
+    y_dim =  channel_spacing*np.floor((model_height+buffer_dim)/channel_spacing)+channel_spacing
+    z_dim =  channel_spacing*np.floor((model_depth+buffer_dim)/channel_spacing)+channel_spacing
+
+    if x_dim>z_dim:
+        z_dim = x_dim
     else:
-        netParams = specs.NetParams()
+        x_dim = z_dim
 
-        importedCellParams = netParams.importCellParams(label=cell_label,
-                                                        conds={'cellType': cell_type, 'cellModel': cell_model},
-                                                        fileName=hoc_file,
-                                                        cellName=cell_name
-                                                        )
+    netParams.sizeX = x_dim # x-dimension (horizontal length) size in um
+    netParams.sizeY = y_dim # y-dimension (vertical height or cortical depth) size in um
+    netParams.sizeZ = z_dim # z-dimension (horizontal length) size in um
 
-        netParams.defaultThreshold = -20
-        for sec in importedCellParams['secs']:
-            importedCellParams[sec]['vinit'] = params.vinit
-        
-        channel_secs = mh.get_compartments(hoc_file, importedCellParams, cell_name, params.channel_secs)
-        importedCellParams = mh.toggle_channels(importedCellParams, channel_secs, params.channel_toggles)  #,'Na',params.soma_na_toggle)
-
-        if params.local:
-            importedCellParams = mh.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, f'{params.cell_type}_model_params.pkl'))
-
-        ### Create population ###
-        netParams.popParams[pop_label] = {'cellType': cell_type, 
-                                        'cellModel': cell_model,
-                                        'numCells': 1}
+    ### Create population ###
+    netParams.popParams[pop_label] = {'cellType': cell_type, 
+                                    'cellModel': cell_model,
+                                    'numCells': 1}
 
     for sec_key in importedCellParams['secs']:
         if 'soma' in sec_key:
@@ -367,3 +393,4 @@ def run_sim(config_name, *batch_params):
         sim.analysis.plotShape(showSyns=True, dist=0.8, includePre=[None], includePost=[pop_label], axisLabels=False, includeGrid=False,
                                saveFig=True, fontSize=10, returnPlotter=True, bkgColor=mpl.colors.to_rgba('w'), 
                                secSynColors=secSynColors, colormaps=(colormapE,colormapI), synColors=synColors)
+        
