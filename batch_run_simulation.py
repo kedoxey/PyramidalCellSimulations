@@ -14,8 +14,8 @@ stim_delay = 0 if 'FR' in sim_name else 400
 stim_dur = sim_dur
 
 param_sets = {#'active': {'log_firing_rate': True}
-              'probes_locs': {'use_probes': [True],
-                         'num_probes': [2],
+              'probes_dt': {'use_probes': [True],
+                         'num_probes': [100],
                          'total_channels': [64]}}  # total_channels must be greater than 1
               # 'pas_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
               #                'channel_secs': 'soma'},
@@ -45,7 +45,8 @@ for sim_flag, param_set in param_sets.items():
                   'stim_dur': [stim_dur], # 4900 or 400
                   'stim_delay': [stim_delay],  # 100 or 400
                   'save_pickle': [True],
-                  'dt': [0.005]}
+                  'dt': [0.05],
+                  'recordStep': [0.05]}
     
     for param_name, param in param_set.items():
       paramGrid[param_name] = param
