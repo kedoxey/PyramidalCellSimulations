@@ -11,14 +11,14 @@ from netpyne import specs, sim
 import argparse as ap
 import time
 
-from utils import analysis, config, process, plotting, wrangle
+import utils
 
 
 def run_sim(config_name, *batch_params):
 
     ### Import simulation config ###
     # config_name = args.config_name
-    params = ap.Namespace(**config.load_config(config_name))
+    params = ap.Namespace(**utils.config.load_config(config_name))
 
     for batch_param, batch_value in batch_params[0].items():
         setattr(params, batch_param, batch_value)
@@ -66,8 +66,8 @@ def run_sim(config_name, *batch_params):
 
 
     ### Download or define model ###
-    cell_model = params.cell_model if params.cell_model else wrangle.download_from_nmldb(nmldb_id, model_version)
-    cell_name = params.cell_name if params.cell_name else wrangle.get_cell_name(model_dir)
+    cell_model = params.cell_model if params.cell_model else utils.wrangle.download_from_nmldb(nmldb_id, model_version)
+    cell_name = params.cell_name if params.cell_name else utils.wrangle.get_cell_name(model_dir)
     if params.local: params.sim_label += f'-{cell_name}'
 
     cell_type = params.cell_type
@@ -80,22 +80,22 @@ def run_sim(config_name, *batch_params):
     # config.copy_synapses(model_dir)
 
     ### Get output directories ###
-    output_dir, sim_dir = config.create_output_dirs(params.sim_name, params.sim_label, model_dir)
+    output_dir, sim_dir = utils.config.create_output_dirs(params.sim_name, params.sim_label, model_dir)
 
     ### Wrtie README containing simulation description
-    config.write_config(params,sim_dir,params.sim_label,config_name)
+    utils.config.write_config(params,sim_dir,params.sim_label,config_name)
     # config.create_sim_description(sim_dir, run_NML=run_NML, spk_type=spk_type, syns_lb=syns_lb, syns_ub=syns_ub, syns_type=syns_type, num_syns=num_syns, vinit=vinit, spk_freq=spk_freq, sim_message=sim_message)
 
     ### Generate network if running NeuroML ###
     if params.run_NML:
-        net_nml_file = wrangle.generate_network(model_dir, cell_name, pop_label, 
+        net_nml_file = utils.wrangle.generate_network(model_dir, cell_name, pop_label, 
                                                 force=True, 
                                                 input_amp=params.input_amp, 
                                                 start=params.stim_delay, 
                                                 stop=params.stim_delay+params.stim_dur)
 
     ### Compile mechs ###
-    wrangle.compile_mechs(cwd,hocs_dir,mod_dir)  #,force=True)
+    utils.wrangle.compile_mechs(cwd,hocs_dir,mod_dir)  #,force=True)
     load_mechanisms(mod_dir)
 
     ### Instantiate simulation configuration ###
@@ -115,40 +115,42 @@ def run_sim(config_name, *batch_params):
     for sec in importedCellParams['secs']:
         importedCellParams[sec]['vinit'] = params.vinit
     
-    channel_secs = analysis.get_compartments(hoc_file, importedCellParams, cell_name, params.channel_secs)
-    importedCellParams = analysis.toggle_channels(importedCellParams, channel_secs, params.channel_toggles)  #,'Na',params.soma_na_toggle)
+    channel_secs = utils.analysis.get_compartments(hoc_file, importedCellParams, cell_name, params.channel_secs)
+    importedCellParams = utils.analysis.toggle_channels(importedCellParams, channel_secs, params.channel_toggles)  #,'Na',params.soma_na_toggle)
 
     if params.local:
-        importedCellParams = analysis.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, f'{params.cell_type}_model_params.pkl'))
+        importedCellParams = utils.analysis.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, f'{params.cell_type}_model_params.pkl'))
 
     ### Define geometry
-    netParams.propVelocity = 100.0
-    netParams.probLengthConst = 150.0
+    netpyne_geometry = False
+    if netpyne_geometry:
+        netParams.propVelocity = 100.0
+        netParams.probLengthConst = 150.0
 
-    neuron_morpho = wrangle.get_morphophetrics(params.nmldb_id)
-    for metric_dict in neuron_morpho:
-        if metric_dict['Metric_ID'] == 'Height':
-            model_height = metric_dict['Maximum']
-        if metric_dict['Metric_ID'] == 'Width':
-            model_width = metric_dict['Maximum']
-        if metric_dict['Metric_ID'] == 'Depth':
-            model_depth = metric_dict['Maximum']
+        neuron_morpho = utils.wrangle.get_morphophetrics(params.nmldb_id)
+        for metric_dict in neuron_morpho:
+            if metric_dict['Metric_ID'] == 'Height':
+                model_height = metric_dict['Maximum']
+            if metric_dict['Metric_ID'] == 'Width':
+                model_width = metric_dict['Maximum']
+            if metric_dict['Metric_ID'] == 'Depth':
+                model_depth = metric_dict['Maximum']
 
-    channel_spacing = 50.
-    buffer_dim = 50.
+        channel_spacing = 50.
+        buffer_dim = 50.
 
-    x_dim =  channel_spacing*np.floor((model_width+buffer_dim)/channel_spacing)+channel_spacing
-    y_dim =  channel_spacing*np.floor((model_height+buffer_dim)/channel_spacing)+channel_spacing
-    z_dim =  channel_spacing*np.floor((model_depth+buffer_dim)/channel_spacing)+channel_spacing
+        x_dim =  channel_spacing*np.floor((model_width+buffer_dim)/channel_spacing)+channel_spacing
+        y_dim =  channel_spacing*np.floor((model_height+buffer_dim)/channel_spacing)+channel_spacing
+        z_dim =  channel_spacing*np.floor((model_depth+buffer_dim)/channel_spacing)+channel_spacing
 
-    if x_dim>z_dim:
-        z_dim = x_dim
-    else:
-        x_dim = z_dim
+        if x_dim>z_dim:
+            z_dim = x_dim
+        else:
+            x_dim = z_dim
 
-    netParams.sizeX = x_dim # x-dimension (horizontal length) size in um
-    netParams.sizeY = y_dim # y-dimension (vertical height or cortical depth) size in um
-    netParams.sizeZ = z_dim # z-dimension (horizontal length) size in um
+        netParams.sizeX = x_dim # x-dimension (horizontal length) size in um
+        netParams.sizeY = y_dim # y-dimension (vertical height or cortical depth) size in um
+        netParams.sizeZ = z_dim # z-dimension (horizontal length) size in um
 
     ### Create population ###
     netParams.popParams[pop_label] = {'cellType': cell_type, 
@@ -168,15 +170,15 @@ def run_sim(config_name, *batch_params):
             ### Get sections ###
         # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
         if params.syns_lb > 0:
-            syn_secs = analysis.get_secs_from_dist(hoc_file, cell_name, soma_name, params.syns_lb, params.syns_ub)
+            syn_secs = utils.analysis.get_secs_from_dist(hoc_file, cell_name, soma_name, params.syns_lb, params.syns_ub)
             if params.add_soma:
                 syn_secs.append(soma_name)
         else:
-            syn_secs = analysis.get_compartments(hoc_file, importedCellParams, cell_name, soma_name, params.syns_type)
+            syn_secs = utils.analysis.get_compartments(hoc_file, importedCellParams, cell_name, soma_name, params.syns_type)
 
         # syn_secs_L1 = mh.get_secs_from_dist(hoc_file, cell_name, 0.9, 1)
 
-        syn_secs_E, syn_secs_I = analysis.get_rand_secs(syn_secs, params.num_syns_E, params.num_syns_I, params.seed)
+        syn_secs_E, syn_secs_I = utils.analysis.get_rand_secs(syn_secs, params.num_syns_E, params.num_syns_I, params.seed)
 
         ### Add AMPA/NMDA synapse ###
         if 'HS' in params.syns_source:
@@ -250,7 +252,7 @@ def run_sim(config_name, *batch_params):
                         'L4': []}
 
             for layer, bounds in layer_bounds.items():
-                layer_secs[layer] = analysis.get_secs_from_dist(hoc_file, cell_name, soma_name, bounds['lb'], bounds['ub'], secs_lim='apic')
+                layer_secs[layer] = utils.analysis.get_secs_from_dist(hoc_file, cell_name, soma_name, bounds['lb'], bounds['ub'], secs_lim='apic')
 
             layer_secs['L5'] = [soma_name]
 
@@ -317,7 +319,7 @@ def run_sim(config_name, *batch_params):
     if params.record_LFP:
 
         if params.use_probes:
-            rec_electrode = analysis.define_electrode_geom(params.num_probes, params.total_channels, params.sim_label, sim_dir)
+            rec_electrode = utils.analysis.define_electrode_geom(params.num_probes, params.total_channels, params.sim_label, sim_dir)
 
             cfg.recordLFP = rec_electrode
             cfg.analysis['plotLFP'] = {'plots': ['locations'], 'electrodes': ['all'], 'saveFig': True, 'showFig': False}
@@ -358,37 +360,37 @@ def run_sim(config_name, *batch_params):
     ### Save LFP data ###
     if params.record_LFP:
 
-        process.reformat_data(simData, rec_electrode, soma_name, params.stim_delay, params.nmldb_id, params.sim_label, sim_dir)
+        utils.process.reformat_data(simData, rec_electrode, soma_name, params.stim_delay, params.nmldb_id, params.sim_label, sim_dir)
 
 
     ### Plot sections ###
     synColors = {'E': 'firebrick', 'I': 'darkcyan'}
-    colormapE, colormapI = plotting.get_colormaps(params.num_syns_E, params.num_syns_I)
-    secSynColors = plotting.get_syn_sec_colors(cells[0], params.use_colormaps, (colormapE, colormapI), synColors)
+    colormapE, colormapI = utils.plotting.get_colormaps(params.num_syns_E, params.num_syns_I)
+    secSynColors = utils.plotting.get_syn_sec_colors(cells[0], params.use_colormaps, (colormapE, colormapI), synColors)
 
     if params.enable_syns:
-        spikeTrains = plotting.plot_pre_spike_trains(cells, conns, params.sim_label, sim_dir)
+        spikeTrains = utils.plotting.plot_pre_spike_trains(cells, conns, params.sim_label, sim_dir)
 
         if len(syn_secs_E) < 175:
-            plotting.plot_secs(simData, soma_name, spikeTrains, params.sim_label, sim_dir, secSynColors)
+            utils.plotting.plot_secs(simData, soma_name, spikeTrains, params.sim_label, sim_dir, secSynColors)
 
-        plotting.plot_syns_traces(simData, syn_secs_E, params.sim_label, sim_dir, synColors)
+        utils.plotting.plot_syns_traces(simData, syn_secs_E, params.sim_label, sim_dir, synColors)
 
     ### Plot somatic spiking ###
-    plotting.plot_soma(simData, soma_name, params.sim_label, sim_dir)
+    utils.plotting.plot_soma(simData, soma_name, params.sim_label, sim_dir)
         
     ### Plot isolated LFP ###
     if params.record_LFP:
         if not params.use_probes:
-            plotting.plot_isolated_LFP(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
-            plotting.plot_isolated_syn_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
-            plotting.plot_isolated_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
-            plotting.plot_isolated_soma_pot(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
+            utils.plotting.plot_isolated_LFP(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
+            utils.plotting.plot_isolated_syn_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+            utils.plotting.plot_isolated_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
+            utils.plotting.plot_isolated_soma_pot(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
 
         sim.analysis.plotLFP(plots=['locations'], saveFig=True, showFig=False)
 
     if params.log_firing_rate:
-        process.save_firing_rate(simData, soma_name, params.sim_dur, params.syns_type, params.num_syns_E, output_dir)
+        utils.process.save_firing_rate(simData, soma_name, params.sim_dur, params.syns_type, params.num_syns_E, output_dir)
 
     ### Plot morphology ###
     if params.plot_morphology:
