@@ -360,7 +360,7 @@ def get_morphophetrics(nmldb_id):
 
     nmldb_url = f'http://neuroml-db.org/api/morphometrics?id={nmldb_id}'
 
-    nmldb_response = requests.get(nmldb_url)
+    nmldb_response = requests.get(nmldb_url, verify=False)
 
     return nmldb_response.json()
     

@@ -43,7 +43,7 @@ add_bkg: False          # add background input
 
 vinit: -80              # initial cell membrane potential
 dt: 0.01                # dt for simulation
-recordStep: 0.1         # recording time step
+recordStep: 0.01         # recording time step
 
 ### Input parameters ###
 input_sec: 'soma_0'     # compartment to inject current in to

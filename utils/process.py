@@ -7,7 +7,7 @@ import pandas as pd
 
 #### Functions for processing data post simulation ###
 
-def reformat_data(simData, rec_electrode, soma_name, delay, nmldb_id, sim_label, sim_dir):
+def reformat_data(simData, rec_electrode, soma_name, delay, sim_dur, nmldb_id, sim_label, sim_dir):
 
     columns = ['Model_ID','t','vm','ve','x_bar','y_bar','z_bar',
                    'num_spikes','did_spike','first_spkt']
@@ -28,7 +28,7 @@ def reformat_data(simData, rec_electrode, soma_name, delay, nmldb_id, sim_label,
 
     temp_Ve = Ve.T
 
-    max_t = 1040
+    max_t = sim_dur-5
 
     num_channels, _ = np.shape(rec_electrode)
 

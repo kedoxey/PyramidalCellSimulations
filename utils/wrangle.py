@@ -69,11 +69,20 @@ def download_from_nmldb(model_id, version):
     return author_year
 
 
+def get_model_details(nmldb_id):
+
+    nmldb_url = f'http://neuroml-db.org/api/model?id={nmldb_id}'
+
+    nmldb_response = requests.get(nmldb_url, verify=False)
+
+    return nmldb_response.json()
+
+
 def get_morphophetrics(nmldb_id):
 
     nmldb_url = f'http://neuroml-db.org/api/morphometrics?id={nmldb_id}'
 
-    nmldb_response = requests.get(nmldb_url)
+    nmldb_response = requests.get(nmldb_url, verify=False)
 
     return nmldb_response.json()
 

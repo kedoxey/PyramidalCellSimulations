@@ -23,12 +23,23 @@ def run_sim(config_name, *batch_params):
     for batch_param, batch_value in batch_params[0].items():
         setattr(params, batch_param, batch_value)
 
+    ### Get model parameters from neuroml-db ###
+    neuron_details = utils.wrangle.get_model_details(params.nmldb_id)
+    params.dt = neuron_details['model']['Optimal_DT']
+    params.recordStep = 3*params.dt
+    rheobase = neuron_details['model']['Rheobase_High']
+    bias_curr = neuron_details['model']['Bias_Current']
+    params.vinit = neuron_details['model']['Resting_Voltage']
+
+    if 'rheobase' in params.input_amp:
+        params.input_amp = 3*rheobase
+
     ### Set simulation name and label ###
     params.sim_name = f'{params.sim_name}_{params.syns_type}'
     params.sim_label = f'{params.sim_name}'
 
     # if params.input_amp != 0:
-    params.sim_label += f'-{params.input_amp}nA'
+    params.sim_label += f'-{round(params.input_amp,3)}nA'
 
     if params.enable_syns:
         if isinstance(params.syns_weight, list):
@@ -37,7 +48,7 @@ def run_sim(config_name, *batch_params):
             params.sim_label += f'-{params.num_syns_E}Ex{params.syns_weight}-{params.num_poisson}x{params.spk_freq}Hz'
     
     if params.use_probes:
-        params.sim_label += f'-{params.num_probes}x{params.total_channels}lp'
+        params.sim_label += f'-{params.num_probes}x{params.total_channels}elec'
 
     if params.add_bkg:
         params.sim_label += '+bkg'
@@ -55,6 +66,7 @@ def run_sim(config_name, *batch_params):
 
         nmldb_id =  params.nmldb_id  # 'NMLCL000073'  # 'NMLCL000073' (Hay et al. 2011)
         model_name = f'{nmldb_id}-{model_version}'
+
 
     ### Define paths ###
     cwd = os.getcwd()
@@ -102,7 +114,6 @@ def run_sim(config_name, *batch_params):
     cfg = specs.SimConfig()					                    # object of class SimConfig to store simulation configuration
 
     ### Import cell ###
-
     netParams = specs.NetParams()
 
     importedCellParams = netParams.importCellParams(label=cell_label,
@@ -111,7 +122,7 @@ def run_sim(config_name, *batch_params):
                                                     cellName=cell_name
                                                     )
 
-    netParams.defaultThreshold = -20
+    # netParams.defaultThreshold = -20
     for sec in importedCellParams['secs']:
         importedCellParams[sec]['vinit'] = params.vinit
     
@@ -122,7 +133,7 @@ def run_sim(config_name, *batch_params):
         importedCellParams = utils.analysis.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, f'{params.cell_type}_model_params.pkl'))
 
     ### Define geometry
-    netpyne_geometry = False
+    netpyne_geometry = True
     if netpyne_geometry:
         netParams.propVelocity = 100.0
         netParams.probLengthConst = 150.0
@@ -151,6 +162,9 @@ def run_sim(config_name, *batch_params):
         netParams.sizeX = x_dim # x-dimension (horizontal length) size in um
         netParams.sizeY = y_dim # y-dimension (vertical height or cortical depth) size in um
         netParams.sizeZ = z_dim # z-dimension (horizontal length) size in um
+
+        cfg.pt3dRelativeToCellLocation = False  # Make grid as function from soma location (at origin) (default: True)
+        cfg.invertedYCoord = False  # make y-axis coordinate negative so they represent depth when visualized (0 at the top) (default: True)
 
     ### Create population ###
     netParams.popParams[pop_label] = {'cellType': cell_type, 
@@ -291,19 +305,36 @@ def run_sim(config_name, *batch_params):
 
     ### Add input ###
     # if params.input_amp != 0:
+
+    if 'soma' in params.input_sec:
+        params.input_sec = soma_name
+
+    netParams.stimSourceParams['SSInput'] = {
+        'type': 'IClamp',
+        'del': 0,
+        'dur': params.stim_delay + params.stim_dur,
+        'amp': bias_curr  # bias current
+    }
+    netParams.stimTargetParams[f'SSInput->{params.input_sec}'] = {
+        'source': 'SSInput',
+        'sec': params.input_sec,
+        'loc': 0.5,
+        'conds': {'pop': pop_label}
+    }
+
     netParams.stimSourceParams['Input_IC'] = {
         'type': 'IClamp',
         'del': params.stim_delay,
         'dur': params.stim_dur,
         'amp': params.input_amp 
     }
-
     netParams.stimTargetParams[f'Input_IC->{params.input_sec}'] = {
         'source': 'Input_IC',
         'sec': params.input_sec,
         'loc': 0.5,
         'conds': {'pop': pop_label}
     }
+
 
      ### Background input ###
     if params.add_bkg:
@@ -341,14 +372,15 @@ def run_sim(config_name, *batch_params):
         
     ### Simulation configuration ###
     cfg.duration = params.sim_dur 						                # Duration of the simulation, in ms
-    cfg.dt = params.dt								                # Internal integration timestep to use
-    cfg.verbose = True							                # Show detailed messages
+    cfg.dt = params.dt	
+    cfg.recordStep = params.recordStep							                # Internal integration timestep to use
+    cfg.verbose = True		
+    cfg.recordCells = ['all']					                # Show detailed messages
     cfg.recordTraces[f'V_{soma_name}'] = {'sec': soma_name, 'loc': 0.5, 'var': 'v'}  # Dict with traces to record
-    cfg.recordStep = params.recordStep
     # cfg.recordStim = True
     cfg.filename = os.path.join(sim_dir,cell_name+'_'+params.sim_label) 	# Set file output name
     cfg.savePickle = params.save_pickle
-    cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': False}  # Plot recorded traces for this list of cells
+    # cfg.analysis['plotTraces'] = {'include': [pop_label], 'saveFig': False}  # Plot recorded traces for this list of cells
     cfg.hParams['celsius'] = 34.0 
     cfg.hParams['v_init'] = params.vinit
 
@@ -360,7 +392,7 @@ def run_sim(config_name, *batch_params):
     ### Save LFP data ###
     if params.record_LFP:
 
-        utils.process.reformat_data(simData, rec_electrode, soma_name, params.stim_delay, params.nmldb_id, params.sim_label, sim_dir)
+        utils.process.reformat_data(simData, rec_electrode, soma_name, params.stim_delay, params.sim_dur, params.nmldb_id, params.sim_label, sim_dir)
 
 
     ### Plot sections ###
