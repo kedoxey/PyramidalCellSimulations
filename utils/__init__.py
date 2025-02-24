@@ -1,6 +1,6 @@
-__all__ = ['analysis', 'config', 'plotting', 'process', 'wrangle']
+__all__ = ['setup', 'config', 'plotting', 'process', 'wrangle']
 
-from . import analysis 
+from . import setup 
 from . import config
 from . import plotting
 from . import process

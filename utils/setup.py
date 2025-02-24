@@ -165,13 +165,23 @@ def update_cell_params(cell_params, cell_name, params_path):
     return cell_params
 
 
-def define_electrode_geom(num_probes, total_channels, sim_label, sim_dir):
+def define_electrode_geom(num_probes, total_channels, sampling_dist, sim_label, sim_dir, model_dir):
 
-    # fixed normal distribution
-    r_pos = np.random.normal(loc=20, scale=5, size=num_probes)
+    if sampling_dist == 'fixed_normal':
+        # fixed normal distribution
+        r_pos = np.random.normal(loc=20, scale=5, size=num_probes)
     
-    min_radius = 10
-    r_pos = [r if r > min_radius else min_radius for r in r_pos]
+        min_radius = 10
+        r_pos = [r if r > min_radius else min_radius for r in r_pos]
+
+    elif sampling_dist == 'adjusted_uniform':
+        # adjusted with detectability limit
+        detect_limit = np.load(os.path.join(model_dir, 'detectability_limit.npy'))
+
+        r_pos = np.random.uniform(low=10.,high=detect_limit,size=num_probes)
+
+    else:
+        raise Exception('Sampling distribution incorrectly specified.')
 
     channel_lb = total_channels // 2 if total_channels > 1 else total_channels
     channel_ub = total_channels // 2 if total_channels > 1 else total_channels
@@ -215,3 +225,53 @@ def define_electrode_geom(num_probes, total_channels, sim_label, sim_dir):
         pickle.dump(probe_list, fp, protocol=3)
 
     return rec_electrode
+
+
+def define_detect_lim_geom(sim_label, sim_dir):
+
+    r_pos = np.arange(10,125,5) # 23 r-values
+    thetas = np.random.uniform(-np.pi,np.pi,size=10)
+
+    all_xs = []
+    all_zs = []
+    all_r_thetas = []
+
+    for ri in r_pos:
+
+        xi = np.multiply(ri,np.cos(thetas))
+        zi = np.multiply(ri,np.sin(thetas))
+        
+        r_thetas = [(ri, theta) for theta in thetas]
+
+        all_xs+=list(xi)
+        all_zs+=list(zi)
+        all_r_thetas.extend(r_thetas)
+
+    all_xs = np.array(all_xs)
+    all_zs = np.array(all_zs)      
+        
+    all_ys = np.arange(-10,15,5) # can compute SNR/amplitude decay along the Y-axis
+
+    rec_probes = []
+    probe_list = []
+    r_thetas_list = []
+
+    for xi, zi, r_thetas in zip(all_xs,all_zs, all_r_thetas):
+        probe = [[xi,yi,zi] for yi in all_ys]
+        probe_list.append(probe)
+
+        r_thetas_list.extend([r_thetas for yi in all_ys])
+
+        rec_probes += probe
+
+                
+    rec_electrode = rec_probes
+
+    # save probe arrangement
+    file_name = f'{sim_label}-recording_probe_locs.pkl'
+    file_path = os.path.join(sim_dir, file_name)
+    
+    with open(file_path, 'wb') as fp:
+        pickle.dump(probe_list, fp, protocol=3)
+
+    return rec_electrode, r_thetas_list

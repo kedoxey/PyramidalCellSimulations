@@ -18,9 +18,10 @@ stim_delay = 1000
 sim_dur = stim_dur + stim_delay + 40
 
 param_sets = {#'active': {'log_firing_rate': True}
-              'probes_mod': {'use_probes': [True],
-                         'num_probes': [100],
-                         'total_channels': [64]}}  # total_channels must be greater than 1
+              'detect_limit': {'detect_limit': [True]},
+              'probes_dl': {'use_probes': [True],
+                            'num_probes': [100],
+                            'total_channels': [64]}}  # total_channels must be greater than 1
               # 'pas_soma': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
               #                'channel_secs': 'soma'},
               # 'pas_all': {'channel_toggles': {'Na': 0, 'Ca': 0, 'K': 0},
@@ -50,7 +51,7 @@ for sim_flag, param_set in param_sets.items():
                   'stim_dur': [stim_dur], # 4900 or 400
                   'stim_delay': [stim_delay],  # 100 or 400
                   'input_amp': ['rheobase'],
-                  'save_pickle': [True],
+                  'save_pickle': [False],
                   'dt': [0.05],
                   'recordStep': [0.05]}
     

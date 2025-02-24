@@ -7,10 +7,12 @@ import pandas as pd
 
 #### Functions for processing data post simulation ###
 
-def reformat_data(simData, rec_electrode, soma_name, delay, sim_dur, nmldb_id, sim_label, sim_dir):
+def reformat_data(simData, rec_electrode, soma_name, delay, sim_dur, nmldb_id, sim_label, sim_dir, r_thetas=None):
 
     columns = ['Model_ID','t','vm','ve','x_bar','y_bar','z_bar',
                    'num_spikes','did_spike','first_spkt']
+    if r_thetas:
+        columns.extend(['r', 'theta'])
     waveforms_df = pd.DataFrame(columns=columns)
 
     try:
@@ -37,6 +39,10 @@ def reformat_data(simData, rec_electrode, soma_name, delay, sim_dur, nmldb_id, s
         x_bar = rec_electrode[chan_i][0]
         y_bar = rec_electrode[chan_i][1]
         z_bar = rec_electrode[chan_i][2]
+
+        if r_thetas:
+            r = r_thetas[chan_i][0]
+            theta = r_thetas[chan_i][1]
 
         ve_i = temp_Ve[chan_i]
         
@@ -68,6 +74,9 @@ def reformat_data(simData, rec_electrode, soma_name, delay, sim_dur, nmldb_id, s
         df['first_spkt'] = [spkt]
         df['did_spike'] = [did_spike]
         df['num_spikes'] = [num_spikes]
+        if r_thetas:
+            df['r'] = [r]
+            df['theta'] = [theta]
 
         join_frames = [waveforms_df, df]
         waveforms_df = pd.concat(join_frames, ignore_index=True)
@@ -76,6 +85,37 @@ def reformat_data(simData, rec_electrode, soma_name, delay, sim_dur, nmldb_id, s
     file_path = os.path.join(sim_dir, file_name)
 
     waveforms_df.to_pickle(file_path, protocol=3)
+
+    return waveforms_df
+
+
+def save_detect_limit(data_df, model_dir):
+
+    rs = np.unique(data_df.r.values)
+
+    r_amps = {}
+    within_limit = {}
+
+    for r in rs:
+
+        r_df = data_df[data_df.r == r]
+
+        amps = []
+
+        for i, row in r_df.iterrows():
+
+            ve = row.ve
+            amp = np.abs(np.max(ve) - np.min(ve))*1000
+            amps.append(amp)
+
+        avg_amp = np.average(amps)
+        r_amps[r] = avg_amp
+        if avg_amp > 20:
+            within_limit[r] = avg_amp
+
+    detect_limit = np.array(list(within_limit.keys())[-1])
+    
+    np.save(os.path.join(model_dir, 'detectability_limit'), detect_limit)
 
 
 def save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir):

@@ -10,9 +10,10 @@ seed: 74                # random sead
 record_LFP: False       # record LFP
 depths: 4               # number of electrodes around soma
 apical_depths: 0        # number of electrodes in apical distal dendrites  
-use_probes: True
-num_probes: 1
-total_channels: 64
+use_probes: True        # use linear probes
+num_probes: 1           # number of linear probes
+total_channels: 64      # number of channels per linear probe
+detect_limit: False     # find detectability limit for linear probe (EAP >20 uV)
 
 # Poisson spike trains
 num_poisson: 1          # number of Poisson instances

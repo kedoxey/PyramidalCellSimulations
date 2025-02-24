@@ -126,11 +126,11 @@ def run_sim(config_name, *batch_params):
     for sec in importedCellParams['secs']:
         importedCellParams[sec]['vinit'] = params.vinit
     
-    channel_secs = utils.analysis.get_compartments(hoc_file, importedCellParams, cell_name, params.channel_secs)
-    importedCellParams = utils.analysis.toggle_channels(importedCellParams, channel_secs, params.channel_toggles)  #,'Na',params.soma_na_toggle)
+    channel_secs = utils.setup.get_compartments(hoc_file, importedCellParams, cell_name, params.channel_secs)
+    importedCellParams = utils.setup.toggle_channels(importedCellParams, channel_secs, params.channel_toggles)  #,'Na',params.soma_na_toggle)
 
     if params.local:
-        importedCellParams = utils.analysis.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, f'{params.cell_type}_model_params.pkl'))
+        importedCellParams = utils.setup.update_cell_params(importedCellParams, cell_name, os.path.join(hocs_dir, f'{params.cell_type}_model_params.pkl'))
 
     ### Define geometry
     netpyne_geometry = True
@@ -184,15 +184,15 @@ def run_sim(config_name, *batch_params):
             ### Get sections ###
         # basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
         if params.syns_lb > 0:
-            syn_secs = utils.analysis.get_secs_from_dist(hoc_file, cell_name, soma_name, params.syns_lb, params.syns_ub)
+            syn_secs = utils.setup.get_secs_from_dist(hoc_file, cell_name, soma_name, params.syns_lb, params.syns_ub)
             if params.add_soma:
                 syn_secs.append(soma_name)
         else:
-            syn_secs = utils.analysis.get_compartments(hoc_file, importedCellParams, cell_name, soma_name, params.syns_type)
+            syn_secs = utils.setup.get_compartments(hoc_file, importedCellParams, cell_name, soma_name, params.syns_type)
 
         # syn_secs_L1 = mh.get_secs_from_dist(hoc_file, cell_name, 0.9, 1)
 
-        syn_secs_E, syn_secs_I = utils.analysis.get_rand_secs(syn_secs, params.num_syns_E, params.num_syns_I, params.seed)
+        syn_secs_E, syn_secs_I = utils.setup.get_rand_secs(syn_secs, params.num_syns_E, params.num_syns_I, params.seed)
 
         ### Add AMPA/NMDA synapse ###
         if 'HS' in params.syns_source:
@@ -266,7 +266,7 @@ def run_sim(config_name, *batch_params):
                         'L4': []}
 
             for layer, bounds in layer_bounds.items():
-                layer_secs[layer] = utils.analysis.get_secs_from_dist(hoc_file, cell_name, soma_name, bounds['lb'], bounds['ub'], secs_lim='apic')
+                layer_secs[layer] = utils.setup.get_secs_from_dist(hoc_file, cell_name, soma_name, bounds['lb'], bounds['ub'], secs_lim='apic')
 
             layer_secs['L5'] = [soma_name]
 
@@ -350,7 +350,13 @@ def run_sim(config_name, *batch_params):
     if params.record_LFP:
 
         if params.use_probes:
-            rec_electrode = utils.analysis.define_electrode_geom(params.num_probes, params.total_channels, params.sim_label, sim_dir)
+
+            if params.detect_limit:
+                rec_electrode, r_thetas = utils.setup.define_detect_lim_geom(params.sim_label, sim_dir)
+            else:
+                r_thetas = None
+                sampling_dist = 'adjusted_uniform'
+                rec_electrode = utils.setup.define_electrode_geom(params.num_probes, params.total_channels, sampling_dist, params.sim_label, sim_dir, model_dir)
 
             cfg.recordLFP = rec_electrode
             cfg.analysis['plotLFP'] = {'plots': ['locations'], 'electrodes': ['all'], 'saveFig': True, 'showFig': False}
@@ -392,8 +398,11 @@ def run_sim(config_name, *batch_params):
     ### Save LFP data ###
     if params.record_LFP:
 
-        utils.process.reformat_data(simData, rec_electrode, soma_name, params.stim_delay, params.sim_dur, params.nmldb_id, params.sim_label, sim_dir)
+        waveforms_df = utils.process.reformat_data(simData, rec_electrode, soma_name, params.stim_delay, params.sim_dur, params.nmldb_id, params.sim_label, sim_dir, r_thetas)
 
+        if params.detect_limit:
+
+            utils.process.save_detect_limit(waveforms_df, model_dir)
 
     ### Plot sections ###
     synColors = {'E': 'firebrick', 'I': 'darkcyan'}
