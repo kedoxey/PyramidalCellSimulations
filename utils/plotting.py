@@ -515,7 +515,7 @@ def plot_eap_kernel(type_probes, sim_dir, sim_label):
     max_chan_i = np.argwhere(include_channels == max_channel)[0][0]
     max_avg_wave = avg_waves[max_chan_i]
 
-    axs[0].plot((-max_avg_wave*30)+3, color='white', zorder=12)
+    axs[0].plot((-max_avg_wave*29)+4, color='white', zorder=12)
 
     max_amp = 0
     for probe_amp in probe_amps:
