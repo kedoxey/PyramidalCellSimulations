@@ -31,8 +31,9 @@ def run_sim(config_name, *batch_params):
     bias_curr = neuron_details['model']['Bias_Current']
     params.vinit = neuron_details['model']['Resting_Voltage']
 
-    if 'rheobase' in params.input_amp:
-        params.input_amp = 3*rheobase
+    if not isinstance(params.input_amp, int):
+        if 'rheobase' in params.input_amp:
+            params.input_amp = 3*rheobase
 
     ### Set simulation name and label ###
     params.sim_name = f'{params.sim_name}_{params.syns_type}'
@@ -420,14 +421,17 @@ def run_sim(config_name, *batch_params):
     ### Plot somatic spiking ###
     utils.plotting.plot_soma(simData, soma_name, params.sim_label, sim_dir)
         
-    ### Plot isolated LFP ###
+    ### Plot LFP ###
     if params.record_LFP:
         if not params.use_probes:
             utils.plotting.plot_isolated_LFP(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
             utils.plotting.plot_isolated_syn_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
             utils.plotting.plot_isolated_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
             utils.plotting.plot_isolated_soma_pot(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
-
+        else:
+            utils.plotting.plot_eap_kernel('closest', sim_dir, params.sim_label)
+            utils.plotting.plot_eap_kernel('farthest', sim_dir, params.sim_label)
+            
         sim.analysis.plotLFP(plots=['locations'], saveFig=True, showFig=False)
 
     if params.log_firing_rate:

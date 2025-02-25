@@ -6,8 +6,10 @@ import matplotlib as mpl
 import matplotlib.patheffects as path_effects
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
-from utils.process import save_eap_time, get_isolated_time_window
+import utils.process
+# from utils.process import save_eap_time, get_isolated_time_window, find_n_closest_probes, find_n_farthest_probes, get_probe_max_channel, preprocess_probe_data
 
 
 ### Functions for plotting simulation data ###
@@ -321,7 +323,7 @@ def plot_isolated_soma_pot(simData, soma_name, syns_type, num_syns, sim_label, s
     V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     # t_spikes = t[np.where(V_soma>10)]
 
-    plot_flag, slice_start, slice_end, t_spike = get_isolated_time_window(syns_type, num_syns, output_dir)
+    plot_flag, slice_start, slice_end, t_spike = utils.process.get_isolated_time_window(syns_type, num_syns, output_dir)
     
     # slice_groups = [syns_type, 'soma']
     
@@ -375,7 +377,7 @@ def plot_isolated_traces(simData, soma_name, syn_secs, syns_type, num_syns, sim_
     #     except KeyError:
     #         plot_flag = False
 
-    plot_flag, slice_start, slice_end, t_spike = get_isolated_time_window(syns_type, num_syns, output_dir)
+    plot_flag, slice_start, slice_end, t_spike = utils.process.get_isolated_time_window(syns_type, num_syns, output_dir)
 
     ### PLOT SYNAPSE LOCATION MEMBRANE POTENTIALS OF ISOLATED EAP ###
     if plot_flag:
@@ -428,9 +430,9 @@ def plot_isolated_LFP(simData, soma_name, syns_type, num_syns, sim_label, sim_di
         slice_start = int((t_spike - 2.25)/dt)
         slice_end = int((t_spike + 4.5)/dt)
 
-        save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir)
+        utils.process.save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir)
     else:
-        plot_flag, slice_start, slice_end, t_spike = get_isolated_time_window(syns_type, num_syns, output_dir)
+        plot_flag, slice_start, slice_end, t_spike = utils.process.get_isolated_time_window(syns_type, num_syns, output_dir)
 
 
     if plot_flag:
@@ -477,4 +479,62 @@ def plot_isolated_LFP(simData, soma_name, syns_type, num_syns, sim_label, sim_di
 
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_LFP.png'),bbox_inches='tight',dpi=300)
 
+
+def plot_eap_kernel(type_probes, sim_dir, sim_label):
+
+    data_df, probes = utils.process.load_eap_probe_data(sim_dir, sim_label)
+    num_probes, num_channels, _ = np.shape(probes)
+
+    closest_probe = utils.process.find_n_closest_probes(probes, 1, max_channel_i=num_channels//2)
+    closest_probe_df = data_df[data_df.probe_num.isin(closest_probe)]
     
+    max_channel = utils.process.get_probe_max_channel(closest_probe_df)
+    include_channels = [i for i in range(max_channel-15, max_channel+16)]
+
+    if 'close' in type_probes:
+        kernel_probes = utils.process.find_n_closest_probes(probes, num_probes//2, max_channel_i=max_channel)
+    else:
+        kernel_probes = utils.process.find_n_farthest_probes(probes, num_probes//2, max_channel_i=max_channel)
+
+    kernel_probes_df = data_df[data_df.probe_num.isin(kernel_probes)]
+
+    prep_probes_df, probe_amps = utils.process.preprocess_probes(max_channel, include_channels, kernel_probes, kernel_probes_df)
+    avg_waves = utils.process.get_avgerage_waves(include_channels, prep_probes_df)
+
+    max_channel_loc = np.argwhere(include_channels == max_channel)[0][0]
+    max_avg_wave = avg_waves[max_channel_loc]
+
+    ### Plot EAP kernel and channel amplitudes ###
+    icefire_cmap = sns.color_palette("icefire_r", as_cmap=True)
+
+    fig, axs = plt.subplots(1,2, figsize=(12,8), width_ratios=[3,1], layout='constrained')
+    axs.ravel()
+
+    im = axs[0].imshow(avg_waves, interpolation='nearest', aspect='auto', cmap=icefire_cmap, zorder=0)
+
+    max_chan_i = np.argwhere(include_channels == max_channel)[0][0]
+    max_avg_wave = avg_waves[max_chan_i]
+
+    axs[0].plot((-max_avg_wave*30)+3, color='white', zorder=12)
+
+    max_amp = 0
+    for probe_amp in probe_amps:
+        temp_max = np.max(probe_amp)
+        max_amp = np.max([temp_max, max_amp])
+        axs[1].plot(probe_amp, include_channels, color='grey', alpha=0.4)
+
+    axs[0].set_yticks([(len(include_channels)-1)*i for i in [0, 0.25, 0.5, 0.75, 1]])
+    axs[0].set_yticklabels([(max_channel-include_channels[0])*i for i in [10, 5, 0, -50, -10]])
+    axs[0].set_ylabel(r'Distance ($\mu$m)')
+    axs[0].set_xticks([])
+
+    axs[1].set_yticks([])
+    axs[1].set_ylim(include_channels[0], include_channels[-1])
+    axs[1].set_xticks([10*round(max_amp/10)*i for i in [0, 0.5, 1]])
+    axs[1].set_xlabel(r'Amplitude ($\mu$V)')
+
+    cbar = fig.colorbar(im, ax=axs[0], location='bottom', label='Ve (normalized)', pad=-0.04)
+
+    fig.suptitle(f'{type_probes.capitalize()} (n = 50)');
+    fig.savefig(os.path.join(sim_dir, f'{sim_label}-EAP_kernel-{type_probes}_probes.png'), dpi=300)
+

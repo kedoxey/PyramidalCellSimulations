@@ -3,6 +3,10 @@ import pickle
 
 import numpy as np
 import pandas as pd
+import colorednoise as cn
+
+from scipy.signal import find_peaks
+from scipy.interpolate import CubicSpline
 
 
 #### Functions for processing data post simulation ###
@@ -15,14 +19,17 @@ def reformat_data(simData, rec_electrode, soma_name, delay, sim_dur, nmldb_id, s
         columns.extend(['r', 'theta'])
     waveforms_df = pd.DataFrame(columns=columns)
 
+    spkt = np.array(simData['spkt'])
+    spkid = np.array(simData['spkid'])
+
     try:
         did_spike = True
-        num_spikes = len(np.array(simData['spkt']))
-        spkt = np.array(simData['spkt'])[0]
+        num_spikes = len(spkt[np.where(spkid == 0)])
+        first_spike = spkt[np.where(spkid == 0)][0]
     except IndexError:
         did_spike = False
         num_spikes = 0
-        spkt = np.nan
+        first_spike = np.nan
 
     t = np.array(simData['t'])
     Vm = np.array(simData[f'V_{soma_name}']['cell_0'])
@@ -71,7 +78,7 @@ def reformat_data(simData, rec_electrode, soma_name, delay, sim_dur, nmldb_id, s
         df['x_bar'] = [x_bar]
         df['y_bar'] = [y_bar]
         df['z_bar'] = [z_bar]
-        df['first_spkt'] = [spkt]
+        df['first_spkt'] = [first_spike]
         df['did_spike'] = [did_spike]
         df['num_spikes'] = [num_spikes]
         if r_thetas:
@@ -208,4 +215,244 @@ def get_isolated_time_window(syns_type, num_syns, output_dir):
             plot_flag = False
 
     return plot_flag, slice_start, slice_end, t_spike
+
+
+def find_n_closest_probes(probes, n_closest, max_channel_i = 25):
+    
+    num_probes, _, _ = np.shape(probes)
+    distances = []
+    
+    for i in range(num_probes):
+        probe = probes[i,:,:]
+        x,y,z = probe[max_channel_i]
+        dist = np.sqrt(x**2+y**2+z**2)
+        distances.append(dist)
+        
+    print('Closest probe found at %s microns...'%np.min(distances))
+    return np.argsort(distances)[:n_closest]  # np.argmin(distances)
+
+
+def find_n_farthest_probes(probes, n_farthest, max_channel_i = 25):
+    
+    num_probes, _, _ = np.shape(probes)
+    distances = []
+    
+    for i in range(num_probes):
+        probe = probes[i,:,:]
+        x,y,z = probe[max_channel_i]
+        dist = np.sqrt(x**2+y**2+z**2)
+        distances.append(dist)
+        
+    print('Farthest probe found at %s microns...'%np.max(distances))
+    return np.argsort(distances)[-n_farthest:]  # np.argmax(distances)
+
+
+def get_probe_max_channel(probe_df):
+
+    amps = []
+
+    for _, row in probe_df.iterrows():
+
+        amps.append(np.max(row.ve) - np.min(row.ve))
+
+    max_channel = np.argmax(amps)
+
+    return max_channel
+
+
+def load_eap_probe_data(sim_dir, sim_label):
+
+    eap_file_path = os.path.join(sim_dir, f'{sim_label}-simulated_eaps.pkl')
+    probe_file_path = os.path.join(sim_dir, f'{sim_label}-recording_probe_locs.pkl')
+
+    data_df = pd.read_pickle(eap_file_path)
+    probes = np.array(pd.read_pickle(probe_file_path))
+
+    num_probes, num_channels, _ = np.shape(probes)
+
+    probe_nums = []
+    channel_nums = []
+
+    for i, row in data_df.iterrows():
+        probe_nums.append(int(i/num_channels))
+        channel_nums.append(i%num_channels)
+
+    data_df['probe_num'] = probe_nums
+    data_df['channel_num'] = channel_nums
+
+    return data_df, probes
+
+
+def get_avgerage_waves(include_channels, prep_probes_df):
+
+    avg_waves = []
+
+    for channel_num in include_channels:
+
+        channel_df = prep_probes_df[prep_probes_df.channel_num == channel_num]
+
+        waves = []
+
+        for _, row in channel_df.iterrows():
+
+            ve = row.ve
+            amp = np.max(ve) - np.min(ve)
+            norm_ve = np.divide(ve, amp)
+            wave = list(norm_ve)
+            waves.append(wave)
+
+
+        waves = np.array(waves)
+        channel_avg = np.average(waves, 0)
+
+        avg_waves.append(channel_avg)
+
+    avg_waves = list(reversed(avg_waves))
+
+    return avg_waves
+
+
+def preprocess_probes(max_channel, include_channels, probes, probes_df):
+    
+    prep_probes_df = probes_df.copy()
+    
+    probe_amps = []
+
+    for probe_num in probes:
+
+        probe_df = probes_df[probes_df.probe_num == probe_num]
+
+        prep_probe_df = preprocess_probe_data(probe_df, max_channel_i=max_channel, resample=512, conversion_factor=1e3, num_noisy_spikes=200)
+        
+        prep_probes_df.update(prep_probe_df)
+
+        probe_amp = []
+
+        for _, row in prep_probe_df.iterrows():
+
+            if row.channel_num in include_channels:
+
+                ve = row.ve
+                amp = np.max(ve) - np.min(ve)
+                probe_amp.append(amp)
+
+        probe_amps.append(probe_amp)
+
+    return prep_probes_df, probe_amps
+
+
+def preprocess_probe_data(probe_df,max_channel_i=15,downsample=82,resample=128,conversion_factor=1e3, scaling_factor=10,num_noisy_spikes=100):
+    
+    preprocessed_probe_df = probe_df.copy()
+    new_ves = []
+    all_amps = []
+    
+    duration = 5.6
+    peak_shift = 1.4 # duration/4
+    
+
+    t= probe_df.t.iloc[0]
+    dt = t[1]-t[0]
+    Fs = 1000./dt
+    
+    # approximate times for aligning waveforms    
+    max_chan_ve = probe_df[probe_df['channel_num']==max_channel_i]['ve'].iloc[0]
+    peak_time = t[np.argmin(max_chan_ve)]
+    
+    start_time = peak_time-peak_shift
+    end_time = start_time+duration
+    
+    # approximate reduced timeseries condition
+    t_cond = (t>=start_time)&(t<end_time)
+    
+    # find actual maximum channel
+    temp_amps = []
+    for _, row_df in probe_df.iterrows():
+        wave = row_df['ve']
+        wave = wave[t_cond]
+        amp = np.max(wave)-np.min(wave)
+        
+        temp_amps.append(amp)
+        
+    # actual times for aligning waveforms
+    temp_amps = np.array(temp_amps)
+    max_channel_i = np.argmax(temp_amps)
+    # print(max_channel_i)
+    
+    max_chan_ve = probe_df[probe_df['channel_num']==max_channel_i]['ve'].iloc[0]
+    peak_time = t[np.argmin(max_chan_ve)]
+    
+    # readjust after finding real max
+    start_time = peak_time-peak_shift
+    end_time = start_time+duration
+
+    # reduced timeseries
+    t_cond = (t>=start_time)&(t<end_time)
+    reduced_t = t[t_cond]
+    
+    T = len(reduced_t)
+    
+    # interpolation grid
+    interp_t = np.linspace(0,duration,T)
+    
+    # downsample and upsample grids
+    down_t = np.linspace(0,duration,downsample)
+    if resample is False:
+        re_t = down_t
+    else:
+        re_t = np.linspace(0,duration,resample)
+    
+    
+    # iterate over channels
+    for _, row_df in probe_df.iterrows():
+        
+        # extract signal 
+        ve = row_df['ve']
+        reduced_ve = ve[t_cond]
+        
+        # scale signal
+        reduced_ve = conversion_factor*reduced_ve 
+        
+        # downsample signal
+        cs = CubicSpline(interp_t,reduced_ve,axis=0)
+        new_ve = cs(down_t)
+        
+        # noise details
+        noise_scale = 10 # 15, 25
+        noise_generator = cn.powerlaw_psd_gaussian
+        p1 = 1
+        p2 = (num_noisy_spikes,len(new_ve))
+        args = [p1,p2]
+
+        
+        # add "single-trial" noise
+        noise_signals = scaling_factor*noise_generator(*args)
+        uncorr_noise_signal = np.mean(noise_signals,axis=0)
+
+        synth_ve = np.add(new_ve,uncorr_noise_signal)
+        
+        
+        # resample signal
+        if resample is False:
+            new_ve = synth_ve
+        else:
+            cs = CubicSpline(down_t,synth_ve,axis=0)
+            new_ve = cs(re_t)
+            
+        # center channel
+        median_ve = np.median(new_ve,axis=0)
+        new_ve = np.subtract(new_ve,median_ve) 
+            
+        amp = np.max(new_ve)-np.min(new_ve)
+        
+        
+        new_ves.append(new_ve)
+        all_amps.append(amp)
+    
+    preprocessed_probe_df['ve'] = new_ves
+    preprocessed_probe_df['t'] = [re_t for _ in range(len(new_ves))]
+    preprocessed_probe_df['amplitude'] = all_amps
+    
+    return preprocessed_probe_df
+        
 
