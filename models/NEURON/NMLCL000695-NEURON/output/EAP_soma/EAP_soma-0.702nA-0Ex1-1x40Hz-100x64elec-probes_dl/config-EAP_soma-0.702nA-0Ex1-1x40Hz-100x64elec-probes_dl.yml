@@ -1,0 +1,54 @@
+!!python/object:argparse.Namespace
+add_bkg: false
+add_soma: false
+apical_depths: 0
+cell_model: ''
+cell_name: ''
+cell_type: PYR
+channel_secs: soma
+channel_toggles:
+  Ca: 1
+  K: 1
+  Na: 1
+depths: 4
+detect_limit: false
+dt: 0.00759535176923067
+enable_syns: true
+hocs_dname: ''
+input_amp: 0.702438354492186
+input_sec: soma_0
+local: false
+log_firing_rate: false
+mod_dname: ''
+model_name: ''
+nmldb_id: NMLCL000695
+num_poisson: 1
+num_probes: 100
+num_syns_E: 0
+num_syns_I: 0
+plot_morphology: true
+publication: Hay2011
+recordStep: 0.02278605530769201
+record_LFP: true
+run_NML: false
+save_pickle: false
+seed: 74
+sim_dur: 1100
+sim_flag: probes_dl
+sim_label: EAP_soma-0.702nA-0Ex1-1x40Hz-100x64elec-probes_dl
+sim_message: Simulation parameters for characterizing single cell dynamics with default
+  parameters.
+sim_name: EAP_soma
+spk_freq: 40
+stim_delay: 1000
+stim_dur: 60
+synsPerConn: 1
+syns_lb: 0
+syns_source: HS
+syns_type: soma
+syns_ub: 1
+syns_weight: 1
+total_channels: 64
+use_colormaps: false
+use_probes: true
+vinit: -70.86405454522

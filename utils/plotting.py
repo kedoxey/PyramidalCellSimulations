@@ -73,6 +73,8 @@ def plot_pre_spike_trains(cells, conns, sim_label, sim_dir):
     axs.set_yticklabels(spike_trains.keys())
     # axs.set_xlim([0,1500])
     axs.set_title('Presynaptic Spike Trains')
+    axs.set_xlabel('Time (ms)')
+    axs.set_ylabel('Compartment (id)')
 
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-presyn_spike_trains.png'),bbox_inches='tight',dpi=300)
 

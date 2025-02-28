@@ -58,7 +58,12 @@ def reformat_data(simData, rec_electrode, soma_name, delay, sim_dur, nmldb_id, s
         try:
             reduced_ve_i = ve_i[this_interval]
         except IndexError:
-            this_interval = this_interval[:-1]
+            time_diff = len(this_interval) - len(ve_i)
+            if time_diff < 0:
+                ve_i = ve_i[:time_diff]
+            else:
+                this_interval = this_interval[:-time_diff]
+            # this_interval = this_interval[:-1]
             reduced_ve_i = ve_i[this_interval]
 
         try:

@@ -429,8 +429,9 @@ def run_sim(config_name, *batch_params):
             utils.plotting.plot_isolated_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
             utils.plotting.plot_isolated_soma_pot(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
         else:
-            utils.plotting.plot_eap_kernel('closest', sim_dir, params.sim_label)
-            utils.plotting.plot_eap_kernel('farthest', sim_dir, params.sim_label)
+            if not params.detect_limit:
+                utils.plotting.plot_eap_kernel('closest', sim_dir, params.sim_label)
+                utils.plotting.plot_eap_kernel('farthest', sim_dir, params.sim_label)
             
         sim.analysis.plotLFP(plots=['locations'], saveFig=True, showFig=False)
 

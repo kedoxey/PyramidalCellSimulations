@@ -7,18 +7,18 @@ from simulate_cell import run_sim
 
 config_name = 'default_config'
 
-sim_name = 'INJ'
+sim_name = 'EAP'
 
 # sim_dur = 1000 if 'FR' in sim_name else 1000
 # stim_delay = 0 if 'FR' in sim_name else 400
 # stim_dur = sim_dur
 
-stim_dur = 60
-stim_delay = 1000
+stim_dur = 60  # 60
+stim_delay = 1000  # 1000
 sim_dur = stim_dur + stim_delay + 40
 
 param_sets = {#'active': {'log_firing_rate': True}
-              # 'detect_limit': {'detect_limit': [True]},
+              'detect_limit': {'detect_limit': [True]},
               'probes_dl': {'use_probes': [True],
                             'num_probes': [100],
                             'total_channels': [64]}}  # total_channels must be greater than 1
@@ -41,7 +41,7 @@ for sim_flag, param_set in param_sets.items():
 
     paramGrid = {'sim_name': [sim_name],
                   'sim_flag': [sim_flag],
-                  'nmldb_id': ['NMLCL000073'],
+                  'nmldb_id': ['NMLCL000695'],  # ['NMLCL000073'],
                   'enable_syns': [True],
                   'syns_type': [syns_type], #, 'basal', 'apical_distal'],  
                   'num_syns_E': num_syns,
