@@ -41,9 +41,9 @@ def save_config(sim_dir, sim_label, config_name='default_config'):
 
 
 ### File system ###
-def create_output_dirs(sim_name, sim_label, model_dir):
+def create_output_dirs(sim_name, sim_label, model_name):
 
-    output_dir = os.path.join(model_dir,'output')
+    output_dir = os.path.join('/home/kedoxey/PyramidalCellSimulations/models/NEURON',model_name,'output')
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 

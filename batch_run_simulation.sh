@@ -1,11 +1,12 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -c 20
-#SBATCH --mem=64G
-#SBATCH -t 1-00:00:00
-#SBATCH -p general
+#SBATCH --mem=200G
+#SBATCH -t 2-00:00:00
+#SBATCH -p public
 #SBATCH -q public
-#SBATCH -e slurm.%j.err
+#SBATCH -e slurm/slurm.%j.err
+#SBATCH -o slurm/slurm.%j.out
 #SBATCH --mail-type=ALL
 #SBATCH --export=NONE
 

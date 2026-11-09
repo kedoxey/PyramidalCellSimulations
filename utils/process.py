@@ -159,27 +159,25 @@ def save_firing_rate(simData, soma_name, sim_dur, syns_type, num_syns, output_di
     spkt = np.array(simData['spkt'])
     spkid = np.array(simData['spkid'])
 
-    # TODO: adapting threshold
     adapt_delay = 200
     
     if len(t_spikes) > 0:
-        # t_spikes = t_spikes[np.where(t_spikes > stim_delay*4)]   # only include spikes after initial burst and once cell has adapted
-        # firing_rate = len(t_spikes) / ((stim_dur - stim_delay*4) / 1000)  # calculate firing rate based on excluding time for adaptation and scale to Hz (spikes/s)
-        # isis = [t[i+1] - t[i] for i in range(len(t_spikes))]
-        # f_isi = 1/isis[0]
-        # f_ss = 1/np.mean(isis[-3:])
 
         spike_times = spkt[np.where(spkid == 0)]
-        spike_times = spike_times[np.where(spike_times > adapt_delay)]
-        num_spikes = len(spike_times)
-        num_isi = num_spikes - 1
+        # spike_times = spike_times[np.where(spike_times > adapt_delay)]
+        # num_spikes = len(spike_times)
+        # num_isi = num_spikes - 1
+        # firing_rate = num_spikes / ((sim_dur - adapt_delay) / 1000)
         # if num_isi > 0:
         #     msf = num_isi / (spike_times[-1] - spike_times[0]) * 1000
-        firing_rate = num_spikes / ((sim_dur - adapt_delay) / 1000)
+
+        n_spikes = ((spike_times >= adapt_delay)).sum()
+        firing_rate = (n_spikes / (sim_dur - adapt_delay)) * 1000
+        
     else:
         firing_rate = 0
     
-    file_name = 'firing_rates.pkl'
+    file_name = 'firing_rates-2026.pkl'
     file_path = os.path.join(output_dir, 'firing_rates', file_name)
     
     if os.path.exists(file_path):

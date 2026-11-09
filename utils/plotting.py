@@ -77,6 +77,7 @@ def plot_pre_spike_trains(cells, conns, sim_label, sim_dir):
     axs.set_ylabel('Compartment (id)')
 
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-presyn_spike_trains.png'),bbox_inches='tight',dpi=300)
+    fig.savefig(os.path.join(sim_dir,f'{sim_label}-presyn_spike_trains.pdf'),bbox_inches='tight',dpi=300)
 
     return spike_trains
 
@@ -96,6 +97,7 @@ def plot_soma(simData, soma_name, sim_label, sim_dir):
 
     fig.tight_layout()
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-soma_pot.png'),bbox_inches='tight',dpi=300)
+    fig.savefig(os.path.join(sim_dir,f'{sim_label}-soma_pot.pdf'),bbox_inches='tight',dpi=300)
 
     ### PLOT SOMA AND APICAL DISTAL COMPARTMENT MEMBRANE POTENTIALS FOR BACKPROPAGATION ###
     if 'V_apic_32' in simData.keys():
@@ -109,6 +111,7 @@ def plot_soma(simData, soma_name, sim_label, sim_dir):
 
         fig.tight_layout()
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-backpropagation.png'),bbox_inches='tight',dpi=300)
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-backpropagation.pdf'),bbox_inches='tight',dpi=300)
 
 
 def plot_secs(simData, soma_name, spike_trains, sim_label, sim_dir, sec_syn_colors):
@@ -182,6 +185,7 @@ def plot_secs(simData, soma_name, spike_trains, sim_label, sim_dir, sec_syn_colo
         
         fig.tight_layout()
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-secs.png'),bbox_inches='tight',dpi=300)
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-secs.pdf'),bbox_inches='tight',dpi=300)
 
         ## separate synaptic conductances ##
         fig = plt.figure(figsize=(15,num_secs*5))
@@ -250,6 +254,7 @@ def plot_secs(simData, soma_name, spike_trains, sim_label, sim_dir, sec_syn_colo
 
         fig.tight_layout()
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-secs_synsSep.png'),bbox_inches='tight')  # ,dpi=200)
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-secs_synsSep.pdf'),bbox_inches='tight')  # ,dpi=200)
 
     return "Section membrane potential and synaptic conductances plotted!"
 
@@ -271,6 +276,7 @@ def plot_syns_traces(simData, syn_secs, sim_label, sim_dir, syn_colors):
 
     fig.tight_layout()
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-syns_pot.png'),bbox_inches='tight',dpi=300)
+    fig.savefig(os.path.join(sim_dir,f'{sim_label}-syns_pot.pdf'),bbox_inches='tight',dpi=300)
 
 
 def plot_isolated_syn_traces(simData, soma_name, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
@@ -314,6 +320,7 @@ def plot_isolated_syn_traces(simData, soma_name, syn_secs, syns_type, num_syns, 
 
         fig.tight_layout()
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_syns_pot.png'),bbox_inches='tight',dpi=300)
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_syns_pot.pdf'),bbox_inches='tight',dpi=300)
 
 def plot_isolated_soma_pot(simData, soma_name, syns_type, num_syns, sim_label, sim_dir, output_dir):
 
@@ -355,6 +362,7 @@ def plot_isolated_soma_pot(simData, soma_name, syns_type, num_syns, sim_label, s
 
         fig.tight_layout()
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_soma_pot.png'),bbox_inches='tight',dpi=300)
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_soma_pot.pdf'),bbox_inches='tight',dpi=300)
 
 
 def plot_isolated_traces(simData, soma_name, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
@@ -411,6 +419,7 @@ def plot_isolated_traces(simData, soma_name, syn_secs, syns_type, num_syns, sim_
 
         fig.tight_layout()
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_traces.png'),bbox_inches='tight',dpi=300)
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_traces.pdf'),bbox_inches='tight',dpi=300)
 
 
 def plot_isolated_LFP(simData, soma_name, syns_type, num_syns, sim_label, sim_dir, output_dir):
@@ -470,6 +479,7 @@ def plot_isolated_LFP(simData, soma_name, syns_type, num_syns, sim_label, sim_di
             if plot_spike:
                 axs[ax_i].axvline(t_spike,alpha=0.4,color='k',zorder=1,linestyle='--')
             xticks = [(int(t_spike.round(0))-2)+2*i for i in range(4)]
+            axs[ax_i].set_ylim([-1.1,1.1])
             axs[ax_i].set_xticks(xticks)
             axs[ax_i].set_title(i)
 
@@ -480,6 +490,7 @@ def plot_isolated_LFP(simData, soma_name, syns_type, num_syns, sim_label, sim_di
         fig.tight_layout()
 
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_LFP.png'),bbox_inches='tight',dpi=300)
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_LFP.pdf'),bbox_inches='tight',dpi=300)
 
 
 def plot_eap_kernel(type_probes, sim_dir, sim_label):
@@ -539,4 +550,5 @@ def plot_eap_kernel(type_probes, sim_dir, sim_label):
 
     fig.suptitle(f'{type_probes.capitalize()} (n = 50)');
     fig.savefig(os.path.join(sim_dir, f'{sim_label}-EAP_kernel-{type_probes}_probes.png'), dpi=300)
+    fig.savefig(os.path.join(sim_dir, f'{sim_label}-EAP_kernel-{type_probes}_probes.pdf'), dpi=300)
 

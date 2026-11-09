@@ -93,7 +93,7 @@ def run_sim(config_name, *batch_params):
     # config.copy_synapses(model_dir)
 
     ### Get output directories ###
-    output_dir, sim_dir = utils.config.create_output_dirs(params.sim_name, params.sim_label, model_dir)
+    output_dir, sim_dir = utils.config.create_output_dirs(params.sim_name, params.sim_label, model_name)
 
     ### Wrtie README containing simulation description
     utils.config.write_config(params,sim_dir,params.sim_label,config_name)
@@ -362,6 +362,7 @@ def run_sim(config_name, *batch_params):
             cfg.recordLFP = rec_electrode
             cfg.analysis['plotLFP'] = {'plots': ['locations'], 'electrodes': ['all'], 'saveFig': True, 'showFig': False}
         else:
+            r_thetas = None
             probe_L = 300
             channels = 1
             elec_dist = probe_L//params.depths  # microns
@@ -374,6 +375,7 @@ def run_sim(config_name, *batch_params):
                 elec_pos.extend(apic_pos)  # 
             # -x is left and -y is above soma
             elec_pos.reverse()
+            rec_electrode = elec_pos
             cfg.recordLFP = elec_pos
 
         
@@ -429,7 +431,7 @@ def run_sim(config_name, *batch_params):
             utils.plotting.plot_isolated_traces(simData, soma_name, syn_secs, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir, synColors)
             utils.plotting.plot_isolated_soma_pot(simData, soma_name, params.syns_type, params.num_syns_E, params.sim_label, sim_dir, output_dir)
         else:
-            if not params.detect_limit:
+            if params.detect_limit:
                 utils.plotting.plot_eap_kernel('closest', sim_dir, params.sim_label)
                 utils.plotting.plot_eap_kernel('farthest', sim_dir, params.sim_label)
             
