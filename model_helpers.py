@@ -7,6 +7,7 @@ import pickle
 import pyneuroml as pynml
 import neuroml as nml
 import neuroml.writers as writers
+import pandas as pd
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -18,7 +19,6 @@ from urllib.request import urlopen
 from scipy import stats
 from scipy.signal import butter, lfilter
 from neuron import h
-
 from neuromllite import Network, Cell, Population, InputSource, Input, NetworkGenerator
 
 cwd = os.getcwd()
@@ -203,22 +203,22 @@ def create_sim_description(output_dir, **params):
 
 
 ### Model analysis ###
-def get_compartments(hoc_fname, cell, cell_name, group_name='all'):
+def get_compartments(hoc_fname, cell, cell_name, soma_name, group_name='all'):
 
     secs = np.array(list(cell['secs'].keys()))
     basal_group = list(secs[np.where(np.char.find(secs,'dend')>=0)])
     apic_group = list(secs[np.where(np.char.find(secs,'apic')>=0)])
     all_group = list(secs)
-    soma = ['soma_0']
+    soma = [soma_name]
 
     if group_name == 'basal':
         return basal_group
     elif group_name == 'apical':
         return apic_group
     elif group_name == 'apical_distal':
-        return get_secs_from_dist(hoc_fname, cell_name, 0.5, 1, secs_lim='apic')
+        return get_secs_from_dist(hoc_fname, cell_name, soma_name, 0.5, 1, secs_lim='apic')
     elif group_name == 'apical_proximal':
-        return get_secs_from_dist(hoc_fname, cell_name, 0, 0.5, secs_lim='apic')
+        return get_secs_from_dist(hoc_fname, cell_name, soma_name, 0, 0.5, secs_lim='apic')
     elif group_name == 'basal_apical':
         return basal_group + apic_group
     elif group_name == 'basal_soma':
@@ -244,9 +244,10 @@ def get_hoc_cell(filename, cell_name):
     return cell
 
 
-def get_total_soma_distance(cell):
+def get_total_soma_distance(cell, soma_name):
     
-    soma = cell.soma_0
+    # soma = cell.soma_0
+    soma = getattr(cell, soma_name)
 
     dist_from_soma = 0
     furthest_sec = ''
@@ -283,11 +284,12 @@ def toggle_channels(cell_params, sec_names, toggles):  #, ion_name, toggle):
     return cell_params
 
 
-def get_secs_from_dist(filename, cell_name, lb, ub=1, secs_lim='all'):
+def get_secs_from_dist(filename, cell_name, soma_name, lb, ub=1, secs_lim='all'):
     cell = get_hoc_cell(filename, cell_name)
-    soma = cell.soma_0
+    # soma = cell.soma_0
+    soma = getattr(cell, soma_name)
 
-    total_distance, _ = get_total_soma_distance(cell)
+    total_distance, _ = get_total_soma_distance(cell, soma_name)
     dist_lb = lb*total_distance
     dist_ub = ub*total_distance
 
@@ -327,6 +329,93 @@ def get_rand_sec(sec_list, seed=74):
     np.random.seed(seed)
 
     return sec_list[np.random.randint(len(sec_list))]
+
+
+# TODO: implement for OB mitral, tufted, and granule cell models
+def update_cell_params(cell_params, cell_name, params_path):
+
+    params = pd.read_pickle(params_path)
+
+    model_params = params[params['cell'] == cell_name]
+
+    for col in model_params:
+        if 'cell' in col:
+            continue
+        
+        param = col
+        value = model_params[col].values[0][0]
+        secs = model_params[col].values[0][1]
+
+        temp = 5
+
+        # for sec_name, sec_params in cell_params['secs'].items():
+        #     sec_type = sec_name.split('_')[0]
+
+        #     if sec_type in secs:
+                
+    return cell_params
+
+
+def get_morphophetrics(nmldb_id):
+
+    nmldb_url = f'http://neuroml-db.org/api/morphometrics?id={nmldb_id}'
+
+    nmldb_response = requests.get(nmldb_url, verify=False)
+
+    return nmldb_response.json()
+    
+
+
+def define_electrode_geom(num_probes, total_channels, sim_label, sim_dir):
+
+    # fixed normal distribution
+    r_pos = np.random.normal(loc=20, scale=5, size=num_probes)
+    
+    min_radius = 10
+    r_pos = [r if r > min_radius else min_radius for r in r_pos]
+
+    channel_lb = total_channels // 2 if total_channels > 1 else total_channels
+    channel_ub = total_channels // 2 if total_channels > 1 else total_channels
+    grid_spacing = 10
+
+    # sample angle from uniform distribution
+    theta_pos = np.random.uniform(-np.pi, np.pi, size=num_probes)
+
+    all_xs = np.multiply(r_pos, np.cos(theta_pos))
+    all_zs = np.multiply(r_pos, np.sin(theta_pos))
+
+    all_ys = np.random.uniform(low=-0.5*grid_spacing,
+                               high=0.5*grid_spacing,
+                               size=num_probes)
+    
+    rec_probes = []
+    probe_list = []
+
+    lb = int(channel_lb*grid_spacing)
+    ub = int(channel_ub*grid_spacing)
+
+    for y_center, x_center, z_center in zip(all_ys, all_xs, all_zs):
+
+        y_lower = np.arange(y_center - lb, y_center, grid_spacing)
+        y_upper = np.arange(y_center, y_center+ub, grid_spacing)
+
+        y_channels = list(y_lower) + list(y_upper)
+
+        probe = [[x_center, yi, z_center] for yi in y_channels]
+        probe_list.append(probe)
+        
+        rec_probes += probe
+    
+    rec_electrode = rec_probes
+
+    # save probe arrangement
+    file_name = f'{sim_label}-recording_probe_locs.pkl'
+    file_path = os.path.join(sim_dir, file_name)
+    
+    with open(file_path, 'wb') as fp:
+        pickle.dump(probe_list, fp, protocol=3)
+
+    return rec_electrode
 
 
 ### Signal processing ###
@@ -389,11 +478,83 @@ def get_syn_sec_colors(cell, use_colormaps, colormaps, synColors):
     return secSynColors
 
 
+### Data Formatting ###
+def reformat_data(simData, rec_electrode, soma_name, delay, nmldb_id, sim_label, sim_dir):
+
+    columns = ['Model_ID','t','vm','ve','x_bar','y_bar','z_bar',
+                   'num_spikes','did_spike','first_spkt']
+    waveforms_df = pd.DataFrame(columns=columns)
+
+    try:
+        did_spike = True
+        num_spikes = len(np.array(simData['spkt']))
+        spkt = np.array(simData['spkt'])[0]
+    except IndexError:
+        did_spike = False
+        num_spikes = 0
+        spkt = np.nan
+
+    t = np.array(simData['t'])
+    Vm = np.array(simData[f'V_{soma_name}']['cell_0'])
+    Ve = np.array(simData['LFP'])
+
+    temp_Ve = Ve.T
+
+    max_t = 1040
+
+    num_channels, _ = np.shape(rec_electrode)
+
+    for chan_i in range(num_channels):
+
+        x_bar = rec_electrode[chan_i][0]
+        y_bar = rec_electrode[chan_i][1]
+        z_bar = rec_electrode[chan_i][2]
+
+        ve_i = temp_Ve[chan_i]
+        
+        this_interval = (t >= delay) & (t <= max_t)
+
+        try:
+            reduced_ve_i = ve_i[this_interval]
+        except IndexError:
+            this_interval = this_interval[:-1]
+            reduced_ve_i = ve_i[this_interval]
+
+        try:
+            reduced_t = t[this_interval]
+            reduced_Vm = Vm[this_interval]
+        except IndexError:
+            this_interval = (t >= delay) & (t <= max_t)
+            reduced_t = t[this_interval]
+            reduced_Vm = Vm[this_interval]
+
+        df = pd.DataFrame(columns=columns)
+
+        df['Model_ID'] = [nmldb_id]
+        df['t'] = [reduced_t]
+        df['vm'] = [reduced_Vm]
+        df['ve'] = [reduced_ve_i]
+        df['x_bar'] = [x_bar]
+        df['y_bar'] = [y_bar]
+        df['z_bar'] = [z_bar]
+        df['first_spkt'] = [spkt]
+        df['did_spike'] = [did_spike]
+        df['num_spikes'] = [num_spikes]
+
+        join_frames = [waveforms_df, df]
+        waveforms_df = pd.concat(join_frames, ignore_index=True)
+
+    file_name = f'{sim_label}-simulated_eaps.pkl'
+    file_path = os.path.join(sim_dir, file_name)
+
+    waveforms_df.to_pickle(file_path, protocol=3)
+
+
 ### Plotting ###
 def save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_dir):
 
     file_name = 'eap_time_windows.pkl'
-    file_path = os.path.join(output_dir,file_name)
+    file_path = os.path.join(output_dir,'time_windows', file_name)
 
     if os.path.exists(file_path):
         with open(file_path,'rb') as fp:
@@ -409,20 +570,38 @@ def save_eap_time(syns_type, num_syns, slice_start, slice_end, t_spike, output_d
     with open(file_path,'wb') as fp:
         pickle.dump(time_windows,fp)
 
-def save_firing_rate(simData, sim_dur, syns_type, num_syns, output_dir):
+def save_firing_rate(simData, soma_name, sim_dur, syns_type, num_syns, output_dir):
     
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     t = np.array(simData['t'])
+    # t_adapt = t[np.where(t > stim_delay*3)]
     t_spikes = t[np.where(V_soma>0)]
+
+    spkt = np.array(simData['spkt'])
+    spkid = np.array(simData['spkid'])
+
+    # TODO: adapting threshold
+    adapt_delay = 200
     
     if len(t_spikes) > 0:
-        t_spikes = t_spikes[np.where(t_spikes > 100)]   # don't include spikes from first 100ms so cell can adapt
-        firing_rate = len(t_spikes) / ((sim_dur - 100) / 1000)
+        # t_spikes = t_spikes[np.where(t_spikes > stim_delay*4)]   # only include spikes after initial burst and once cell has adapted
+        # firing_rate = len(t_spikes) / ((stim_dur - stim_delay*4) / 1000)  # calculate firing rate based on excluding time for adaptation and scale to Hz (spikes/s)
+        # isis = [t[i+1] - t[i] for i in range(len(t_spikes))]
+        # f_isi = 1/isis[0]
+        # f_ss = 1/np.mean(isis[-3:])
+
+        spike_times = spkt[np.where(spkid == 0)]
+        spike_times = spike_times[np.where(spike_times > adapt_delay)]
+        num_spikes = len(spike_times)
+        num_isi = num_spikes - 1
+        # if num_isi > 0:
+        #     msf = num_isi / (spike_times[-1] - spike_times[0]) * 1000
+        firing_rate = num_spikes / ((sim_dur - adapt_delay) / 1000)
     else:
         firing_rate = 0
     
     file_name = 'firing_rates.pkl'
-    file_path = os.path.join(output_dir, file_name)
+    file_path = os.path.join(output_dir, 'firing_rates', file_name)
     
     if os.path.exists(file_path):
         with open(file_path,'rb') as fp:
@@ -460,17 +639,18 @@ def plot_pre_spike_trains(cells, conns, sim_label, sim_dir):
         
     axs.set_yticks(range(len(spike_trains.keys())))
     axs.set_yticklabels(spike_trains.keys())
-    axs.set_xlim([0,1500])
+    # axs.set_xlim([0,1500])
+    axs.set_title('Presynaptic Spike Trains')
 
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-presyn_spike_trains.png'),bbox_inches='tight',dpi=300)
 
     return spike_trains
 
 
-def plot_soma(simData, sim_label, sim_dir):
+def plot_soma(simData, soma_name, sim_label, sim_dir):
 
     t = np.array(simData['t'])
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
 
     ### PLOT SOMA MEMBRANE POTENTIAL ###
     fig, axs = plt.subplots(figsize=(8,5))
@@ -478,31 +658,33 @@ def plot_soma(simData, sim_label, sim_dir):
     axs.set_title(f'Soma Membrane Potential')
     axs.set_ylabel('Voltage (mV)')
     axs.set_xlabel('Time (ms)')
+    # axs.vlines(200,-80,20,color='k')
 
     fig.tight_layout()
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-soma_pot.png'),bbox_inches='tight',dpi=300)
 
     ### PLOT SOMA AND APICAL DISTAL COMPARTMENT MEMBRANE POTENTIALS FOR BACKPROPAGATION ###
-    fig, axs = plt.subplots(figsize=(8,5))
-    axs.plot(t, V_soma, label='soma')
-    axs.plot(t, np.array(simData['V_apic_32']['cell_0']), label='apic_32')
-    axs.legend(loc='upper right')
-    axs.set_title(f'Membrane Potentials')
-    axs.set_ylabel('Voltage (mV)')
-    axs.set_xlabel('Time (ms)')
+    if 'V_apic_32' in simData.keys():
+        fig, axs = plt.subplots(figsize=(8,5))
+        axs.plot(t, V_soma, label='soma')
+        axs.plot(t, np.array(simData['V_apic_32']['cell_0']), label='apic_32')
+        axs.legend(loc='upper right')
+        axs.set_title(f'Membrane Potentials')
+        axs.set_ylabel('Voltage (mV)')
+        axs.set_xlabel('Time (ms)')
 
-    fig.tight_layout()
-    fig.savefig(os.path.join(sim_dir,f'{sim_label}-backpropagation.png'),bbox_inches='tight',dpi=300)
+        fig.tight_layout()
+        fig.savefig(os.path.join(sim_dir,f'{sim_label}-backpropagation.png'),bbox_inches='tight',dpi=300)
 
 
-def plot_secs(simData, spike_trains, sim_label, sim_dir, sec_syn_colors):
+def plot_secs(simData, soma_name, spike_trains, sim_label, sim_dir, sec_syn_colors):
 
     sec_traces = list(simData.keys())
     [sec_traces.remove(key) for key in ['spkt', 'spkid', 't', 'V_soma', 'avgRate', '__dict__'] if key in sec_traces]
     num_secs = len(sec_traces)//3
 
     t = np.array(simData['t'])
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     avg_V_soma = np.average(V_soma)
     t_spikes = t[np.where(V_soma>-10)]
     
@@ -527,9 +709,9 @@ def plot_secs(simData, spike_trains, sim_label, sim_dir, sec_syn_colors):
             sec_name = sec_traces[sec_i].split('V_')[1]
             
             spk_train_names = [key for key in spike_trains.keys() if sec_name in key]
-            for i, spk_train_name in enumerate(spk_train_names):
-                shift = 4*i  # gid%len(spk_train_names)
-                axs[idx_0].vlines(spike_trains[spk_train_name], (avg_V_soma/2-1)+shift, (avg_V_soma/2+2)+shift, color='royalblue', zorder=12)
+            # for i, spk_train_name in enumerate(spk_train_names):
+            #     shift = 4*i  # gid%len(spk_train_names)
+            #     axs[idx_0].vlines(spike_trains[spk_train_name], (avg_V_soma/2-1)+shift, (avg_V_soma/2+2)+shift, color='royalblue', zorder=12)
 
             axs[idx_0].plot(t, V_soma, label='soma', zorder=1)
             axs[idx_0].plot(t, list(simData[sec_traces[sec_i]]['cell_0']), label=f'{sec_name}', zorder=1)
@@ -545,19 +727,19 @@ def plot_secs(simData, spike_trains, sim_label, sim_dir, sec_syn_colors):
                 axs[idx_1].plot(t, I_ampa, label='AMPA', zorder=1, color='firebrick')
                 if max(I_ampa) > 0:
                     axs[idx_1].vlines(t_spikes, [(max(I_ampa)/2)-0.00005], [(max(I_ampa)/2)+0.00005], 'k', zorder=12)
-                    for i, spk_train_name in enumerate(spk_train_names):
-                        shift = (4*i+1)*0.0001  # gid%len(spk_train_names)
-                        axs[idx_1].vlines(spike_trains[spk_train_name], [((max(I_ampa)/4)-0.00005)+shift], [((max(I_ampa)/4)+0.00005)+shift], color='royalblue', zorder=13)
+                    # for i, spk_train_name in enumerate(spk_train_names):
+                    #     shift = (4*i+1)*0.0001  # gid%len(spk_train_names)
+                    #     axs[idx_1].vlines(spike_trains[spk_train_name], [((max(I_ampa)/4)-0.00005)+shift], [((max(I_ampa)/4)+0.00005)+shift], color='royalblue', zorder=13)
 
                     plot_spike_times = True
             if len(I_nmda) > 100:
-                axs[idx_1].plot(t, I_nmda, label='NMDA', zorder=2, color=sec_syn_colors[sec_name]['E'], path_effects=[path_effects.SimpleLineShadow(offset=(0.5,-0.5)),path_effects.Normal()])  # 'salmon'
+                axs[idx_1].plot(t, I_nmda, label='NMDA', zorder=2, color='salmon', path_effects=[path_effects.SimpleLineShadow(offset=(0.5,-0.5)),path_effects.Normal()])  # 'salmon'
                 
                 if not plot_spike_times:
                     axs[idx_1].vlines(t_spikes, [(max(I_nmda)/2)-0.00005], [(max(I_nmda)/2)+0.00005], 'k', zorder=12)
-                    for i, spk_train_name in enumerate(spk_train_names):
-                        shift = (4*i+1)*0.0001  # gid%len(spk_train_names)
-                        axs[idx_1].vlines(spike_trains[spk_train_name], [((max(I_nmda)/2)-0.00005)+shift], [((max(I_nmda)/2)+0.00005)+shift], color='royalblue', zorder=13)
+                    # for i, spk_train_name in enumerate(spk_train_names):
+                    #     shift = (4*i+1)*0.0001  # gid%len(spk_train_names)
+                    #     axs[idx_1].vlines(spike_trains[spk_train_name], [((max(I_nmda)/2)-0.00005)+shift], [((max(I_nmda)/2)+0.00005)+shift], color='royalblue', zorder=13)
 
                 axs[idx_1].legend(loc='upper right')
                 
@@ -593,7 +775,7 @@ def plot_secs(simData, spike_trains, sim_label, sim_dir, sec_syn_colors):
                 shift = 4*i  # gid%len(spk_train_names)
                 axL.vlines(spike_trains[spk_train_name], (avg_V_soma/2-1)+shift, (avg_V_soma/2+2)+shift, color='royalblue', zorder=12)
 
-            axL.plot(t, simData[f'V_soma']['cell_0'], label='soma')
+            axL.plot(t, simData[f'V_{soma_name}']['cell_0'], label='soma')
             axL.plot(t, simData[f'V_{sec_name}']['cell_0'], label=f'{sec_name}')
             axL.set_title(f'{sec_name} Membrane Potential')
             axL.set_ylabel('Voltage (mV)')
@@ -657,14 +839,14 @@ def plot_syns_traces(simData, syn_secs, sim_label, sim_dir, syn_colors):
     fig.savefig(os.path.join(sim_dir,f'{sim_label}-syns_pot.png'),bbox_inches='tight',dpi=300)
 
 
-def plot_isolated_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
+def plot_isolated_syn_traces(simData, soma_name, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
 
     t = np.array(simData['t'])
-    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    time_window_path = os.path.join(output_dir,'time_windows', 'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
 
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     t_spikes = t[np.where(V_soma>10)]
 
     if len(t_spikes) > 0:
@@ -702,7 +884,7 @@ def plot_isolated_syn_traces(simData, syn_secs, syns_type, num_syns, sim_label, 
 
 def get_isolated_time_window(syns_type, num_syns, output_dir):
 
-    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    time_window_path = os.path.join(output_dir,'time_windows', 'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
 
@@ -724,14 +906,14 @@ def get_isolated_time_window(syns_type, num_syns, output_dir):
     return plot_flag, slice_start, slice_end, t_spike
 
 
-def plot_isolated_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
+def plot_isolated_soma_pot(simData, soma_name, syns_type, num_syns, sim_label, sim_dir, output_dir):
 
     t = np.array(simData['t'])
-    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    time_window_path = os.path.join(output_dir, 'time_windows', 'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
 
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     # t_spikes = t[np.where(V_soma>10)]
 
     plot_flag, slice_start, slice_end, t_spike = get_isolated_time_window(syns_type, num_syns, output_dir)
@@ -766,14 +948,14 @@ def plot_isolated_soma_pot(simData, syns_type, num_syns, sim_label, sim_dir, out
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_soma_pot.png'),bbox_inches='tight',dpi=300)
 
 
-def plot_isolated_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
+def plot_isolated_traces(simData, soma_name, syn_secs, syns_type, num_syns, sim_label, sim_dir, output_dir, syn_colors):
 
     t = np.array(simData['t'])
-    time_window_path = os.path.join(output_dir,'eap_time_windows.pkl')
+    time_window_path = os.path.join(output_dir, 'time_windows', 'eap_time_windows.pkl')
     with open(time_window_path,'rb') as fp:
         time_windows = pickle.load(fp)
 
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     # t_spikes = t[np.where(V_soma>10)]
 
     # slice_groups = [syns_type, 'soma']
@@ -822,11 +1004,11 @@ def plot_isolated_traces(simData, syn_secs, syns_type, num_syns, sim_label, sim_
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_traces.png'),bbox_inches='tight',dpi=300)
 
 
-def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_dir):
+def plot_isolated_LFP(simData, soma_name, syns_type, num_syns, sim_label, sim_dir, output_dir):
     t = np.array(simData['t'])
     dt = t[1] - t[0]
 
-    V_soma = np.array(simData['V_soma']['cell_0'])
+    V_soma = np.array(simData[f'V_{soma_name}']['cell_0'])
     t_spikes = t[np.where(V_soma>10)]
     # t_bound = 600 if len(np.where(t_spikes>600)[0])>0 else 500
     
@@ -890,3 +1072,4 @@ def plot_isolated_LFP(simData, syns_type, num_syns, sim_label, sim_dir, output_d
 
         fig.savefig(os.path.join(sim_dir,f'{sim_label}-isolated_LFP.png'),bbox_inches='tight',dpi=300)
 
+    

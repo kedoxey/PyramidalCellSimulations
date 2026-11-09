@@ -1,0 +1,113 @@
+
+./AmpaNmdaSyn.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/AmpaNmdaSyn.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) AmpaNmdaSyn.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./AmpaNmdaSyn.o: ./AmpaNmdaSyn.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./CaPool.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/CaPool.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) CaPool.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./CaPool.o: ./CaPool.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./CaT.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/CaT.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) CaT.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./CaT.o: ./CaT.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./GabaSyn.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/GabaSyn.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) GabaSyn.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./GabaSyn.o: ./GabaSyn.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./gapjunction.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/gapjunction.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) gapjunction.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./gapjunction.o: ./gapjunction.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./Ih.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/Ih.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Ih.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./Ih.o: ./Ih.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./KA.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/KA.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) KA.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./KA.o: ./KA.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./KCa.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/KCa.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) KCa.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./KCa.o: ./KCa.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./Kd.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/Kd.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Kd.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./Kd.o: ./Kd.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./KM.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/KM.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) KM.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./KM.o: ./KM.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./Kslow.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/Kslow.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Kslow.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./Kslow.o: ./Kslow.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./LCa.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/LCa.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) LCa.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./LCa.o: ./LCa.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./Na.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/Na.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) Na.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./Na.o: ./Na.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+
+./VecStim.c: /home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms/VecStim.mod
+	@printf " -> $(C_GREEN)NMODL$(C_RESET) $<\n"
+	(cd "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms"; MODLUNIT=$(NRNUNITS) $(NOCMODL) VecStim.mod -o "/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Cells/x86_64")
+
+./VecStim.o: ./VecStim.c
+	@printf " -> $(C_GREEN)Compiling$(C_RESET) $<\n"
+	$(COMPILE) -I"/home/kedoxey/CRCNS/PyramidalCellSimulations/models/local/Birgiolas2020/Mechanisms" $(INCLUDES) -fPIC -c $< -o $@
+

@@ -10,6 +10,10 @@ seed: 74                # random sead
 record_LFP: False       # record LFP
 depths: 4               # number of electrodes around soma
 apical_depths: 0        # number of electrodes in apical distal dendrites  
+use_probes: True        # use linear probes
+num_probes: 1           # number of linear probes
+total_channels: 64      # number of channels per linear probe
+detect_limit: False     # find detectability limit for linear probe (EAP >20 uV)
 
 # Poisson spike trains
 num_poisson: 1          # number of Poisson instances
@@ -17,10 +21,17 @@ spk_freq: 40            # Poisson spike frequency
 
 nmldb_id: 'NMLCL000073' # NeuroML database cell id
 publication: 'Hay2011'  # Main author and publication year of corresponding article
+local: False            # if True use a local copy of a cell model, else download the model from the NeuroML database
+model_name: ''          # if local is True, name of the model directory in models/local/
+hocs_dname: ''          # if local is True, name of directory containing hoc file(s)
+mod_dname: ''           # if local is True, name of directory containing mod files
+cell_type: 'PYR'        # tag for cell type
+cell_model: ''          # tag for AuthorYear of corresponding publication
+cell_name: ''           # if local is True, name of cell, i.e. name of hoc file
  
 syns_lb: 0              # lower bound of distance from soma for synapse location - 0 if not distibuted by distance from soma
 syns_ub: 1              # upper bound 
-syns_type: 'soma'     # synaptic input locations -  soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
+syns_type: 'soma'       # synaptic input locations -  soma, basal, apical, basal_apical, basal_soma, apical_soma, basal_apical_soma, all
 syns_source: 'HS'       # use synapses from Hay & Segev 2015 model
 syns_weight: 1          # synaptic weight
 num_syns_E: 50          # number of excitatory synapses
@@ -33,10 +44,11 @@ add_bkg: False          # add background input
 
 vinit: -80              # initial cell membrane potential
 dt: 0.01                # dt for simulation
-recordStep: 0.1         # recording time step
+recordStep: 0.01         # recording time step
 
 ### Input parameters ###
-input_amp: 0            # amplitude of injected current to soma
+input_sec: 'soma_0'     # compartment to inject current in to
+input_amp: 0            # amplitude of injected current to input_sec
 stim_delay: 350         # stimulus (synaptic or current) delay
 stim_dur: 1000          # stimulus (synaptic or current) duration
 sim_dur: 1500           # simulation duration
